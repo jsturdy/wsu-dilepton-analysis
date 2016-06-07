@@ -41,6 +41,20 @@ process.singleMuFilter.filterEvent = cms.bool(False)
 
 from WSUDiLeptons.MuonAnalyzer.wsuMuonTree_cfi import *
 
+process.analysisMuons = muonTree.clone(
+    muonSrc         = cms.InputTag("muons"),
+    upperLegSrc     = cms.InputTag("upperMuons"),
+    lowerLegSrc     = cms.InputTag("lowerMuons"),
+    globalTrackSrc  = cms.InputTag("globalMuonTracks"),
+    cosmicTrackSrc  = cms.InputTag("cosmicMuonTracks"),
+    trackerTrackSrc = cms.InputTag("trackerMuonTracks"),
+    algoType        = cms.int32(5),
+    debug           = cms.int32(2),
+    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    hltTrigCut      = cms.string('L1SingleMuOpen'),
+    fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
+)
+
 process.analysisSPMuons = muonTree.clone(
     muonSrc         = cms.InputTag("zprimeMuons"),
     upperLegSrc     = cms.InputTag("zprimeUpperMuons"),
@@ -72,6 +86,7 @@ process.muonanalysis = cms.Path(
     +process.globalSPMuonTracks
     +process.trackerSPMuonTracks
     #+process.muonSPFilter
+    +process.analysisMuons
     +process.analysisSPMuons
     )
 
