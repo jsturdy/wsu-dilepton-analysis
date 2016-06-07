@@ -9,8 +9,6 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## default = ?
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_50nsGRun', '') ## L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', 'FULL') ## L1Menu_Collisions2015_25nsStage1_v5
 
 l1path = 'L1_SingleMuOpen'
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
@@ -42,6 +40,21 @@ from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
 
 from WSUDiLeptons.MuonAnalyzer.wsuMuonTree_cfi import *
+
+process.analysisMuons = muonTree.clone(
+    muonSrc         = cms.InputTag("muons"),
+    upperLegSrc     = cms.InputTag("upperMuons"),
+    lowerLegSrc     = cms.InputTag("lowerMuons"),
+    globalTrackSrc  = cms.InputTag("globalMuonTracks"),
+    cosmicTrackSrc  = cms.InputTag("cosmicMuonTracks"),
+    trackerTrackSrc = cms.InputTag("trackerMuonTracks"),
+    algoType        = cms.int32(5),
+    debug           = cms.int32(2),
+    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    hltTrigCut      = cms.string('L1SingleMuOpen'),
+    fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
+    isGen           = cms.bool(True)
+)
 
 process.analysisSPMuons = muonTree.clone(
     muonSrc         = cms.InputTag("zprimeMuons"),
@@ -77,6 +90,7 @@ process.muonanalysis = cms.Path(
     +process.globalSPMuonTracks
     +process.trackerSPMuonTracks
     #+process.muonSPFilter
+    +process.analysisMuons
     +process.analysisSPMuons
     )
 

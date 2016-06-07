@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
-basic_cut  = "pt > 40. && isTrackerMuon"
+basic_cut  = "pt > 30."
+#basic_cut  = "pt > 40. && isTrackerMuon"
 # restrict collections to muons near the pixel
 dxy_cut = "(abs(tunePMuonBestTrack.dxy) < 50.)"
 dz_cut  = " && (abs(tunePMuonBestTrack.dz)  < 75.)"
