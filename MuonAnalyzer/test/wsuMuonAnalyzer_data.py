@@ -12,9 +12,12 @@ from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #datafiles
-        '/store/data/Commissioning2015/Cosmics/RAW-RECO/CosmicSP-20Jan2016-v1/80000/A667FE36-94D2-E511-B204-0025905938A8.root',
-         '/store/data/Commissioning2015/Cosmics/RAW-RECO/CosmicSP-20Jan2016-v1/10000/CE61D454-F9D9-E511-B742-00266CFADE34.root'
+        #comm16v1
+        #comm16v2
+        cosmics16av1
+        #cosmics16av2
+        #cosmics16bv1
+        #cosmics16bv2
     )
 )
 process.source.inputCommands = cms.untracked.vstring(
@@ -23,14 +26,14 @@ process.source.inputCommands = cms.untracked.vstring(
 )
 
 process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuFakeL1SingleMuFilter_cfi")
 process.singleMuFilter.filterEvent = cms.bool(False)
 
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
-process.COSMICoutput.fileName = cms.untracked.string('Cosmics_CRAFT15_CosmicSP_76X_generic.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicAnalysis_data_CosmicSP_80X.root')
 
 from WSUDiLeptons.MuonAnalyzer.wsuMuonAnalyzer_cfi import muonAnalysis
 
@@ -101,7 +104,7 @@ process.analysisTunePMuons = muonAnalysis.clone(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonAnalysis_2015_76X_reRECO.root')
+    fileName = cms.string('CosmicMuonAnalysis_data_80X.root')
 )
 
 process.muonanalysis = cms.Path(
