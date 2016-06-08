@@ -11,9 +11,8 @@ from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-
-        mcfilespt100startup
-        #mcfilespt100asym
+        #mcfilespt100startup
+        mcfilespt100asym
         #dyfiles
         )
 
@@ -22,7 +21,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
-process.COSMICoutput.fileName = cms.untracked.string('Cosmics_deco_p100_CosmicSP_generic.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicAnalyzer_MC_CosmicSP_80X.root')
 
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuFakeL1SingleMuFilter_cfi")
@@ -107,7 +106,7 @@ process.analysisTunePMuons = muonAnalysis.clone(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonAnalysis_2015_deco_p100_new_outer.root')
+    fileName = cms.string('CosmicMuonAnalysis_MC_80X.root')
 )
 
 process.muonanalysis = cms.Path(
