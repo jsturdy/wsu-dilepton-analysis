@@ -55,7 +55,7 @@ void MuonPtScaling::analyze(const edm::Event& ev, const edm::EventSetup& es)
   int lumi  = ev.luminosityBlock();
   
   if ( muonColl->size() > 0) {
-    if (debug_ > -1 && muonColl->size() > 1) {
+    if (debug_ && muonColl->size() > 1) {
       std::cout << "run/lumi/event " << run  << "/" << lumi << "/" << event << std::endl;
       std::cout << " muons: " << std::endl;
       for (auto muon = muonColl->begin(); muon != muonColl->end(); ++muon)
