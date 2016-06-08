@@ -250,12 +250,19 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   // skip processing empty collection
   if ( muonColl->size() > 0 || globalTrackColl->size() > 0 || cosmicTrackColl->size() > 0 || trackerTrackColl->size() > 0)
     if (debug_ > -1) {
-      std::cout << "run/lumi/event " << run  << "/" << lumi << "/" << event << std::endl;
+      std::cout << "run/lumi/event "  << run  << "/" << lumi << "/" << event << std::endl;
+      std::cout << "nMuons "          << nMuons         << std::endl
+		<< "nUpperLegs "      << nUpperLegs     << std::endl
+		<< "nLowerLegs "      << nLowerLegs     << std::endl
+		<< "nGlobalTracks "   << nGlobalTracks  << std::endl
+		<< "nCosmicTracks "   << nCosmicTracks  << std::endl
+		<< "nTrackerTracks "  << nTrackerTracks << std::endl
+		<< "nSimTracks "      << nSimTracks     << std::endl
+		<< "nL1Muons "        << nL1Muons       << std::endl;
     }
 
-  // reco::Muon information
+  //// reco::Muon information ////
   if ( muonColl->size() > 0) {
-    //return;
     if (debug_ > -1) {
       std::cout << std::endl
   		<< "found "     << nMuons     << " muons "      << std::endl
@@ -266,7 +273,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       for (auto muon = muonColl->begin(); muon != muonColl->end(); ++muon) {
 	std::cout << (muon->outerTrack().isNonnull() ? (muon->outerTrack()->outerPosition().Y() > 0 ? "found outer upper leg" : "found outer lower leg") :
 		      (fabs(muon->innerTrack()->innerPosition().Y()) > fabs(muon->innerTrack()->outerPosition().Y()) ? " found inner upper leg" :
-		       "found inner lower leg"))  << std::endl;
+		       "found inner lower leg"))
+		  << std::endl;
 	std::cout << (muon->outerTrack().isNonnull() ? muon->outerTrack()->outerPosition().Y() > 0 :
 		      (fabs(muon->innerTrack()->innerPosition().Y()) > fabs(muon->innerTrack()->outerPosition().Y()))) << "u/"
 		  << (muon->outerTrack().isNonnull() ? muon->outerTrack()->outerPosition().Y() < 0 :
@@ -276,7 +284,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << " (" << muon->isTrackerMuon()    << "(" << muon->innerTrack().isNonnull()  << ")t"
 		  << "/"  << muon->isGlobalMuon()     << "(" << muon->globalTrack().isNonnull() << ")g"
 		  << "/"  << muon->isStandAloneMuon() << "(" << muon->outerTrack().isNonnull()  << ")sa"
-		  << ") " << std::endl
+		  << ") "
+		  << std::endl
 		  << "pt:" << muon->pt() << "/eta:" << muon->eta() << "/phi:" << muon->phi() << std::endl
 		  << " y:"
 		  << std::setw(8) << muon->tunePMuonBestTrack()->innerPosition().Y()
@@ -284,21 +293,26 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << std::setw(8) << muon->tunePMuonBestTrack()->outerPosition().Y()
 		  << std::endl
 		  << " outer position:("  << muon->tunePMuonBestTrack()->outerPosition().Y()
-		  << "tp/"          << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->outerPosition().Y()  : 0.)
-		  << "t/"           << (muon->globalTrack().isNonnull() ? muon->globalTrack()->outerPosition().Y() : 0.)
-		  << "g/"           << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->outerPosition().Y()  : 0.)
-		  << "sa)" << std::endl
+		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->outerPosition().Y()  : 0.)
+		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->outerPosition().Y() : 0.)
+		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->outerPosition().Y()  : 0.)
+		  << "sa)"
+		  << std::endl
 		  << " inner position:("  << muon->tunePMuonBestTrack()->innerPosition().Y()
-		  << "tp/"          << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->innerPosition().Y()  : 0.)
-		  << "t/"           << (muon->globalTrack().isNonnull() ? muon->globalTrack()->innerPosition().Y() : 0.)
-		  << "g/"           << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->innerPosition().Y()  : 0.)
-		  << "sa)" << std::endl
-		  << " chi2:("  << muon->tunePMuonBestTrack()->chi2()
-		  << "tp/"      << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->chi2()  : -1.)
-		  << "t/"       << (muon->globalTrack().isNonnull() ? muon->globalTrack()->chi2() : -1.)
-		  << "g/"       << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->chi2()  : -1.)
-		  << "sa)" << std::endl
-		  << " pt:" << muon->tunePMuonBestTrack()->pt() << "/eta:" << muon->tunePMuonBestTrack()->eta() << "/phi:" << muon->tunePMuonBestTrack()->phi()
+		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->innerPosition().Y()  : 0.)
+		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->innerPosition().Y() : 0.)
+		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->innerPosition().Y()  : 0.)
+		  << "sa)"
+		  << std::endl
+		  << " chi2:("            << muon->tunePMuonBestTrack()->chi2()
+		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->chi2()  : -1.)
+		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->chi2() : -1.)
+		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->chi2()  : -1.)
+		  << "sa)"
+		  << std::endl
+		  << " pt:"  << muon->tunePMuonBestTrack()->pt()
+		  << "/eta:" << muon->tunePMuonBestTrack()->eta()
+		  << "/phi:" << muon->tunePMuonBestTrack()->phi()
 		  << std::endl
 		  << " dxy:"   << std::setw(8) << muon->tunePMuonBestTrack()->dxy()
 		  << " dz:"    << std::setw(8) << muon->tunePMuonBestTrack()->dz()
@@ -348,7 +362,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       muon_pT[      muIdx] = mu->pt();
       muon_Eta[     muIdx] = mu->eta();
       muon_Phi[     muIdx] = mu->phi();
-      if (ref.isNonnull()) { // can't dereference if the desired track ref is null
+      if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	// selections are done on "best track" in high pT ID, so take the track under study
 	muon_chi2[    muIdx] = ref->chi2();
 	muon_ndof[    muIdx] = ref->ndof();
@@ -392,7 +406,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	muon_muonStaHits[muIdx] = mu->globalTrack()->hitPattern().muonStationsWithValidHits();
 	muon_nVHits[     muIdx] = mu->globalTrack()->hitPattern().numberOfValidHits();
 	muon_nVMuHits[   muIdx] = mu->globalTrack()->hitPattern().numberOfValidMuonHits();
-      } else {// otherwise take hit pattern from inner/outer track separately
+      } else {  // otherwise take hit pattern from inner/outer track separately
 	if (mu->innerTrack().isNonnull()) {
 	  muon_firstPixel[ muIdx] = (mu->innerTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
 				     mu->innerTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
@@ -412,7 +426,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       for (int tref = 0; tref < 5; ++tref) {
 	ref = GetTrackType(tref, &(*mu));
 	
-	if (ref.isNonnull()) { // can't dereference if the desired track ref is null
+	if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	  track_isLower[   2+tref+1][muIdx] = ref->outerPosition().Y() < 0;
 	  track_isUpper[   2+tref+1][muIdx] = ref->outerPosition().Y() > 0;
 	  track_isLowerOld[2+tref+1][muIdx] = fabs(ref->innerPosition().Y()) < fabs(ref->outerPosition().Y());
@@ -445,8 +459,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	}
       }
       ++muIdx;
-    } // end loop over muons
-  } // end check on muon collection size
+    }  // end loop over muons
+  }  // end check on muon collection size
   
   ////////////////// reco::Track information /////////////////////////
   if (debug_ > -1) {
@@ -595,8 +609,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	    track_matchedMuIdx[tk][tkIdx] = muIdx;
 	    //track_nMatSta[tk][tkIdx] = muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
 	    track_nMatSta[tk][tkIdx] = muon->numberOfMatchedStations();
-	  } // end check on y compatibility
-	} // end check on deta/dphi
+	  }  // end check on y compatibility
+	}  // end check on deta/dphi
 	++muIdx;
       }
     }
@@ -610,7 +624,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       nSimTracks = 0;
       int simIdx = 0;
       for (auto simtrack = simTrackColl->begin(); simtrack != simTrackColl->end(); ++simtrack) {
-	if (fabs(simtrack->type()) == 13) { // only consider simtracks from muons
+	if (fabs(simtrack->type()) == 13) {  // only consider simtracks from muons
 	  if (debug_ > 2)
 	    std::cout << std::setw(5) << *simtrack << std::endl; 
 	  
@@ -641,7 +655,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << std::endl;
 
       }
-      // if there happen to be more than 25 L1 muons, let's only keep the first 10
+      // if there happen to be more than 25 L1 muons, let's only keep the first 25
       if (l1muIdx > 24) {
 	nL1Muons = 25;
 	continue;
@@ -658,8 +672,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       l1muon_phi[l1muIdx]    = l1mu->phi();
       l1muon_charge[l1muIdx] = l1mu->charge();
       ++l1muIdx;
-    } // end loop over l1MuonColl
-  } // end check on l1MuonColl size
+    }  // end loop over l1MuonColl
+  }  // end check on l1MuonColl size
     
   l1SingleMu = 0;
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
@@ -679,6 +693,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   }
   
   fakeL1SingleMu = *fakeL1SingleMuH;
+  
+  if (debug_ > 1)
+    std::cout << "Filling the tree" << std::endl;
   muonTree->Fill();
 }
 
@@ -727,22 +744,24 @@ void MuonTree::beginJob()
   muonTree->Branch("lumi",  &lumi,  "lumi/I" );
 
   // variables per simTrack ([nSimTracks] indexed)
-  muonTree->Branch("simTrackpT",  simtrack_pt,  "simTrackpT[nSimTracks]/D" );
-  muonTree->Branch("simTrackEta", simtrack_eta, "simTrackEta[nSimTracks]/D");
-  muonTree->Branch("simTrackPhi", simtrack_phi, "simTrackPhi[nSimTracks]/D");
-  muonTree->Branch("simTrackCharge", simtrack_charge, "simTrackCharge[nSimTracks]/I");
-  muonTree->Branch("simTrackType",   simtrack_type,   "simTrackType[nSimTracks]/I");
-
+  if (isGen_) {
+    muonTree->Branch("simTrackpT",     simtrack_pt,     "simTrackpT[nSimTracks]/D" );
+    muonTree->Branch("simTrackEta",    simtrack_eta,    "simTrackEta[nSimTracks]/D");
+    muonTree->Branch("simTrackPhi",    simtrack_phi,    "simTrackPhi[nSimTracks]/D");
+    muonTree->Branch("simTrackCharge", simtrack_charge, "simTrackCharge[nSimTracks]/I");
+    muonTree->Branch("simTrackType",   simtrack_type,   "simTrackType[nSimTracks]/I");
+  }
+  
   // trigger information
-  muonTree->Branch("l1SingleMu",     &l1SingleMu,      "l1SingleMu/I");
+  muonTree->Branch("l1SingleMu",     &l1SingleMu,     "l1SingleMu/I");
   muonTree->Branch("fakeL1SingleMu", &fakeL1SingleMu, "fakeL1SingleMu/I");
   // variables per L1Muon ([nL1Muons] indexed)
-  muonTree->Branch("l1MuonpT",     l1muon_pt,     "l1MuonpT[nL1Muons]/D" );
-  muonTree->Branch("l1MuonEta",    l1muon_eta,    "l1MuonEta[nL1Muons]/D");
-  muonTree->Branch("l1MuonPhi",    l1muon_phi,    "l1MuonPhi[nL1Muons]/D");
-  muonTree->Branch("l1MuonCharge", l1muon_charge, "l1MuonCharge[nL1Muons]/I");
-  muonTree->Branch("l1MuonIsFwd",  l1muon_isFwd,  "l1MuonIsFwd[nL1Muons]/I" );
-  muonTree->Branch("l1MuonIsRPC",  l1muon_isRPC,  "l1MuonIsRPC[nL1Muons]/I" );
+  muonTree->Branch("l1MuonpT",       l1muon_pt,       "l1MuonpT[nL1Muons]/D" );
+  muonTree->Branch("l1MuonEta",      l1muon_eta,      "l1MuonEta[nL1Muons]/D");
+  muonTree->Branch("l1MuonPhi",      l1muon_phi,      "l1MuonPhi[nL1Muons]/D");
+  muonTree->Branch("l1MuonCharge",   l1muon_charge,   "l1MuonCharge[nL1Muons]/I");
+  muonTree->Branch("l1MuonIsFwd",    l1muon_isFwd,    "l1MuonIsFwd[nL1Muons]/I" );
+  muonTree->Branch("l1MuonIsRPC",    l1muon_isRPC,    "l1MuonIsRPC[nL1Muons]/I" );
   muonTree->Branch("l1MuonQuality",  l1muon_quality,  "l1MuonQuality[nL1Muons]/I" );
   muonTree->Branch("l1MuonDetector", l1muon_detector, "l1MuonDetector[nL1Muons]/I");
   muonTree->Branch("l1MuonBX",       l1muon_bx,       "l1MuonBX[nL1Muons]/I"      );
