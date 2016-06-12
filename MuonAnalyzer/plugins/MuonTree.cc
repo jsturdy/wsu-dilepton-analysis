@@ -6,7 +6,7 @@
 //
 // Package:    WSUDiLeptons/MuonAnalyzer
 // Class:      MuonTree
-// 
+//
 /**\class MuonTree MuonTree.cc WSUDiLeptons/MuonAnalyzer/plugins/MuonTree.cc
 
    Description: [one line class summary]
@@ -34,11 +34,10 @@ MuonTree::MuonTree(const edm::ParameterSet& pset)
   globalTrackSrc_  = pset.getParameter<edm::InputTag>("globalTrackSrc");
   cosmicTrackSrc_  = pset.getParameter<edm::InputTag>("cosmicTrackSrc");
   trackerTrackSrc_ = pset.getParameter<edm::InputTag>("trackerTrackSrc");
-  
+
   isGen_       = pset.getParameter<bool>("isGen");
-  if (isGen_) {
+  if (isGen_)
     simTrackSrc_ = pset.getParameter<edm::InputTag>("simTrackSrc");
-  }
 
   l1MuonSrc_           = pset.getParameter<edm::InputTag>("l1MuonSrc");
   trigResultsSrc_      = pset.getParameter<edm::InputTag>("trigResultsSrc");
@@ -62,9 +61,9 @@ MuonTree::MuonTree(const edm::ParameterSet& pset)
   cosmicTrackToken_  = consumes<reco::TrackCollection>(cosmicTrackSrc_);
   trackerTrackToken_ = consumes<reco::TrackCollection>(trackerTrackSrc_);
 
-  if (isGen_) {
+  if (isGen_)
     simTrackToken_ = consumes<edm::SimTrackContainer>(simTrackSrc_);
-  }
+
   l1MuonToken_         = consumes<std::vector<l1extra::L1MuonParticle> >(l1MuonSrc_);
   trigResultsToken_    = consumes<edm::TriggerResults>(trigResultsSrc_);
   fakeL1SingleMuToken_ = consumes<bool>(fakeL1SingleMuSrc_);
@@ -73,7 +72,7 @@ MuonTree::MuonTree(const edm::ParameterSet& pset)
 
 MuonTree::~MuonTree()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -94,7 +93,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken(muonToken_,     muonColl);
   ev.getByToken(upperLegToken_, upperLegColl);
   ev.getByToken(lowerLegToken_, lowerLegColl);
-  
+
   edm::Handle<reco::TrackCollection> globalTrackColl;
   edm::Handle<reco::TrackCollection> cosmicTrackColl;
   edm::Handle<reco::TrackCollection> trackerTrackColl;
@@ -107,23 +106,23 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     ev.getByToken(simTrackToken_, simTrackColl);
 
   edm::Handle<std::vector<l1extra::L1MuonParticle> > l1MuonColl;
-  ev.getByToken(l1MuonToken_,      l1MuonColl);      
+  ev.getByToken(l1MuonToken_,      l1MuonColl);
 
   edm::Handle<edm::TriggerResults> triggerResults;
   ev.getByToken(trigResultsToken_, triggerResults);
 
   edm::Handle<bool>                   fakeL1SingleMuH;
-  ev.getByToken(fakeL1SingleMuToken_, fakeL1SingleMuH);      
+  ev.getByToken(fakeL1SingleMuToken_, fakeL1SingleMuH);
 
   edm::Handle<reco::TrackCollection> tracks[3] = {globalTrackColl, cosmicTrackColl, trackerTrackColl};
-  
-  event = (ev.id()).event();  
+
+  event = (ev.id()).event();
   run   = (ev.id()).run();
   lumi  = ev.luminosityBlock();
-  
-    
+
+
   //type = reco::Muon::SegmentAndTrackArbitration;
-    
+
   nMuons     = muonColl->size();
   nUpperLegs = upperLegColl->size();
   nLowerLegs = lowerLegColl->size();
@@ -133,9 +132,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   nTrackerTracks = trackerTrackColl->size();
 
   nSimTracks = -1;
-  
+
   nL1Muons = l1MuonColl->size();
-  
+
   for (int idx = 0; idx < 25; ++idx) {
     // initialize muon sim track variables
     simtrack_type[idx]   = 0;
@@ -143,7 +142,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     simtrack_eta[idx]    = -10.;
     simtrack_phi[idx]    = -10.;
     simtrack_charge[idx] = -10;
-  
+
     // initialize l1 muon variables
     l1muon_isFwd[idx]    = -1;
     l1muon_isRPC[idx]    = -1;
@@ -174,32 +173,32 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     muon_isUpper[   idx] = -1;
     muon_isLowerOld[idx] = -1;
     muon_isUpperOld[idx] = -1;
-      
+
     muonP4[idx].SetXYZT(0,0,0,-1);
     muon_pT[idx]  = -1;
     muon_Eta[idx] = -10;
     muon_Phi[idx] = -10;
-      
+
     muon_innerY[idx] = 0; // what's a good nonsense value for this?
     muon_outerY[idx] = 0; // what's a good nonsense value for this?
     muon_tpin[idx]   = 0; // what's a good nonsense value for this?
     muon_tpout[idx]  = 0; // what's a good nonsense value for this?
-      
+
     muon_trackVec[idx].SetXYZ(0,0,0);
     muon_trackPt[idx]  = -1;
     muon_trackEta[idx] = -10;
     muon_trackPhi[idx] = -10;
     muon_ptError[idx]  = -1;
-      
+
     muon_charge[idx] = -10;
     muon_chi2[  idx] = -1.;
     muon_ndof[  idx] = -1;
-      
+
     muon_dxy[     idx] = -1000;
     muon_dz[      idx] = -1000;
     muon_dxyError[idx] = -1;
     muon_dzError[ idx] = -1;
-      
+
     muon_firstPixel[ idx] = -1;
     muon_pixHits[    idx] = -1;
     muon_tkHits[     idx] = -1;
@@ -215,12 +214,12 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       track_outerY[tk][idx] = 0; // what's a good nonsense value for this?
       track_tpin[tk][idx]   = 0; // what's a good nonsense value for this?
       track_tpout[tk][idx]  = 0; // what's a good nonsense value for this?
-      
+
       track_trackPt[tk][idx]  = -1;
       track_trackEta[tk][idx] = -10;
       track_trackPhi[tk][idx] = -10;
       track_ptError[tk][idx]  = -1;
-      
+
       track_charge[tk][idx] = -10;
       track_chi2[  tk][idx] = -1;
       track_ndof[  tk][idx] = -1;
@@ -229,14 +228,14 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       track_isUpper[   tk][idx] = -1;
       track_isLowerOld[tk][idx] = -1;
       track_isUpperOld[tk][idx] = -1;
-      
+
       track_dxy[     tk][idx] = -1000;
       track_dz[      tk][idx] = -1000;
       track_dxyError[tk][idx] = -1;
       track_dzError[ tk][idx] = -1;
 
       track_matchedMuIdx[tk][idx] = -1;
-      
+
       track_firstPixel[ tk][idx] = -1;
       track_pixHits[    tk][idx] = -1;
       track_tkHits[     tk][idx] = -1;
@@ -262,7 +261,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		<< "nSimTracks "      << nSimTracks     << std::endl
 		<< "nL1Muons "        << nL1Muons       << std::endl;
     }
-  
+
   //// reco::Muon information ////
   if ( muonColl->size() > 0) {
     if (debug_ > 0) {
@@ -282,7 +281,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << (muon->outerTrack().isNonnull() ? muon->outerTrack()->outerPosition().Y() < 0 :
 		      (fabs(muon->innerTrack()->innerPosition().Y()) < fabs(muon->innerTrack()->outerPosition().Y()))) << "l"
 		  << std::endl;
-	std::cout << std::setw(5) << *muon 
+	std::cout << std::setw(5) << *muon
 		  << " (" << muon->isTrackerMuon()    << "(" << muon->innerTrack().isNonnull()  << ")t"
 		  << "/"  << muon->isGlobalMuon()     << "(" << muon->globalTrack().isNonnull() << ")g"
 		  << "/"  << muon->isStandAloneMuon() << "(" << muon->outerTrack().isNonnull()  << ")sa"
@@ -324,7 +323,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       }
       std::cout << " upper legs: " << std::endl;
       for (auto muon = upperLegColl->begin(); muon != upperLegColl->end(); ++muon)
-	std::cout << std::setw(5) << *muon 
+	std::cout << std::setw(5) << *muon
 		  << " (" << muon->isTrackerMuon()    << "t"
 		  << "/"  << muon->isGlobalMuon()     << "g"
 		  << "/"  << muon->isStandAloneMuon() << "sa"
@@ -339,27 +338,27 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << ") " << muon->tunePMuonBestTrack()->innerPosition().Y()
 		  << std::endl;
     }
-    std::cout.flush();  
-    
+    std::cout.flush();
+
     int muIdx = 0;
     for (auto mu = muonColl->begin(); mu != muonColl->end(); ++ mu) {
       //reco::TrackRef ref = wsu::dileptons::MuonHelpers::GetTrackType(algoType_, &(*mu));
       reco::TrackRef ref = GetTrackType(algoType_, &(*mu));
-      
+
       muon_tpin[muIdx]   = mu->time().timeAtIpInOut;
       muon_tpout[muIdx]  = mu->time().timeAtIpOutIn;
-      
+
       muon_isTracker[   muIdx] = mu->isTrackerMuon();
       muon_isGlobal[    muIdx] = mu->isGlobalMuon();
       muon_isStandAlone[muIdx] = mu->isStandAloneMuon();
-      
+
       muon_isUpper[muIdx] = (mu->outerTrack().isNonnull() ? mu->outerTrack()->outerPosition().Y() > 0 :
 			     (fabs(mu->innerTrack()->innerPosition().Y()) > fabs(mu->innerTrack()->outerPosition().Y())));
       muon_isLower[muIdx] =  (mu->outerTrack().isNonnull() ? mu->outerTrack()->outerPosition().Y() < 0 :
 			      (fabs(mu->innerTrack()->innerPosition().Y()) < fabs(mu->innerTrack()->outerPosition().Y())));
       muon_isLowerOld[muIdx] = fabs(mu->tunePMuonBestTrack()->innerPosition().Y()) < fabs(mu->tunePMuonBestTrack()->outerPosition().Y());
       muon_isUpperOld[muIdx] = fabs(mu->tunePMuonBestTrack()->innerPosition().Y()) > fabs(mu->tunePMuonBestTrack()->outerPosition().Y());
-      
+
       muonP4[       muIdx] = mu->p4();
       muon_pT[      muIdx] = mu->pt();
       muon_Eta[     muIdx] = mu->eta();
@@ -383,7 +382,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	++nMuonsPt1000;
       if (mu->pt() > 1500)
 	++nMuonsPt1500;
-	
+
       if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	// selections are done on "best track" in high pT ID, so take the track under study
 	muon_chi2[    muIdx] = ref->chi2();
@@ -443,11 +442,11 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	}
       }
       muon_nMatSta[muIdx] = mu->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
-      
+
       // get info from all track types
       for (int tref = 0; tref < 5; ++tref) {
 	ref = GetTrackType(tref, &(*mu));
-	
+
 	if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	  track_isLower[   2+tref+1][muIdx] = ref->outerPosition().Y() < 0;
 	  track_isUpper[   2+tref+1][muIdx] = ref->outerPosition().Y() > 0;
@@ -466,7 +465,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  track_trackPhi[  2+tref+1][muIdx] = ref->phi();
 	  track_innerY[    2+tref+1][muIdx] = ref->innerPosition().Y();
 	  track_outerY[    2+tref+1][muIdx] = ref->outerPosition().Y();
-	  
+
 	  track_firstPixel[ 2+tref+1][muIdx] = (ref->hitPattern().hasValidHitInFirstPixelBarrel() ||
 						ref->hitPattern().hasValidHitInFirstPixelEndcap());
 	  track_pixHits[    2+tref+1][muIdx] = ref->hitPattern().numberOfValidPixelHits();
@@ -475,7 +474,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  track_muonStaHits[2+tref+1][muIdx] = ref->hitPattern().muonStationsWithValidHits();
 	  track_nVHits[     2+tref+1][muIdx] = ref->hitPattern().numberOfValidHits();
 	  track_nVMuHits[   2+tref+1][muIdx] = ref->hitPattern().numberOfValidMuonHits();
-	  
+
 	  track_matchedMuIdx[2+tref+1][muIdx] = muIdx;
 	  track_nMatSta[2+tref+1][muIdx] = mu->numberOfMatchedStations();
 
@@ -502,7 +501,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       ++muIdx;
     }  // end loop over muons
   }  // end check on muon collection size
-  
+
   ////////////////// reco::Track information /////////////////////////
   if (debug_ > 0) {
     if (globalTrackColl->size() > 0) {
@@ -550,7 +549,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << " nVMuHits:"     << std::setw(2) << track->hitPattern().numberOfValidMuonHits()
 		  << std::endl;
     }
-    
+
     if (trackerTrackColl->size() > 0) {
       std::cout	<< "found "     << nTrackerTracks  << " tracker "  << std::endl;
       std::cout << " tracker tracks: " << std::endl;
@@ -574,7 +573,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << std::endl;
     }
   }
-  
+
   for (int tk = 0; tk < 3; ++tk) {
     int tkIdx = 0;
     if (debug_ > 2)
@@ -625,11 +624,11 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	++nTracksPt1000[tk];
       if (trk->pt() > 1500)
 	++nTracksPt1500[tk];
-	
+
       // try to match to a muon, if found, take nMatchedMuonStations from here
       // insufficient to simply match deta/dphi, what about upper/lower splitting?
       // be able to know index so we can easily get the tuneP pT/dpT
-      
+
       double bestDEta = maxDEta_;
       double bestDPhi = maxDPhi_;
       double bestDR   = maxDR_;
@@ -640,7 +639,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	double tmpDEta = fabs(muon->eta()-trk->eta());
 	double tmpDPhi = fabs(reco::deltaPhi(muon->phi(),trk->phi()));
 	double tmpDR   = reco::deltaR(*muon,*trk);
-	
+
 	//double tmpTrkInY  = trk->innerPosition().Y();
 	//double tmpMuInY  = muon->tunePMuonBestTrack()->innerPosition().Y();
 
@@ -652,7 +651,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  yCompatible = true;
 	else if (tmpTrkOutY < 0 && tmpMuOutY < 0)
 	  yCompatible = true;
-	
+
 	if (tmpDEta < bestDEta && tmpDPhi < bestDPhi) {
 	  if (debug_ > 2)
 	    std::cout << " deta = " << std::setw(6) << tmpDEta
@@ -679,15 +678,15 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   }// end loop over the different track collections
 
   ////////////////// edm::SimTrack information /////////////////////////
-  if (isGen_) {
+  if (isGen_)
     if (simTrackColl->size() > 0) {
       nSimTracks = 0;
       int simIdx = 0;
       for (auto simtrack = simTrackColl->begin(); simtrack != simTrackColl->end(); ++simtrack) {
 	if (fabs(simtrack->type()) == 13) {  // only consider simtracks from muons
 	  if (debug_ > 2)
-	    std::cout << std::setw(5) << *simtrack << std::endl; 
-	  
+	    std::cout << std::setw(5) << *simtrack << std::endl;
+
 	  simtrack_charge[simIdx] = simtrack->charge();
 	  simtrack_type[simIdx]   = simtrack->type();
 	  simtrack_pt[simIdx]  = simtrack->trackerSurfaceMomentum().pt();
@@ -698,8 +697,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	}
       }
     }
-  }
-  
+
   ////////////////// L1Muon information /////////////////////////
   if ( l1MuonColl->size() > 0) {
     int l1muIdx = 0;
@@ -734,7 +732,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       ++l1muIdx;
     }  // end loop over l1MuonColl
   }  // end check on l1MuonColl size
-    
+
   l1SingleMu = 0;
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   for (unsigned int trig = 0; trig < trigNames.size(); ++trig) {
@@ -743,7 +741,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       std::string pathName = trigNames.triggerName(trig);
       if (debug_ > 3)
 	std::cout << "Trigger path " << pathName << " fired" << std::endl;
-      
+
       if (pathName.find(hltTrigCut_) != std::string::npos) {
 	if (debug_ > 2)
 	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
@@ -751,9 +749,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       }
     }
   }
-  
+
   fakeL1SingleMu = *fakeL1SingleMuH;
-  
+
   if (debug_ > 3)
     std::cout << "Filling the tree" << std::endl;
   muonTree->Fill();
@@ -762,19 +760,19 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
 reco::TrackRef MuonTree::GetTrackType(int algoType, reco::Muon const* muon)
 {
-  
+
   if (debug_ > 3)
     std::cout << "Started finding track type!" << std::endl;
 
   reco::TrackRef ref;
-  
+
   if      (algoType == 1) ref = muon->track();
   else if (algoType == 2) ref = muon->tpfmsTrack();
   else if (algoType == 3) ref = muon->dytTrack();
   else if (algoType == 4) ref = muon->pickyTrack();
   else if (algoType == 5) ref = muon->tunePMuonBestTrack();
   else                    ref = muon->track();
-  
+
   if (debug_ > 3)
     std::cout << "Returning track ref " << ref.isNonnull() << std::endl;
 
@@ -785,7 +783,7 @@ reco::TrackRef MuonTree::GetTrackType(int algoType, reco::Muon const* muon)
 void MuonTree::beginJob()
 {
   edm::Service< TFileService > fs;
-  
+
   muonTree = fs->make<TTree>( "MuonTree", "Muon variables" );
 
   muonTree->Branch("nMuons",     &nMuons,     "nMuons/I"    );
@@ -811,7 +809,7 @@ void MuonTree::beginJob()
     muonTree->Branch("simTrackCharge", simtrack_charge, "simTrackCharge[nSimTracks]/I");
     muonTree->Branch("simTrackType",   simtrack_type,   "simTrackType[nSimTracks]/I");
   }
-  
+
   // trigger information
   muonTree->Branch("l1SingleMu",     &l1SingleMu,     "l1SingleMu/I");
   muonTree->Branch("fakeL1SingleMu", &fakeL1SingleMu, "fakeL1SingleMu/I");
@@ -912,36 +910,34 @@ void MuonTree::beginJob()
   muonTree->Branch("trk_nMatchedStations", track_nMatSta,     "trk_nMatchedStations[7][25]/I");
   muonTree->Branch("trk_tkLayersWMeas",    track_tkLayWMeas,  "trk_tkLayersWMeas[7][25]/I"   );
 
-  // per luminosity block information, only for data
-  if (!isGen_) {
-    perLumiTree = fs->make<TTree>( "LumiTree", "Per lumi block variables" );
-    
-    perLumiTree->Branch("nMuonsPt50",   &nMuonsPt50,   "nMuonsPt50/I"  );
-    perLumiTree->Branch("nMuonsPt100",  &nMuonsPt100,  "nMuonsPt100/I" );
-    perLumiTree->Branch("nMuonsPt200",  &nMuonsPt200,  "nMuonsPt200/I" );
-    perLumiTree->Branch("nMuonsPt300",  &nMuonsPt300,  "nMuonsPt300/I" );
-    perLumiTree->Branch("nMuonsPt400",  &nMuonsPt400,  "nMuonsPt400/I" );
-    perLumiTree->Branch("nMuonsPt500",  &nMuonsPt500,  "nMuonsPt500/I" );
-    perLumiTree->Branch("nMuonsPt750",  &nMuonsPt750,  "nMuonsPt750/I" );
-    perLumiTree->Branch("nMuonsPt1000", &nMuonsPt1000, "nMuonsPt1000/I");
-    perLumiTree->Branch("nMuonsPt1500", &nMuonsPt1500, "nMuonsPt1500/I");
+  // per luminosity block information
+  perLumiTree = fs->make<TTree>( "LumiTree", "Per lumi block variables" );
 
-    perLumiTree->Branch("nTracksPt50",   nTracksPt50,   "nTracksPt50[7]/I"  );
-    perLumiTree->Branch("nTracksPt100",  nTracksPt100,  "nTracksPt100[7]/I" );
-    perLumiTree->Branch("nTracksPt200",  nTracksPt200,  "nTracksPt200[7]/I" );
-    perLumiTree->Branch("nTracksPt300",  nTracksPt300,  "nTracksPt300[7]/I" );
-    perLumiTree->Branch("nTracksPt400",  nTracksPt400,  "nTracksPt400[7]/I" );
-    perLumiTree->Branch("nTracksPt500",  nTracksPt500,  "nTracksPt500[7]/I" );
-    perLumiTree->Branch("nTracksPt750",  nTracksPt750,  "nTracksPt750[7]/I" );
-    perLumiTree->Branch("nTracksPt1000", nTracksPt1000, "nTracksPt1000[7]/I");
-    perLumiTree->Branch("nTracksPt1500", nTracksPt1500, "nTracksPt1500[7]/I");
-  }
+  perLumiTree->Branch("nMuonsPt50",   &nMuonsPt50,   "nMuonsPt50/I"  );
+  perLumiTree->Branch("nMuonsPt100",  &nMuonsPt100,  "nMuonsPt100/I" );
+  perLumiTree->Branch("nMuonsPt200",  &nMuonsPt200,  "nMuonsPt200/I" );
+  perLumiTree->Branch("nMuonsPt300",  &nMuonsPt300,  "nMuonsPt300/I" );
+  perLumiTree->Branch("nMuonsPt400",  &nMuonsPt400,  "nMuonsPt400/I" );
+  perLumiTree->Branch("nMuonsPt500",  &nMuonsPt500,  "nMuonsPt500/I" );
+  perLumiTree->Branch("nMuonsPt750",  &nMuonsPt750,  "nMuonsPt750/I" );
+  perLumiTree->Branch("nMuonsPt1000", &nMuonsPt1000, "nMuonsPt1000/I");
+  perLumiTree->Branch("nMuonsPt1500", &nMuonsPt1500, "nMuonsPt1500/I");
+
+  perLumiTree->Branch("nTracksPt50",   nTracksPt50,   "nTracksPt50[7]/I"  );
+  perLumiTree->Branch("nTracksPt100",  nTracksPt100,  "nTracksPt100[7]/I" );
+  perLumiTree->Branch("nTracksPt200",  nTracksPt200,  "nTracksPt200[7]/I" );
+  perLumiTree->Branch("nTracksPt300",  nTracksPt300,  "nTracksPt300[7]/I" );
+  perLumiTree->Branch("nTracksPt400",  nTracksPt400,  "nTracksPt400[7]/I" );
+  perLumiTree->Branch("nTracksPt500",  nTracksPt500,  "nTracksPt500[7]/I" );
+  perLumiTree->Branch("nTracksPt750",  nTracksPt750,  "nTracksPt750[7]/I" );
+  perLumiTree->Branch("nTracksPt1000", nTracksPt1000, "nTracksPt1000[7]/I");
+  perLumiTree->Branch("nTracksPt1500", nTracksPt1500, "nTracksPt1500[7]/I");
 }
 
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MuonTree::endJob() 
+void MuonTree::endJob()
 {
 }
 
@@ -996,7 +992,7 @@ void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 	      << ", filling perLumiTree "
 	      << std::hex << perLumiTree << std::dec
 	      << std::endl;
-    
+
     std::cout << "nMuonsPt50   " << nMuonsPt50   << std::endl;
     std::cout << "nMuonsPt100  " << nMuonsPt100  << std::endl;
     std::cout << "nMuonsPt200  " << nMuonsPt200  << std::endl;
@@ -1006,7 +1002,7 @@ void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
     std::cout << "nMuonsPt750  " << nMuonsPt750  << std::endl;
     std::cout << "nMuonsPt1000 " << nMuonsPt1000 << std::endl;
     std::cout << "nMuonsPt1500 " << nMuonsPt1500 << std::endl;
-    
+
     for (int tk = 0; tk < 7; ++tk) {
       std::cout << "nTracksPt50["   << tk << "] " << nTracksPt50[tk]   << std::endl;
       std::cout << "nTracksPt100["  << tk << "] " << nTracksPt100[tk]  << std::endl;
@@ -1020,8 +1016,7 @@ void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
     }
   }
 
-  if (!isGen_)
-    perLumiTree->Fill();
+  perLumiTree->Fill();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
