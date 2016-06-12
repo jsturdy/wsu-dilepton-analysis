@@ -5,34 +5,37 @@ basic_cut  = "pt > 25"
 dxy_cut = "(abs(dxy) < 50.)"
 dz_cut  = " && (abs(dz)  < 75.)"
 
+dxy_sp_cut = "(abs(dxy) < 10.)"
+dz_sp_cut  = " && (abs(dz)  < 50.)"
+
 cosmicMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("cosmicMuons"),
-    cut = cms.string(basic_cut),
+    cut = cms.string(basic_cut+" && "+dxy_cut+dz_cut),
 )
 
 globalMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("globalCosmicMuons"),
-    cut = cms.string(basic_cut),
+    cut = cms.string(basic_cut+" && "+dxy_cut+dz_cut),
 )
 
 trackerMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("ctfWithMaterialTracksP5LHCNavigation"),
-    cut = cms.string(basic_cut),
+    cut = cms.string(basic_cut+" && "+dxy_cut+dz_cut),
 )
 
 cosmicSPMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("cosmicMuonTracks"),
-    cut = cms.string(dxy_cut+dz_cut),
+    cut = cms.string(dxy_sp_cut+dz_sp_cut),
 )
 
 globalSPMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("globalMuonTracks"),
-    cut = cms.string(dxy_cut+dz_cut),
+    cut = cms.string(dxy_sp_cut+dz_sp_cut),
 )
 
 trackerSPMuonTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("trackerMuonTracks"),
-    cut = cms.string(dxy_cut+dz_cut),
+    cut = cms.string(dxy_sp_cut+dz_sp_cut),
 )
 
 # how do we ensure upper/lower for cosmic reconstruction
