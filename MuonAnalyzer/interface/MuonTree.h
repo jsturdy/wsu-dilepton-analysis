@@ -7,7 +7,8 @@
 
 // user include files
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+//#include <FWCore/Framework/interface/EDAnalyzer.h>
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -47,7 +48,7 @@
 // class declaration
 //
 
-class MuonTree : public edm::EDAnalyzer {
+class MuonTree : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
  public:
   explicit MuonTree(const edm::ParameterSet&);
@@ -72,9 +73,11 @@ class MuonTree : public edm::EDAnalyzer {
   double minPt_;
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void endRun(  edm::Run const&, edm::EventSetup const&) override;
+
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void endLuminosityBlock(  edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
   //virtual void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //  //The following says we do not know what parameters are allowed so do no validation
   //  // Please change this to state exactly what you do use, even if it is no parameters
@@ -140,6 +143,15 @@ class MuonTree : public edm::EDAnalyzer {
   int track_ndof[7][25], track_charge[7][25], track_matchedMuIdx[7][25];
   int track_firstPixel[7][25],track_pixHits[7][25],track_tkHits[7][25],track_muonStaHits[7][25],
     track_nVHits[7][25],track_nVMuHits[7][25],track_nMatSta[7][25],track_tkLayWMeas[7][25];
+  
+  // per lumi block values
+  TTree *perLumiTree;
+
+  int nMuonsPt50, nMuonsPt100, nMuonsPt200, nMuonsPt300,
+    nMuonsPt400, nMuonsPt500, nMuonsPt750, nMuonsPt1000, nMuonsPt1500;
+
+  int nTracksPt50[7], nTracksPt100[7], nTracksPt200[7], nTracksPt300[7],
+    nTracksPt400[7], nTracksPt500[7], nTracksPt750[7], nTracksPt1000[7], nTracksPt1500[7];
 };
 
 
