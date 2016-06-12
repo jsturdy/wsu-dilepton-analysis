@@ -25,6 +25,8 @@
 
 MuonTree::MuonTree(const edm::ParameterSet& pset)
 {
+  usesResource("TFileService");
+
   muonSrc_     = pset.getParameter<edm::InputTag>("muonSrc");
   upperLegSrc_ = pset.getParameter<edm::InputTag>("upperLegSrc");
   lowerLegSrc_ = pset.getParameter<edm::InputTag>("lowerLegSrc");
@@ -249,7 +251,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   ////////////////// reco::Muon information /////////////////////////
   // skip processing empty collection
   if ( muonColl->size() > 0 || globalTrackColl->size() > 0 || cosmicTrackColl->size() > 0 || trackerTrackColl->size() > 0)
-    if (debug_ > -1) {
+    if (debug_ > 0) {
       std::cout << "run/lumi/event "  << run  << "/" << lumi << "/" << event << std::endl;
       std::cout << "nMuons "          << nMuons         << std::endl
 		<< "nUpperLegs "      << nUpperLegs     << std::endl
@@ -260,7 +262,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		<< "nSimTracks "      << nSimTracks     << std::endl
 		<< "nL1Muons "        << nL1Muons       << std::endl;
     }
-
+  
   //// reco::Muon information ////
   if ( muonColl->size() > 0) {
     if (debug_ > 0) {
@@ -701,7 +703,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
   ////////////////// L1Muon information /////////////////////////
   if ( l1MuonColl->size() > 0) {
     int l1muIdx = 0;
-    if (debug_ > -1)
+    if (debug_ > 0)
       std::cout << "Found " << nL1Muons << " L1MuonParticles: (pt/eta/phi/charge)" << std::endl;
     for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu) {
       if (debug_ > 0) {
