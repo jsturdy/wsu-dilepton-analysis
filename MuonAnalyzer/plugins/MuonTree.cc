@@ -261,7 +261,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		<< "nSimTracks "      << nSimTracks     << std::endl
 		<< "nL1Muons "        << nL1Muons       << std::endl;
     }
-  
+
   //// reco::Muon information ////
   if ( muonColl->size() > 0) {
     if (debug_ > 0) {
