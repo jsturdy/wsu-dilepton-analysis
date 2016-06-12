@@ -80,7 +80,6 @@ def main():
         config.General.transferLogs = False
                 
         config.JobType.pluginName = 'Analysis'
-        config.JobType.psetName = 'pset_tutorial_analysis.py'
 
         config.Data.inputDBS         = 'global'
         config.Data.inputDataset     = None
@@ -96,33 +95,35 @@ def main():
         # pass in datasets as a dict {datasetname,mc/data}
         inputDatasetMap = {
             "MC": [
-                #'/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                #'/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                #'/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                '/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
-                '/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
-                '/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
+                ##'/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
+                ##'/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
+                ##'/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
+                #'/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
+                #'/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
+                #'/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
                 ],
             "DATA": [
-                '/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',
-                '/Cosmics/Commissioning2016-CosmicSP-PromptReco-v2/RAW-RECO',
-                '/Cosmics/Run2016A-CosmicSP-PromptReco-v1/RAW-RECO',
-                '/Cosmics/Run2016A-CosmicSP-PromptReco-v2/RAW-RECO',
-                '/Cosmics/Run2016B-CosmicSP-PromptReco-v1/RAW-RECO',
-                '/Cosmics/Run2016B-CosmicSP-PromptReco-v2/RAW-RECO',
+                ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_Run2016_json_pix_strip_DT_DCSOnly.json'],
+                ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v2/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_Run2016_json_pix_strip_DT_DCSOnly.json'],
+                ['/Cosmics/Run2016A-CosmicSP-PromptReco-v1/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_CRAFT16_json_pix_strip_DT_DCSOnly.json'],
+                ['/Cosmics/Run2016A-CosmicSP-PromptReco-v2/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_CRAFT16_json_pix_strip_DT_DCSOnly.json'],
+                ['/Cosmics/Run2016B-CosmicSP-PromptReco-v1/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_CRAFT16_json_pix_strip_DT_DCSOnly.json'],
+                ['/Cosmics/Run2016B-CosmicSP-PromptReco-v2/RAW-RECO','https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/cosmics_CRAFT16_json_pix_strip_DT_DCSOnly.json'],
                 ]
             }
 
         for key in inputDatasetMap.keys():
-            inputDatasets = inputDatasetMap[key]
+            inputDatasets = None
             
             if key == 'DATA':
+                inputDatasets = inputDatasetMap[key]
                 config.JobType.psetName = 'wsuMuonTree_data.py'
                 
                 config.Data.splitting = 'LumiBased'
                 config.Data.unitsPerJob = 250
-                config.Data.lumiMask = options.lumiJSON
+
             elif key == 'MC':
+                inputDatasets = inputDatasetMap[key]
                 config.JobType.psetName = 'wsuMuonTree_MC.py'
                 
                 config.Data.splitting = 'FileBased'
@@ -130,17 +131,18 @@ def main():
                 
             for inDS in inputDatasets:
                 # inDS is of the form /A/B/C. Since B is unique for each inDS, use this in the CRAB request name.
-                config.General.requestName = inDS.split('/')[2]
-                config.Data.inputDataset = inDS
+                config.General.requestName = inDS[0].split('/')[2]
+                config.Data.inputDataset = inDS[0]
                 config.Data.outputDatasetTag = '%s_%s' % (config.General.workArea, config.General.requestName)
+                config.Data.lumiMask = inDS[1]
                 # Submit.
                 try:
-                    print "Submitting for input dataset %s" % (inDS)
+                    print "Submitting for input dataset %s" % (inDS[0])
                     crabCommand(options.crabCmd, config = config, *options.crabCmdOpts.split())
                 except HTTPException as hte:
-                    print "Submission for input dataset %s failed: %s" % (inDS, hte.headers)
+                    print "Submission for input dataset %s failed: %s" % (inDS[0], hte.headers)
                 except ClientException as cle:
-                    print "Submission for input dataset %s failed: %s" % (inDS, cle)
+                    print "Submission for input dataset %s failed: %s" % (inDS[0], cle)
 
     # All other commands can be simply executed.
     elif options.workArea:
