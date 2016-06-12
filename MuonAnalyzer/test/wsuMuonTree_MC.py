@@ -43,7 +43,7 @@ process.singleMuFilter.filterEvent = cms.bool(False)
 from WSUDiLeptons.MuonAnalyzer.wsuMuonTree_cfi import *
 
 process.analysisMuons = muonTree.clone(
-    muonSrc         = cms.InputTag("muons"),
+    muonSrc         = cms.InputTag("betterSPMuons"),
     upperLegSrc     = cms.InputTag("upperMuons"),
     lowerLegSrc     = cms.InputTag("lowerMuons"),
     globalTrackSrc  = cms.InputTag("globalMuonTracks"),
