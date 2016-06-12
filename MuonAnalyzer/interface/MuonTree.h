@@ -48,7 +48,7 @@
 // class declaration
 //
 
-class MuonTree : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
 
  public:
   explicit MuonTree(const edm::ParameterSet&);
