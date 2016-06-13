@@ -1,7 +1,6 @@
 #ifndef WSUDILEPTONS_MUONTREE_H
 #define WSUDILEPTONS_MUONTREE_H
 
-
 // system include files
 #include <memory>
 
@@ -43,27 +42,26 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 
-
 //
 // class declaration
 //
-
-class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
+//namespace {
+class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
 
  public:
   explicit MuonTree(const edm::ParameterSet&);
+
   ~MuonTree();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  
+
+
  private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  reco::TrackRef GetTrackType(int algoType, reco::Muon const* muon);
 
-  bool isGen_;  
+  bool isGen_;
   int algoType_;
   int debug_;
 
@@ -85,7 +83,9 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
   //  desc.setUnknown();
   //  descriptions.addDefault(desc);
   //}
-  
+
+  reco::TrackRef GetTrackType(int algoType, reco::Muon const* muon);
+
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::MuonCollection > muonToken_, upperLegToken_, lowerLegToken_;
   edm::EDGetTokenT<reco::TrackCollection > globalTrackToken_, cosmicTrackToken_, trackerTrackToken_;
@@ -106,13 +106,13 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
   int event, run, lumi,
     nMuons, nUpperLegs, nLowerLegs,
     nGlobalTracks, nCosmicTracks, nTrackerTracks;
-  
+
   //reco::Muon::ArbitrationType type;
 
   reco::Candidate::LorentzVector muonP4[10];
   math::XYZVector muon_trackVec[10];
- 
-  
+
+
   int    nSimTracks, simtrack_type[25];
   double simtrack_pt[25], simtrack_eta[25], simtrack_phi[25], simtrack_charge[25];
 
@@ -143,7 +143,7 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
   int track_ndof[7][25], track_charge[7][25], track_matchedMuIdx[7][25];
   int track_firstPixel[7][25],track_pixHits[7][25],track_tkHits[7][25],track_muonStaHits[7][25],
     track_nVHits[7][25],track_nVMuHits[7][25],track_nMatSta[7][25],track_tkLayWMeas[7][25];
-  
+
   // per lumi block values
   TTree *perLumiTree;
 
@@ -153,6 +153,6 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
   int nTracksPt50[7], nTracksPt100[7], nTracksPt200[7], nTracksPt300[7],
     nTracksPt400[7], nTracksPt500[7], nTracksPt750[7], nTracksPt1000[7], nTracksPt1500[7];
 };
-
+//}
 
 #endif
