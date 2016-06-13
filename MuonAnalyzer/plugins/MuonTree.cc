@@ -1,7 +1,9 @@
 #include "WSUDiLeptons/MuonAnalyzer/interface/MuonTree.h"
+
 //#include "WSUDiLeptons/MuonAnalyzer/interface/MuonHelpers.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
 // -*- C++ -*-
 //
 // Package:    WSUDiLeptons/MuonAnalyzer
@@ -19,8 +21,6 @@
 //         Created:  Wed, 25 Feb 2015 12:55:49 GMT
 //
 //
-
-
 
 
 MuonTree::MuonTree(const edm::ParameterSet& pset)
@@ -987,33 +987,35 @@ void MuonTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
 // ------------ method called when ending the processing of a luminosity block  ------------
 void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  if (debug_ > 1) {
+  if (debug_ > 0) {
     std::cout << "End luminosity block " << lumi
-	      << ", filling perLumiTree "
-	      << std::hex << perLumiTree << std::dec
 	      << std::endl;
 
-    std::cout << "nMuonsPt50   " << nMuonsPt50   << std::endl;
-    std::cout << "nMuonsPt100  " << nMuonsPt100  << std::endl;
-    std::cout << "nMuonsPt200  " << nMuonsPt200  << std::endl;
-    std::cout << "nMuonsPt300  " << nMuonsPt300  << std::endl;
-    std::cout << "nMuonsPt400  " << nMuonsPt400  << std::endl;
-    std::cout << "nMuonsPt500  " << nMuonsPt500  << std::endl;
-    std::cout << "nMuonsPt750  " << nMuonsPt750  << std::endl;
-    std::cout << "nMuonsPt1000 " << nMuonsPt1000 << std::endl;
-    std::cout << "nMuonsPt1500 " << nMuonsPt1500 << std::endl;
+    std::cout << "nMuonsPt50   " << nMuonsPt50   << " " << std::hex << &nMuonsPt50   << std::dec << std::endl;
+    std::cout << "nMuonsPt100  " << nMuonsPt100  << " " << std::hex << &nMuonsPt100  << std::dec << std::endl;
+    std::cout << "nMuonsPt200  " << nMuonsPt200  << " " << std::hex << &nMuonsPt200  << std::dec << std::endl;
+    std::cout << "nMuonsPt300  " << nMuonsPt300  << " " << std::hex << &nMuonsPt300  << std::dec << std::endl;
+    std::cout << "nMuonsPt400  " << nMuonsPt400  << " " << std::hex << &nMuonsPt400  << std::dec << std::endl;
+    std::cout << "nMuonsPt500  " << nMuonsPt500  << " " << std::hex << &nMuonsPt500  << std::dec << std::endl;
+    std::cout << "nMuonsPt750  " << nMuonsPt750  << " " << std::hex << &nMuonsPt750  << std::dec << std::endl;
+    std::cout << "nMuonsPt1000 " << nMuonsPt1000 << " " << std::hex << &nMuonsPt1000 << std::dec << std::endl;
+    std::cout << "nMuonsPt1500 " << nMuonsPt1500 << " " << std::hex << &nMuonsPt1500 << std::dec << std::endl;
 
     for (int tk = 0; tk < 7; ++tk) {
-      std::cout << "nTracksPt50["   << tk << "] " << nTracksPt50[tk]   << std::endl;
-      std::cout << "nTracksPt100["  << tk << "] " << nTracksPt100[tk]  << std::endl;
-      std::cout << "nTracksPt200["  << tk << "] " << nTracksPt200[tk]  << std::endl;
-      std::cout << "nTracksPt300["  << tk << "] " << nTracksPt300[tk]  << std::endl;
-      std::cout << "nTracksPt400["  << tk << "] " << nTracksPt400[tk]  << std::endl;
-      std::cout << "nTracksPt500["  << tk << "] " << nTracksPt500[tk]  << std::endl;
-      std::cout << "nTracksPt750["  << tk << "] " << nTracksPt750[tk]  << std::endl;
-      std::cout << "nTracksPt1000[" << tk << "] " << nTracksPt1000[tk] << std::endl;
-      std::cout << "nTracksPt1500[" << tk << "] " << nTracksPt1500[tk] << std::endl;
+      std::cout << "nTracksPt50["   << tk << "] " << nTracksPt50[tk]   << " " << std::hex << nTracksPt50   << std::dec << std::endl;
+      std::cout << "nTracksPt100["  << tk << "] " << nTracksPt100[tk]  << " " << std::hex << nTracksPt100  << std::dec << std::endl;
+      std::cout << "nTracksPt200["  << tk << "] " << nTracksPt200[tk]  << " " << std::hex << nTracksPt200  << std::dec << std::endl;
+      std::cout << "nTracksPt300["  << tk << "] " << nTracksPt300[tk]  << " " << std::hex << nTracksPt300  << std::dec << std::endl;
+      std::cout << "nTracksPt400["  << tk << "] " << nTracksPt400[tk]  << " " << std::hex << nTracksPt400  << std::dec << std::endl;
+      std::cout << "nTracksPt500["  << tk << "] " << nTracksPt500[tk]  << " " << std::hex << nTracksPt500  << std::dec << std::endl;
+      std::cout << "nTracksPt750["  << tk << "] " << nTracksPt750[tk]  << " " << std::hex << nTracksPt750  << std::dec << std::endl;
+      std::cout << "nTracksPt1000[" << tk << "] " << nTracksPt1000[tk] << " " << std::hex << nTracksPt1000 << std::dec << std::endl;
+      std::cout << "nTracksPt1500[" << tk << "] " << nTracksPt1500[tk] << " " << std::hex << nTracksPt1500 << std::dec << std::endl;
     }
+
+    std::cout << "filling perLumiTree "
+	      << std::hex << perLumiTree << std::dec
+	      << std::endl;
   }
 
   perLumiTree->Fill();
