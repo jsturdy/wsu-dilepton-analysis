@@ -106,6 +106,8 @@ namespace wsu {
 
 	int Plot(TTree* inputTree);
 
+	int getEtaPhiBin(double const& eta, double const& phi);
+
 	double m_maxBias, m_minPt;
 	int m_nBiasBins;
 	
@@ -114,29 +116,31 @@ namespace wsu {
 	std::shared_ptr<TTreeReader> m_treeReader;
 	
 	std::shared_ptr<TFile>          m_outFile;
+	std::shared_ptr<TDirectory>     m_etaphiBinDir[2][3];
 	std::shared_ptr<TDirectory>     m_ptBinDir[13];
 	std::shared_ptr<TDirectoryFile> m_outFileD;
 	
 	// histograms
 	// [3] for upper, lower, and combined
-	// [2] for plus/minus
+	// [2] for charge plus/minus
+	// [6] for eta/phi bins: eta plus/minus, phi in three bins
 	// [12+1] for inclusive, and then pT bins
 	//  - {50., 100., 150., 200., 250., 300., 400., 500., 750., 1000., 1500., 2000.}
-	std::shared_ptr<TH1D> h_Chi2[3][2][13],   h_Ndof[3][2][13], h_Chi2Ndof[3][2][13];
-	std::shared_ptr<TH1D> h_Charge[3][2][13], h_Curve[3][2][13];
-	std::shared_ptr<TH1D> h_Dxy[3][2][13],    h_Dz[3][2][13],      h_DxyError[3][2][13], h_DzError [3][2][13];
-	std::shared_ptr<TH1D> h_Pt[3][2][13],     h_TrackPt[3][2][13], h_PtError[3][2][13],  h_PtRelErr[3][2][13];
-	std::shared_ptr<TH1D> h_TrackEta[3][2][13], h_TrackPhi[3][2][13];
+	std::shared_ptr<TH1D> h_Chi2[3][2][2][3][13],   h_Ndof[3][2][2][3][13], h_Chi2Ndof[3][2][2][3][13];
+	std::shared_ptr<TH1D> h_Charge[3][2][2][3][13], h_Curve[3][2][2][3][13];
+	std::shared_ptr<TH1D> h_Dxy[3][2][2][3][13],    h_Dz[3][2][2][3][13],      h_DxyError[3][2][2][3][13], h_DzError [3][2][2][3][13];
+	std::shared_ptr<TH1D> h_Pt[3][2][2][3][13],     h_TrackPt[3][2][2][3][13], h_PtError[3][2][2][3][13],  h_PtRelErr[3][2][2][3][13];
+	std::shared_ptr<TH1D> h_TrackEta[3][2][2][3][13], h_TrackPhi[3][2][2][3][13];
 
-	std::shared_ptr<TH1D> h_TkHits[3][2][13], h_PixelHits[3][2][13], h_ValidHits[3][2][13];
-	std::shared_ptr<TH1D> h_MuonStationHits[3][2][13], h_MatchedMuonStations[3][2][13],
-	  h_TkLayersWithMeasurement[3][2][13];
+	std::shared_ptr<TH1D> h_TkHits[3][2][2][3][13], h_PixelHits[3][2][2][3][13], h_ValidHits[3][2][2][3][13];
+	std::shared_ptr<TH1D> h_MuonStationHits[3][2][2][3][13], h_MatchedMuonStations[3][2][2][3][13],
+	  h_TkLayersWithMeasurement[3][2][2][3][13];
 
-	std::shared_ptr<TH1D> h_CurveUpperResidual[3][2][13], h_CurveLowerResidual[3][2][13];
-	std::shared_ptr<TH1D> h_CurveUpperPulls[3][2][13],    h_CurveLowerPulls[3][2][13];
+	std::shared_ptr<TH1D> h_CurveUpperResidual[3][2][2][3][13], h_CurveLowerResidual[3][2][2][3][13];
+	std::shared_ptr<TH1D> h_CurveUpperPulls[3][2][2][3][13],    h_CurveLowerPulls[3][2][2][3][13];
 	
 	// doesn't make sense to bin these vs. pT
-	std::shared_ptr<TH1D> h_CurvePlusBias[3][2][1000], h_CurveMinusBias[3][2][1000];
+	std::shared_ptr<TH1D> h_CurvePlusBias[3][2][2][3][1000], h_CurveMinusBias[3][2][2][3][1000];
 	
       }; // end class HistogramMaker
     } // end namespace wsu::dileptons::cosmics
