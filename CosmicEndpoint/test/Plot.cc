@@ -270,7 +270,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int  N_CURVE_BINS      = 1600;
+  const int    N_CURVE_BINS    = 320;
   const double MAX_CURVE_RANGE = 0.0160;
 
   // all histograms split into charge bins (plus/minus) and eta/phi bins

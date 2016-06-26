@@ -85,9 +85,9 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 													minPt,maxBias,nBiasBins,
 													1000.,simlow,simhigh,
 													symmetric,trigger,isMC))
-			if (toolName=="Plot" and isMC):
-				f.write("  for (int etb = 0; etb < 2; ++etb)")
-				f.write("    for (int phb = 0; phb < 3; ++phb)")
+			if (toolName=="Plot" and isMC and tk==4):
+				f.write("  for (int etb = 0; etb < 2; ++etb)\n")
+				f.write("    for (int phb = 0; phb < 3; ++phb)\n")
 				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
 																	  symasym,outputFile,i,
 																	  tk+1,

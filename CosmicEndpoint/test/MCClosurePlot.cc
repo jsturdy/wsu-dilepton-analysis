@@ -186,11 +186,9 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int  N_CURVE_BINS      = 1600;
+  const int    N_CURVE_BINS    = 320;
   const double MAX_CURVE_RANGE = 0.0160;
 
-  if (debug)
-    std::cout << "setting up pseudo experiments" << std::endl;
   ///// histograms for the MC closure study
   const int    N_PSEUDO = 100;
   const int    closureBin   = 25;      // injected bias bin to recover
@@ -199,31 +197,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   const bool recoverPositiveBias = !recoverNegativeBias;
 
   TH2D *h_randvals;
-  if (debug)
-    std::cout << "booking randvals histogram" << std::endl;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
 
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms" << std::endl;
   TH1F *h_looseMuUpperCurvePseudoData[2][N_PSEUDO];
   TH1F *h_looseMuLowerCurvePseudoData[2][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms2" << std::endl;
   TH1F *h_looseMuUpperCurvePlusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
   TH1F *h_looseMuLowerCurvePlusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms3" << std::endl;
   TH1F *h_looseMuUpperCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms4" << std::endl;
   TH1F *h_looseMuLowerCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
 
-  if (debug)
-    std::cout << "setting up TRandom3" << std::endl;
   TRandom3 closureRand(197351);
 
-  if (debug)
-    std::cout << "booking loose histograms" << std::endl;
   int etb = etaBin_;
   int phb = phiBin_;
   TString etaphilabel(etaBins[etb]+phiBins[phb]);
@@ -241,7 +225,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		<< std::endl;
     for (int i = 0; i < nBiasBins+1; ++i) {
       std::stringstream name;
-      name << std::setw(3) << std::setfill('0') << i + 1;
+      name << std::setw(3) << std::setfill('0') << i;
 
       std::stringstream title;
       title << "#Delta#kappa = +" << (i)*(factor_*maxBias/nBiasBins);
