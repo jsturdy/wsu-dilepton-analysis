@@ -68,21 +68,32 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		#f.write("  gROOT->ProcessLine(\" .L %s/%s.so\");\n"%(os.getcwd()))
 		inputFileList = samplesListsDir + "/splitLists_b%.2f_pt%2.0f_n%d/"%(1000*maxBias,minPt,nBiasBins) + splitListFile
 		f.write("  gROOT->ProcessLine(\" .L %s.so\");\n"%(toolName))
+		if (toolName=="Plot" and isMC):
+			f.write("  gROOT->ProcessLine(\" .L MCClosurePlot.so\");\n")
 		##the first execution seems to clear the proxy error
 		
 		f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-										symasym,outputFile,i,
-										1,
-										minPt,maxBias,nBiasBins,
-										1000.,simlow,simhigh,
-										symmetric,trigger,isMC))
+												symasym,outputFile,i,
+												1,
+												minPt,maxBias,nBiasBins,
+												1000.,simlow,simhigh,
+												symmetric,trigger,isMC))
 		for tk in range(5):
 			f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-											symasym,outputFile,i,
-											tk+1,
-											minPt,maxBias,nBiasBins,
-											1000.,simlow,simhigh,
-											symmetric,trigger,isMC))
+													symasym,outputFile,i,
+													tk+1,
+													minPt,maxBias,nBiasBins,
+													1000.,simlow,simhigh,
+													symmetric,trigger,isMC))
+			if (toolName=="Plot" and isMC):
+				f.write("  for (int etb = 0; etb < 2; ++etb)")
+				f.write("    for (int phb = 0; phb < 3; ++phb)")
+				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
+																	  symasym,outputFile,i,
+																	  tk+1,
+																	  minPt,maxBias,nBiasBins,
+																	  1000.,simlow,simhigh,
+																	  symmetric,trigger,isMC))
 		f.write("}\n")
 		# root -x -b -q  put this in the shell script
 		pyCommand = "%s"%(rootScriptName)
@@ -115,6 +126,8 @@ ls -tar
 cd %s
 export AFSJOBDIR=${PWD}
 eval `scramv1 runtime -sh`
+cp binFunctions.h ${JOBDIR}/
+cp MCClosurePlot* ${JOBDIR}/
 cp %s* ${JOBDIR}/
 cp %s/%s ${JOBDIR}/
 cd ${JOBDIR}

@@ -30,20 +30,7 @@
 #include <math.h>
 #include <cmath>
 
-int getChargeBin(double chargeval) {
-  // returns bin 0 for positive charge, 1 for negative charge
-  return chargeval > 0 ? 1 : 0;
-}
-
-int getEtaBin(double etaval) {
-  // returns bin 0 for positive eta, 1 for negative eta
-  return etaval > 0 ? 1 : 0;
-}
-
-int getPhiBin(double phival) {
-  // returns bin 0 for phi > pi/3, 1 for -pi/3 < phi < pi/3, 2 for phi < -pi/3
-  return phival > M_PI/3. ? 0 : (phival > -M_PI/3. ? 1 : 2);
-}
+#include "WSUDiLeptons/CosmicEndpoint/test/binFunctions.h"
 
 void Plot(std::string const& filelist, std::string const& outFile,
 	  int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
@@ -314,9 +301,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TH1D *h_upperMatchedMuonStations[2][2][3];
   TH1D *h_upperTrackerLayersWithMeasurement[2][2][3];
 
-  TH1D *h_upperCurvePlusBias[2][2][3][nBiasBins];
-  TH1D *h_upperCurveMinusBias[2][2][3][nBiasBins];
-
   // histograms for lower leg muons, inclusive in charge
   TH1D *h_lowerPt[2][2][3];
   TH1D *h_lowerEta[2][2][3];
@@ -343,9 +327,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TH1D *h_lowerMatchedMuonStations[2][2][3];
   TH1D *h_lowerTrackerLayersWithMeasurement[2][2][3];
 
-  TH1D *h_lowerCurvePlusBias[2][2][3][nBiasBins];
-  TH1D *h_lowerCurveMinusBias[2][2][3][nBiasBins];
-
   if (debug)
     std::cout << "booking no cut histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
@@ -355,7 +336,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
       TDirectory* etaphidir = (TDirectory*)g->mkdir(etaphilabel);
       etaphidir->cd();
       for (int chb = 0; chb < 2; ++chb) {
-
 	// upper leg histograms
 	h_upperPt[chb][etb][phb]     = new TH1D("upper"+chargeBins[chb]+"Pt"+etaphilabel,
 						"upper"+chargeBins[chb]+"Pt"+etaphilabel,
@@ -501,49 +481,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	h_lowerTrackerLayersWithMeasurement[chb][etb][phb] = new TH1D("lower"+chargeBins[chb]+"TrackerLayersWithMeasurement"+etaphilabel,
 								      "lower"+chargeBins[chb]+"TrackerLayersWithMeasurement"+etaphilabel,
 								      20, -0.5, 19.5);
-
-	// default asymmetric binning -8.0/TeV to 8.0/TeV = 16/TeV, 16/1600 = 0.01/TeV
-	// suggested for KS is 0.01/TeV
-	// suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
-	// symmetric binning 0/TeV to 8.0/TeV = 8.0/TeV, 8.0/800 = 0.01/TeV
-	// suggested for KS is 0.01/TeV
-	// suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
-	// should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
-
-	if (debug)
-	  std::cout << "booking no cut bias histograms: "
-		    << "chb=" << chb
-		    << "etb=" << etb
-		    << "phb=" << phb
-		    << std::endl;
-	for (int i = 0; i < nBiasBins; ++i) {
-	  std::stringstream name;
-	  name << std::setw(3) << std::setfill('0') << i + 1;
-
-	  std::stringstream title;
-	  title << "#Delta#kappa = +" << (i+1)*(factor_*maxBias/nBiasBins);
-	  h_upperCurvePlusBias[chb][etb][phb][i] = new TH1D(TString("upper"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()),
-							    TString("upper"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+title.str()),
-							    symmetric_ ? 1600 : 800, symmetric_ ? -0.0080*factor_ : 0.,
-							    0.0080*factor_);
-	  h_lowerCurvePlusBias[chb][etb][phb][i] = new TH1D(TString("lower"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()),
-							    TString("lower"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+title.str()),
-							    symmetric_ ? 1600 : 800, symmetric_ ? -0.0080*factor_ : 0.,
-							    0.0080*factor_);
-
-	  title.str("");
-	  title.clear();
-	  title << "#Delta#kappa = -" << (i+1)*(factor_*maxBias/nBiasBins);
-	  h_upperCurveMinusBias[chb][etb][phb][i] = new TH1D(TString("upper"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()),
-							     TString("upper"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+title.str()),
-							     symmetric_ ? 1600 : 800, symmetric_ ? -0.0080*factor_ : 0.,
-							     0.0080*factor_);
-	  h_lowerCurveMinusBias[chb][etb][phb][i] = new TH1D(TString("lower"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()),
-							     TString("lower"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+title.str()),
-							     symmetric_ ? 1600 : 800, symmetric_ ? -0.0080*factor_ : 0.,
-							     0.0080*factor_);
-	}  // end lop over bias bins
-      }  // end loop over charge bins
+      }
 
       if (debug)
 	std::cout << "saving etaphidir" << std::endl;
@@ -552,7 +490,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
       // g->Write();
     }  // end loop over phi bins
   }  // end loop over eta bins
-
 
   if (debug)
     std::cout << "setting up loose histograms" << std::endl;
@@ -627,47 +564,14 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TH1D *h_looseMuLowerCurveMinusBias[2][2][3][nBiasBins];
 
   if (debug)
-    std::cout << "setting up pseudo experiments" << std::endl;
-  ///// histograms for the MC closure study
-  const int    N_PSEUDO = 100;
-  const int    closureBin   = 25;      // injected bias bin to recover
-  const double pseudoThresh = 0.0025;  // fraction of events to treat as data
-  const bool recoverNegativeBias = false;
-  const bool recoverPositiveBias = !recoverNegativeBias;
-
-  TH2D *h_randvals;
-  if (mcFlag_) {
-    if (debug)
-      std::cout << "booking randvals histogram" << std::endl;
-    h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
-  }
-
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms" << std::endl;
-  TH1D *h_looseMuUpperCurvePseudoData[2][2][3][N_PSEUDO];
-  TH1D *h_looseMuLowerCurvePseudoData[2][2][3][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms2" << std::endl;
-  TH1D *h_looseMuUpperCurvePlusBiasMCClosure[2][2][3][nBiasBins][N_PSEUDO];
-  TH1D *h_looseMuLowerCurvePlusBiasMCClosure[2][2][3][nBiasBins][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms3" << std::endl;
-  TH1D *h_looseMuUpperCurveMinusBiasMCClosure[2][2][3][nBiasBins][N_PSEUDO];
-  if (debug)
-    std::cout << "setting up pseudo experiment histograms4" << std::endl;
-  TH1D *h_looseMuLowerCurveMinusBiasMCClosure[2][2][3][nBiasBins][N_PSEUDO];
-
-  if (debug)
-    std::cout << "setting up TRandom3" << std::endl;
-  TRandom3 closureRand(197351);
-
-  if (debug)
     std::cout << "booking loose histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
     for (int phb = 0; phb < 3; ++phb) {
       TString etaphilabel(etaBins[etb]+phiBins[phb]);
       g->cd();
       TDirectory* etaphidir = (TDirectory*)g->GetDirectory(etaphilabel);
+      if (!etaphidir)
+	etaphidir = (TDirectory*)g->mkdir(etaphilabel);
       etaphidir->cd();
       for (int chb = 0; chb < 2; ++chb) {
 
@@ -744,7 +648,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 									     "looseMuUpper"+chargeBins[chb]+"TrackerLayersWithMeasurement"+etaphilabel,
 									     20, -0.5, 19.5);
 
- 	// lower leg histograms
+	// lower leg histograms
 	h_looseMuLowerPt[chb][etb][phb]     = new TH1D("looseMuLower"+chargeBins[chb]+"Pt"+etaphilabel,
 						       "looseMuLower"+chargeBins[chb]+"Pt"+etaphilabel,
 						       300,   0., 3000.);
@@ -845,53 +749,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  h_looseMuLowerCurveMinusBias[chb][etb][phb][i] = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()),
 								    TString(title.str()),
 								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-
-	  // only do this for MC
-	  if (mcFlag_) {
-	    for (int rab = 0; rab < N_PSEUDO; ++rab) {
-	      std::stringstream name2;
-	      name2 << std::setw(3) << std::setfill('0') << rab;
-	      if (i == closureBin) {
-		std::stringstream title2;
-		title2 << "pseudoexperiment " << rab;
-
-		title.str("");
-		title.clear();
-		title << "#Delta#kappa = "
-		      << (recoverNegativeBias ? "-" : "+")
-		      << (closureBin+1)*(factor_*maxBias/nBiasBins);
-		h_looseMuUpperCurvePseudoData[chb][etb][phb][rab] = new TH1D(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+name.str()+"PseudoData"+name2.str()),
-									     TString(title.str()+" "+title2.str()),
-									     symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-		h_looseMuLowerCurvePseudoData[chb][etb][phb][rab] = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+name.str()+"PseudoData"+name2.str()),
-									     TString(title.str()+" "+title2.str()),
-									     symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	      }
-
-	      std::stringstream title2;
-	      title2 << "pseudoexperiment " << rab;
-
-	      title.str("");
-	      title.clear();
-	      title << "#Delta#kappa = +" << (i+1)*(factor_*maxBias/nBiasBins);
-	      h_looseMuUpperCurvePlusBiasMCClosure[chb][etb][phb][i][rab]  = new TH1D(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()+"MCClosure"+name2.str()),
-										      TString(title.str()+" "+title2.str()),
-										      symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	      h_looseMuLowerCurvePlusBiasMCClosure[chb][etb][phb][i][rab]  = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()+"MCClosure"+name2.str()),
-										      TString(title.str()+" "+title2.str()),
-										      symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	      title.str("");
-	      title.clear();
-	      title << "#Delta#kappa = -" << (i+1)*(factor_*maxBias/nBiasBins);
-	      h_looseMuUpperCurveMinusBiasMCClosure[chb][etb][phb][i][rab]  = new TH1D(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()+"MCClosure"+name2.str()),
-										       TString(title.str()+" "+title2.str()),
-										       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	      h_looseMuLowerCurveMinusBiasMCClosure[chb][etb][phb][i][rab]  = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()+"MCClosure"+name2.str()),
-										       TString(title.str()+" "+title2.str()),
-										       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	    }  // end loop over pseudo experiments
-	  }  // end loop over bias bins
-	}  // end check on MC
+	}  // end loop over bias bins
       }  // end loop over charge bins
 
       if (debug)
@@ -961,13 +819,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
   //double maxDR = 0.15; // what is reasonable here? Aachen did dPhi < 0.1, dTheta (eta?) < 0.05
 
   while (trackReader.Next()) {
-
-    Double_t *randvals = new Double_t[N_PSEUDO];
-    if (mcFlag_) {
-      closureRand.RndmArray(N_PSEUDO,randvals);
-      for (int ri = 0; ri < N_PSEUDO; ++ri)
-	h_randvals->Fill(ri,randvals[ri]);
-    }
     if (debug)
       std::cout << "Made it into the first loop" << std::endl;
     g->cd();
@@ -1018,7 +869,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	/*
 	// make the curvature absolute value (asymmetric)
 	if (!symmetric_)
-	  upperCpT = factor_/(sqrt(upTrackerTrack->perp2()));//upTrackerMuonP4->pt();
+	upperCpT = factor_/(sqrt(upTrackerTrack->perp2()));//upTrackerMuonP4->pt();
 	*/
 	double upperRelPtErr = *upTrackerPtError/(sqrt(upTrackerTrack->perp2()));//upTrackerMuonP4->pt();
 
@@ -1131,24 +982,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << ",phi="    << upTrackerTrack->phi()
 		    << ",charge=" << *upTrackerCharge;
 
-	for (int i = 0; i < nBiasBins; ++i) {
-	  double posBias = upperCpT+(i+1)*(factor_*maxBias/nBiasBins);
-	  double negBias = upperCpT-(i+1)*(factor_*maxBias/nBiasBins);
-
-	  h_upperCurvePlusBias[ chargebin][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	  // what to do in the case that posbias moves a mu- to a mu+?
-	  // h_upperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	  h_upperCurveMinusBias[chargebin][etabin][phibin][i]->Fill( symmetric_?negBias:fabs(negBias));
-	  // what to do in the case that negbias moves a mu+ to a mu-?
-	  // h_upperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill( symmetric_?negBias:fabs(negBias));
-
-	  if (debug)
-	    std::cout << "Made it through the upper bias loop " << i << std::endl;
-	}
-
 	// fill the counters histogram for the upper leg muons passing the super-pointing selection, currently just fill
 	if (up_superpointing && up_etabar) {
-	//if (up_superpointing || true) {
+	  //if (up_superpointing || true) {
 
 	  h_countersUpper->Fill(0);
 
@@ -1289,33 +1125,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	      double posBias = upperCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = upperCpT-(i+1)*(factor_*maxBias/nBiasBins);
 
-	      // for the closure test, make a function?
-	      if (mcFlag_) {
-		if (i == closureBin) {
-		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
-		    if (!(randvals[ri] > pseudoThresh)) {
-		      h_looseMuUpperCurvePseudoData[chargebin][etabin][phibin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		      // h_looseMuUpperCurvePseudoData[getChargeBin(recoverPositiveBias?posBias:negBias)][etabin][phibin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		    }
-		  }
-		}
-	      }
-	      h_looseMuUpperCurvePlusBias[chargebin][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	      // h_looseMuUpperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	      h_looseMuUpperCurveMinusBias[chargebin][etabin][phibin][i]->Fill(symmetric_?negBias:fabs(negBias));
-	      // h_looseMuUpperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(symmetric_?negBias:fabs(negBias));
-
-	      if (mcFlag_) {
-		for (int ri = 0; ri < N_PSEUDO; ++ri) {
-		  if (randvals[ri] > pseudoThresh) {
-		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][etabin][phibin][i][ri]->Fill(posBias);
-		    // h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][etabin][phibin][i][ri]->Fill(posBias);
-		    h_looseMuUpperCurveMinusBiasMCClosure[chargebin][etabin][phibin][i][ri]->Fill(negBias);
-		    // h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][etabin][phibin][i][ri]->Fill(negBias);
-		  }
-		}
-	      }
-
 	      if (debug)
 		std::cout << "Made it through the upper bias loop " << i << std::endl;
 	    }
@@ -1357,17 +1166,17 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  }
 	} // end check on up_superpointing
 
-	/* // commented out to include or of tracks
-	   } // end if (sqrt(upTrackerTrack->perp2()) > minPt_)
+	  /* // commented out to include or of tracks
+	     } // end if (sqrt(upTrackerTrack->perp2()) > minPt_)
 
-	   //////// Lower muon leg ///////
-	   if (sqrt(lowTrackerTrack->perp2()) > minPt_) {
-	*/
+	     //////// Lower muon leg ///////
+	     if (sqrt(lowTrackerTrack->perp2()) > minPt_) {
+	  */
 	double lowerCpT = factor_*(*lowTrackerCharge)/(sqrt(lowTrackerTrack->perp2()));
 	/*
 	// make the curvature absolute value (asymmetric)
 	if (!symmetric_)
-	  lowerCpT = factor_/(sqrt(lowTrackerTrack->perp2()));
+	lowerCpT = factor_/(sqrt(lowTrackerTrack->perp2()));
 	*/
 	double lowerRelPtErr = *lowTrackerPtError/(sqrt(lowTrackerTrack->perp2()));
 
@@ -1415,7 +1224,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 				  (*lowTrackerPhits > 0 ))
 	  ? 1 : 0;
 	bool low_n1pixhits     = (lowerValidMuHits        &&
-				 lowerMuStationHits       &&
+				  lowerMuStationHits       &&
 				  (lowerRelPtErr   < 0.3) &&
 				  (*lowTrackerLayersWithMeasurement > 5))
 	  ? 1 : 0;
@@ -1480,24 +1289,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << ",phi="    << lowTrackerTrack->phi()
 		    << ",charge=" << *lowTrackerCharge;
 
-	for (int i = 0; i < nBiasBins; ++i) {
-	  double posBias = lowerCpT+(i+1)*(factor_*maxBias/nBiasBins);
-	  double negBias = lowerCpT-(i+1)*(factor_*maxBias/nBiasBins);
-
-	  h_lowerCurvePlusBias[ chargebin][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	  // what to do in the case that posbias moves a mu- to a mu+?
-	  // h_lowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	  h_lowerCurveMinusBias[chargebin][etabin][phibin][i]->Fill( symmetric_?negBias:fabs(negBias));
-	  // what to do in the case that negbias moves a mu+ to a mu-?
-	  // h_lowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill( symmetric_?negBias:fabs(negBias));
-
-	  if (debug)
-	    std::cout << "Made it through the lower bias loop " << i << std::endl;
-	}
-
 	// fill the counters histogram for the lower leg muons passing the super-pointing selection
 	if (low_superpointing && low_etabar) {
-	//if (low_superpointing || true) {
+	  //if (low_superpointing || true) {
 
 	  h_countersLower->Fill(0);
 
@@ -1638,34 +1432,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	      double posBias = lowerCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = lowerCpT-(i+1)*(factor_*maxBias/nBiasBins);
 
-	      if (mcFlag_) {
-		// for the closure test, make a function?
-		if (i == closureBin) {
-		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
-		    if (randvals[ri] > pseudoThresh) {
-		      h_looseMuLowerCurvePseudoData[chargebin][etabin][phibin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		      // h_looseMuLowerCurvePseudoData[getChargeBin(recoverPositiveBias?posBias:negBias)][etabin][phibin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		    }
-		  }
-		}
-	      }
-
-	      h_looseMuLowerCurvePlusBias[chargebin][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	      // h_looseMuLowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill( symmetric_?posBias:fabs(posBias));
-	      h_looseMuLowerCurveMinusBias[chargebin][etabin][phibin][i]->Fill(symmetric_?negBias:fabs(negBias));
-	      // h_looseMuLowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(symmetric_?negBias:fabs(negBias));
-
-	      if (mcFlag_) {
-		for (int ri = 0; ri < N_PSEUDO; ++ri) {
-		  if (randvals[ri] > pseudoThresh) {
-		    h_looseMuLowerCurvePlusBiasMCClosure[chargebin][etabin][phibin][i][ri]->Fill(posBias);
-		    // h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][etabin][phibin][i][ri]->Fill(posBias);
-		    h_looseMuLowerCurveMinusBiasMCClosure[chargebin][etabin][phibin][i][ri]->Fill(negBias);
-		    // h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][etabin][phibin][i][ri]->Fill(negBias);
-		  }
-		}
-	      }
-
 	      if (debug)
 		std::cout << "Made it through the lower bias loop " << i << std::endl;
 	    }
@@ -1706,12 +1472,8 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	    h_looseMuLowerMatchedMuonStations[chargebin][etabin][phibin]->Fill(*lowTrackerMatchedMuonStations);
 	  }
 	} // end check on low_superpointing
-	//} // end if (sqrt(lowTrackerTrack->perp2()) > minPt_)
+	  //} // end if (sqrt(lowTrackerTrack->perp2()) > minPt_)
       } // end if (sqrt(upTrackerTrack->perp2()) > minPt_ || sqrt(lowTrackerTrack->perp2()) > minPt_)
-      // end of the loop
-      j++;
-      if (debug)
-	std::cout << "Made it through " << j << " sets of fills" << std::endl;
 
       if (hasPt100Loose)
 	lumiFileOut100_loose
@@ -1766,6 +1528,10 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  << " (upper leg) " << upperstring.str()
 	  << " (lower leg) " << lowerstring.str()
 	  << std::endl;
+
+      ++j;
+      if (debug)
+	std::cout << "Made it through " << j << " sets of fills" << std::endl;
     } // closing if (*upTrackerChi2 > -1)
   } // end while loop
 
@@ -1777,7 +1543,8 @@ void Plot(std::string const& filelist, std::string const& outFile,
   lumiFileOut200_tight.close();
   lumiFileOut400_tight.close();
 
-  std::cout << std::hex << g << std::dec << std::endl;
+  if (debug)
+    std::cout << std::hex << g << std::dec << std::endl;
 
   g->Write();
   g->Close();
