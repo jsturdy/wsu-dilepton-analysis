@@ -188,12 +188,12 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int    N_CURVE_BINS    = 160;
+  const int    N_CURVE_BINS    = 320;
   const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  const int    N_PSEUDO = 100;
-  const int    closureBin   = 20;      // injected bias bin to recover
+  const int    N_PSEUDO = 250;
+  const int    closureBin   = 10;      // injected bias bin to recover
   const double pseudoThresh = 0.0025;  // fraction of events to treat as data
   const bool recoverNegativeBias = false;
   const bool recoverPositiveBias = !recoverNegativeBias;

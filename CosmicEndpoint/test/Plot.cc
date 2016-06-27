@@ -270,7 +270,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int    N_CURVE_BINS    = 320;
+  const int    N_CURVE_BINS    = 640;
   const double MAX_CURVE_RANGE = 0.0160;
 
   // all histograms split into charge bins (plus/minus) and eta/phi bins
@@ -1125,6 +1125,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	      double posBias = upperCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = upperCpT-(i+1)*(factor_*maxBias/nBiasBins);
 
+	      h_looseMuUpperCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
+	      h_looseMuUpperCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
+
+	      // h_looseMuUpperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
+	      // h_looseMuUpperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
+
 	      if (debug)
 		std::cout << "Made it through the upper bias loop " << i << std::endl;
 	    }
@@ -1431,6 +1437,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	    for (int i = 0; i < nBiasBins; ++i) {
 	      double posBias = lowerCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = lowerCpT-(i+1)*(factor_*maxBias/nBiasBins);
+
+	      h_looseMuLowerCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
+	      h_looseMuLowerCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
+
+	      // h_looseMuLowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
+	      // h_looseMuLowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
 
 	      if (debug)
 		std::cout << "Made it through the lower bias loop " << i << std::endl;
