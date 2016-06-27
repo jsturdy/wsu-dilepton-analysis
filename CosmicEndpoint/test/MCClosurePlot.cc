@@ -3,6 +3,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 
+#include <time.h>
+
 #include "TLorentzVector.h"
 #include "TROOT.h"
 #include "TFile.h"
@@ -186,12 +188,12 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int    N_CURVE_BINS    = 320;
-  const double MAX_CURVE_RANGE = 0.0160;
+  const int    N_CURVE_BINS    = 160;
+  const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
   const int    N_PSEUDO = 100;
-  const int    closureBin   = 25;      // injected bias bin to recover
+  const int    closureBin   = 20;      // injected bias bin to recover
   const double pseudoThresh = 0.0025;  // fraction of events to treat as data
   const bool recoverNegativeBias = false;
   const bool recoverPositiveBias = !recoverNegativeBias;
@@ -633,8 +635,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   if (debug)
     std::cout << std::hex << g << std::dec << std::endl;
 
+  time_t rawtime;
+  struct tm * timeinfo;
+
+  time(&rawtime);
+  std::cout << "writing out histograms: " << asctime(localtime(&rawtime)) << std::endl;
   g->Write();
+  time(&rawtime);
+  std::cout << "closing file: " << asctime(localtime(&rawtime)) << std::endl;
   g->Close();
+  time(&rawtime);
+  std::cout << "done: " << asctime(localtime(&rawtime)) << std::endl;
 
   return;
 }
