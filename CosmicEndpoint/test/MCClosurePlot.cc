@@ -34,6 +34,13 @@
 
 #include "WSUDiLeptons/CosmicEndpoint/test/binFunctions.h"
 
+#define const_N_CURVE_BINS 320
+#define const_MAX_CURVE_RANGE 0.0080
+#define const_N_PSEUDO 250
+#define const_N_CLOSURE_BINS 5
+#define const_closureBins (0 ,5, 10, 20, 30)
+#define const_pseudoThresh 0.0025
+
 void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
 		   int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
@@ -188,16 +195,23 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  const int    N_CURVE_BINS    = 320;
-  const double MAX_CURVE_RANGE = 0.0080;
+  static const int    N_CURVE_BINS    = 320;
+  static const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  const int    N_PSEUDO = 250;
-  const int    N_CLOSURE_BINS   = 5;      // injected bias bin to recover
-  const int    closureBins = {0 ,5, 10, 20, 30};      // injected bias bin to recover
-  const double pseudoThresh = 0.0025;  // fraction of events to treat as data
-  const bool recoverNegativeBias = false;
-  const bool recoverPositiveBias = !recoverNegativeBias;
+  static const int    N_PSEUDO = 250;
+  static const int    N_CLOSURE_BINS = 5;
+  static const int    CLOSURE_BIN0   =  0;
+  static const int    CLOSURE_BIN1   =  5;
+  static const int    CLOSURE_BIN2   = 10;
+  static const int    CLOSURE_BIN3   = 20;
+  static const int    CLOSURE_BIN4   = 30;
+  static const int    closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
+						     CLOSURE_BIN1,
+						     CLOSURE_BIN2,
+						     CLOSURE_BIN3,
+						     CLOSURE_BIN4 };      // injected bias bin to recover
+  static const double pseudoThresh = 0.0025;  // fraction of events to treat as data
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
@@ -241,23 +255,23 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	bool fillPseudoData = false;
 	int clb = -1;
 	switch(i) {
-	case  (i == closureBins[0]) :
+	case  (CLOSURE_BIN0) :
 	  clb = 0;
 	  fillPseudoData = true;
 	  break;
-	case  (i == closureBins[1]) :
+	case  (CLOSURE_BIN1) :
 	  clb = 1;
 	  fillPseudoData = true;
 	  break;
-	case  (i == closureBins[2]) :
+	case  (CLOSURE_BIN2) :
 	  clb = 2;
 	  fillPseudoData = true;
 	  break;
-	case  (i == closureBins[3]) :
+	case  (CLOSURE_BIN3) :
 	  clb = 3;
 	  fillPseudoData = true;
 	  break;
-	case  (i == closureBins[4]) :
+	case  (CLOSURE_BIN4) :
 	  clb = 4;
 	  fillPseudoData = true;
 	  break;
@@ -302,9 +316,6 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 									symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
 	  }
 	}
-
-	std::stringstream title2;
-	title2 << "pseudoexperiment " << rab;
 
 	title.str("");
 	title.clear();
@@ -533,23 +544,23 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		bool fillPseudoData = false;
 		int clb = -1;
 		switch(i) {
-		case  (i == closureBins[0]) :
+		case  (CLOSURE_BIN0) :
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[1]) :
+		case  (CLOSURE_BIN1) :
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[2]) :
+		case  (CLOSURE_BIN2) :
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[3]) :
+		case  (CLOSURE_BIN3) :
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[4]) :
+		case  (CLOSURE_BIN4) :
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
@@ -689,23 +700,23 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		bool fillPseudoData = false;
 		int clb = -1;
 		switch(i) {
-		case  (i == closureBins[0]) :
+		case  (CLOSURE_BIN0) :
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[1]) :
+		case  (CLOSURE_BIN1) :
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[2]) :
+		case  (CLOSURE_BIN2) :
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[3]) :
+		case  (CLOSURE_BIN3) :
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
-		case  (i == closureBins[4]) :
+		case  (CLOSURE_BIN4) :
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
