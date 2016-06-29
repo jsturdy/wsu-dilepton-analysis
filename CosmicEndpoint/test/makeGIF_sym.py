@@ -355,6 +355,9 @@ if __name__ == "__main__":
     for step in range(0,options.biasbins/options.stepsize):
         gifcanvas.cd()
 
+        if options.debug:
+            print "%s%s%sMinusBias%03d"%(histName,"PlusCurve", options.etaphi,
+                                         options.biasbins-step*options.stepsize)
         plusHistp100  = p100InFile.Get("%s%s%sMinusBias%03d"%(histName,"PlusCurve", options.etaphi,
                                                               options.biasbins-step*options.stepsize))
         minusHistp100 = p100InFile.Get("%s%s%sMinusBias%03d"%(histName,"MinusCurve",options.etaphi,
@@ -380,23 +383,23 @@ if __name__ == "__main__":
                 print "before: plusRefNBins %d, plusNBins %d"%(  plusRefHist.GetNbinsX(), plusHist.GetNbinsX())
                 print "before: minusRefNBins %d, minusNBins %d"%(minusRefHist.GetNbinsX(),minusHist.GetNbinsX())
                 pass
-    
+
             plusHist  = setMinPT(plusHist, options.totalbins,options.minpt/1000.,True,options.debug)
             minusHist = setMinPT(minusHist,options.totalbins,options.minpt/1000.,True,options.debug)
-    
+
             plusHist.Rebin( options.rebins)
             minusHist.Rebin(options.rebins)
-    
+
             if options.debug:
                 print "after: plusRefNBins %d, plusNBins %d"%(  plusRefHist.GetNbinsX(), plusHist.GetNbinsX())
                 print "after: minusRefNBins %d, minusNBins %d"%(minusRefHist.GetNbinsX(),minusHist.GetNbinsX())
                 pass
-    
+
             ### integral before scaling
             comppinto = plusHist.Integral()
             compminto = minusHist.Integral()
             compinto  = comppinto+compminto
-    
+
             if (plusScaleHist.Integral() > 0):
                 # scale to this histogram
                 #plusHist.Scale(refHist.Integral()/plusHist.Integral())
@@ -405,7 +408,7 @@ if __name__ == "__main__":
             else:
                 print "unable to scale plus histogram, integral is 0"
                 pass
-    
+
             if (minusScaleHist.Integral() > 0):
                 # scale to this histogram
                 #minusHist.Scale(refHist.Integral()/minusHist.Integral())
@@ -414,15 +417,15 @@ if __name__ == "__main__":
             else:
                 print "unable to scale minus histogram, integral is 0"
                 pass
-    
+
             ### if we scale plus to plus and minus to minus, have to add them here rather than before
             ## need to make this programatic though
-    
+
             comppinta = plusHist.Integral()
             compminta = minusHist.Integral()
             compinta  = comppinta+compminta
             pass
-    
+
         ## Add plus and minus histograms for the comparison histogram
         compHist = plusHist.Clone("%s_compHist_MinusBias%03d"%(histName,options.biasbins-step*options.stepsize))
         compHist.Add(minusHist)
@@ -432,17 +435,17 @@ if __name__ == "__main__":
             if options.debug:
                 print "before: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
                 pass
-            
+
             compHist  = setMinPT(compHist, options.totalbins,options.minpt/1000.,True,options.debug)
             compHist.Rebin(options.rebins)
-            
+
             if options.debug:
                 print "after: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
                 pass
-            
+
             ### integral before scaling
             compinto  = compHist.Integral()
-            
+
             if (compScaleHist.Integral() > 0):
                 # scale to this histogram
                 #compHist.Scale(refHist.Integral()/compHist.Integral())
@@ -451,7 +454,7 @@ if __name__ == "__main__":
             else:
                 print "unable to scale comp histogram, integral is 0"
                 pass
-            
+
             compinta  = compHist.Integral()
             pass
 
@@ -623,14 +626,14 @@ if __name__ == "__main__":
         if options.debug:
             print "before: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
             pass
-        
+
         compHist = setMinPT(compHist,options.totalbins,options.minpt/1000.,True,options.debug)
         compHist.Rebin(options.rebins)
 
         if options.debug:
             print "after: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
             pass
-        
+
         ### integral before scaling
         compinto = compHist.Integral()
 
@@ -642,7 +645,7 @@ if __name__ == "__main__":
         else:
             print "unable to scale comp histogram, integral is 0"
             pass
-        
+
         compinta  = compHist.Integral()
         pass
 
@@ -758,23 +761,23 @@ if __name__ == "__main__":
                 print "before: plusRefNBins %d, plusNBins %d"%(  plusRefHist.GetNbinsX(), plusHist.GetNbinsX())
                 print "before: minusRefNBins %d, minusNBins %d"%(minusRefHist.GetNbinsX(),minusHist.GetNbinsX())
                 pass
-    
+
             plusHist  = setMinPT(plusHist, options.totalbins,options.minpt/1000.,True,options.debug)
             minusHist = setMinPT(minusHist,options.totalbins,options.minpt/1000.,True,options.debug)
-    
+
             plusHist.Rebin( options.rebins)
             minusHist.Rebin(options.rebins)
-    
+
             if options.debug:
                 print "after: plusRefNBins %d, plusNBins %d"%(  plusRefHist.GetNbinsX(), plusHist.GetNbinsX())
                 print "after: minusRefNBins %d, minusNBins %d"%(minusRefHist.GetNbinsX(),minusHist.GetNbinsX())
                 pass
-    
+
             ### integral before scaling
             comppinto = plusHist.Integral()
             compminto = minusHist.Integral()
             compinto  = comppinto+compminto
-    
+
             if (plusScaleHist.Integral() > 0):
                 # scale to this histogram
                 #plusHist.Scale(refHist.Integral()/plusHist.Integral())
@@ -783,7 +786,7 @@ if __name__ == "__main__":
             else:
                 print "unable to scale plus histogram, integral is 0"
                 pass
-    
+
             if (minusScaleHist.Integral() > 0):
                 # scale to this histogram
                 #minusHist.Scale(refHist.Integral()/minusHist.Integral())
@@ -792,15 +795,15 @@ if __name__ == "__main__":
             else:
                 print "unable to scale minus histogram, integral is 0"
                 pass
-    
+
             ### if we scale plus to plus and minus to minus, have to add them here rather than before
             ## need to make this programatic though
-    
+
             comppinta = plusHist.Integral()
             compminta = minusHist.Integral()
             compinta  = comppinta+compminta
             pass
-    
+
         ## Add plus and minus histograms for the comparison histogram
         compHist = plusHist.Clone("%s_compHist_PlusBias%03d"%(histName,(1+step)*options.stepsize))
         compHist.Add(minusHist)
@@ -810,14 +813,14 @@ if __name__ == "__main__":
             if options.debug:
                 print "before: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
                 pass
-            
+
             compHist = setMinPT(compHist,options.totalbins,options.minpt/1000.,True,options.debug)
             compHist.Rebin(options.rebins)
 
             if options.debug:
                 print "after: refNBins %d, compNBins %d"%(refHist.GetNbinsX(),compHist.GetNbinsX())
                 pass
-            
+
             ### integral before scaling
             compinto = compHist.Integral()
 
@@ -829,7 +832,7 @@ if __name__ == "__main__":
             else:
                 print "unable to scale comp histogram, integral is 0"
                 pass
-            
+
             compinta  = compHist.Integral()
             pass
 
@@ -912,7 +915,7 @@ if __name__ == "__main__":
         if options.residuals:
             pad.cd()
             pass
-        
+
         thetext.Draw("nb")
         thelegend.Draw()
         r.gPad.Update()
