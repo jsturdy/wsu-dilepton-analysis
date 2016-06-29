@@ -193,7 +193,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   ///// histograms for the MC closure study
   const int    N_PSEUDO = 250;
-  const int    closureBin   = 10;      // injected bias bin to recover
+  const int    N_CLOSURE_BINS   = 5;      // injected bias bin to recover
+  const int    closureBins = {0 ,5, 10, 20, 30};      // injected bias bin to recover
   const double pseudoThresh = 0.0025;  // fraction of events to treat as data
   const bool recoverNegativeBias = false;
   const bool recoverPositiveBias = !recoverNegativeBias;
@@ -201,8 +202,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
 
-  TH1F *h_looseMuUpperCurvePseudoData[2][N_PSEUDO];
-  TH1F *h_looseMuLowerCurvePseudoData[2][N_PSEUDO];
+  TH1F *h_looseMuUpperCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
+  TH1F *h_looseMuLowerCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
   TH1F *h_looseMuUpperCurvePlusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
   TH1F *h_looseMuLowerCurvePlusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
   TH1F *h_looseMuUpperCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
@@ -235,21 +236,71 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
       for (int rab = 0; rab < N_PSEUDO; ++rab) {
 	std::stringstream name2;
 	name2 << std::setw(3) << std::setfill('0') << rab;
-	if (i == closureBin) {
-	  std::stringstream title2;
-	  title2 << "pseudoexperiment " << rab;
+	std::stringstream title2;
+	title2 << "pseudoexperiment " << rab;
+	bool fillPseudoData = false;
+	int clb = -1;
+	switch(i) {
+	case  (i == closureBins[0]) :
+	  clb = 0;
+	  fillPseudoData = true;
+	  break;
+	case  (i == closureBins[1]) :
+	  clb = 1;
+	  fillPseudoData = true;
+	  break;
+	case  (i == closureBins[2]) :
+	  clb = 2;
+	  fillPseudoData = true;
+	  break;
+	case  (i == closureBins[3]) :
+	  clb = 3;
+	  fillPseudoData = true;
+	  break;
+	case  (i == closureBins[4]) :
+	  clb = 4;
+	  fillPseudoData = true;
+	  break;
+	default:
+	  int clb = -1;
+	  fillPseudoData = false;
+	  break;
+	}
+	if (fillPseudoData) {
+	  if (clb == 0) {
+	    title.str("");
+	    title.clear();
+	    title << "#Delta#kappa = "
+		  << (i)*(factor_*maxBias/nBiasBins);
+	    h_looseMuUpperCurvePseudoData[chb][clb][rab] = new TH1F(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverZeroBias"+name.str()+"PseudoData"+name2.str()),
+								    TString(title.str()+" "+title2.str()),
+								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	    h_looseMuLowerCurvePseudoData[chb][clb][rab] = new TH1F(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverZeroBias"+name.str()+"PseudoData"+name2.str()),
+								    TString(title.str()+" "+title2.str()),
+								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	  } else {
+	    // recover plus bias
+	    title.str("");
+	    title.clear();
+	    title << "#Delta#kappa = +"
+		  << (i)*(factor_*maxBias/nBiasBins);
+	    h_looseMuUpperCurvePseudoData[chb][(2*clb)-1][rab] = new TH1F(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverPlusBias"+name.str()+"PseudoData"+name2.str()),
+									  TString(title.str()+" "+title2.str()),
+									  symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	    h_looseMuLowerCurvePseudoData[chb][(2*clb)-1][rab] = new TH1F(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverPlusBias"+name.str()+"PseudoData"+name2.str()),
+									  TString(title.str()+" "+title2.str()),
+									  symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
 
-	  title.str("");
-	  title.clear();
-	  title << "#Delta#kappa = "
-		<< (recoverNegativeBias ? "-" : "+")
-		<< (closureBin+1)*(factor_*maxBias/nBiasBins);
-	  h_looseMuUpperCurvePseudoData[chb][rab] = new TH1F(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+name.str()+"PseudoData"+name2.str()),
-							     TString(title.str()+" "+title2.str()),
-							     symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
-	  h_looseMuLowerCurvePseudoData[chb][rab] = new TH1F(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+name.str()+"PseudoData"+name2.str()),
-							     TString(title.str()+" "+title2.str()),
-							     symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	    // recover minus bias
+	    title << "#Delta#kappa = -"
+		  << (i)*(factor_*maxBias/nBiasBins);
+	    h_looseMuUpperCurvePseudoData[chb][(2*clb)][rab] = new TH1F(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverMinusBias"+name.str()+"PseudoData"+name2.str()),
+									TString(title.str()+" "+title2.str()),
+									symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	    h_looseMuLowerCurvePseudoData[chb][(2*clb)][rab] = new TH1F(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverMinusBias"+name.str()+"PseudoData"+name2.str()),
+									TString(title.str()+" "+title2.str()),
+									symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+	  }
 	}
 
 	std::stringstream title2;
@@ -479,14 +530,52 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		double negBias = upperCpT-(i)*(factor_*maxBias/nBiasBins);
 
 		// for the closure test, make a function?
-		if (i == closureBin) {
+		bool fillPseudoData = false;
+		int clb = -1;
+		switch(i) {
+		case  (i == closureBins[0]) :
+		  clb = 0;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[1]) :
+		  clb = 1;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[2]) :
+		  clb = 2;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[3]) :
+		  clb = 3;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[4]) :
+		  clb = 4;
+		  fillPseudoData = true;
+		  break;
+		default:
+		  int clb = -1;
+		  fillPseudoData = false;
+		  break;
+		}
+
+		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
-		      h_looseMuUpperCurvePseudoData[chargebin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		      // h_looseMuUpperCurvePseudoData[getChargeBin(recoverPositiveBias?posBias:negBias)][ri]->Fill(recoverPositiveBias?posBias:negBias);
+		      if (clb == 0) {
+			h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+		      } else {
+			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+
+			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+		      }
 		    }
 		  }
 		}
+
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
 		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
@@ -597,11 +686,48 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		double negBias = lowerCpT-(i)*(factor_*maxBias/nBiasBins);
 
 		// for the closure test, make a function?
-		if (i == closureBin) {
+		bool fillPseudoData = false;
+		int clb = -1;
+		switch(i) {
+		case  (i == closureBins[0]) :
+		  clb = 0;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[1]) :
+		  clb = 1;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[2]) :
+		  clb = 2;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[3]) :
+		  clb = 3;
+		  fillPseudoData = true;
+		  break;
+		case  (i == closureBins[4]) :
+		  clb = 4;
+		  fillPseudoData = true;
+		  break;
+		default:
+		  int clb = -1;
+		  fillPseudoData = false;
+		  break;
+		}
+
+		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
-		    if (randvals[ri] > pseudoThresh) {
-		      h_looseMuLowerCurvePseudoData[chargebin][ri]->Fill(recoverPositiveBias?posBias:negBias);
-		      // h_looseMuLowerCurvePseudoData[getChargeBin(recoverPositiveBias?posBias:negBias)][ri]->Fill(recoverPositiveBias?posBias:negBias);
+		    if (!(randvals[ri] > pseudoThresh)) {
+		      if (clb == 0) {
+			h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+		      } else {
+			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+
+			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+		      }
 		    }
 		  }
 		}
