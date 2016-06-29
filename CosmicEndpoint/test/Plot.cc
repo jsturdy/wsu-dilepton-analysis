@@ -253,11 +253,11 @@ void Plot(std::string const& filelist, std::string const& outFile,
   }
 
   // all histograms separated eta/phi
-  TString etaBins[2]    = {"EtaPlus","EtaMinus"};
-  TString phiBins[3]    = {"PhiPlus","PhiZero","PhiMinus"};
+  TString etaBins[2]    = {"EtaMinus","EtaPlus"};
+  TString phiBins[3]    = {"PhiMinus","PhiZero","PhiPlus"};
 
   // for histograms separated by charge
-  TString chargeBins[2] = {"Plus","Minus"};
+  TString chargeBins[2] = {"Minus","Plus"};
 
   // control the curvature histograms
   // bin width = MAX_CURVE_RANGE/N_CURVE_BINS
@@ -276,61 +276,62 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // all histograms split into charge bins (plus/minus) and eta/phi bins
   // all can be combined at a later stage for any analysis
   // histograms for upper leg muons, inclusive in charge
-  TH1D *h_upperPt[2][2][3];
-  TH1D *h_upperEta[2][2][3];
-  TH1D *h_upperPhi[2][2][3];
-  TH1D *h_upperChi2[2][2][3];
-  TH1D *h_upperNdof[2][2][3];
-  TH1D *h_upperCharge[2][2][3];
-  TH1D *h_upperCurve[2][2][3];
+  TH1D *h_upperPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperChi2[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperNdof[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperCharge[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperCurve[2][2][2];  //[3]; changed since we never have positive phi muons
 
-  TH1D *h_upperDxy[2][2][3];
-  TH1D *h_upperDz[2][2][3];
-  TH1D *h_upperDxyError[2][2][3];
-  TH1D *h_upperDzError[2][2][3];
-  TH1D *h_upperTrackPt[2][2][3];
-  TH1D *h_upperTrackEta[2][2][3];
-  TH1D *h_upperTrackPhi[2][2][3];
-  TH1D *h_upperPtError[2][2][3];
-  TH1D *h_upperPtRelErr[2][2][3];
-  TH1D *h_upperPixelHits[2][2][3];
-  TH1D *h_upperTrackerHits[2][2][3];
-  TH1D *h_upperMuonStationHits[2][2][3];
-  TH1D *h_upperValidHits[2][2][3];
-  TH1D *h_upperValidMuonHits[2][2][3];
-  TH1D *h_upperMatchedMuonStations[2][2][3];
-  TH1D *h_upperTrackerLayersWithMeasurement[2][2][3];
+  TH1D *h_upperDxy[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperDz[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperDzError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperPtError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
 
   // histograms for lower leg muons, inclusive in charge
-  TH1D *h_lowerPt[2][2][3];
-  TH1D *h_lowerEta[2][2][3];
-  TH1D *h_lowerPhi[2][2][3];
-  TH1D *h_lowerChi2[2][2][3];
-  TH1D *h_lowerNdof[2][2][3];
-  TH1D *h_lowerCharge[2][2][3];
-  TH1D *h_lowerCurve[2][2][3];
+  TH1D *h_lowerPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerChi2[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerNdof[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerCharge[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerCurve[2][2][2];  //[3]; changed since we never have positive phi muons
 
-  TH1D *h_lowerDxy[2][2][3];
-  TH1D *h_lowerDz[2][2][3];
-  TH1D *h_lowerDxyError[2][2][3];
-  TH1D *h_lowerDzError[2][2][3];
-  TH1D *h_lowerTrackPt[2][2][3];
-  TH1D *h_lowerTrackEta[2][2][3];
-  TH1D *h_lowerTrackPhi[2][2][3];
-  TH1D *h_lowerPtError[2][2][3];
-  TH1D *h_lowerPtRelErr[2][2][3];
-  TH1D *h_lowerPixelHits[2][2][3];
-  TH1D *h_lowerTrackerHits[2][2][3];
-  TH1D *h_lowerMuonStationHits[2][2][3];
-  TH1D *h_lowerValidHits[2][2][3];
-  TH1D *h_lowerValidMuonHits[2][2][3];
-  TH1D *h_lowerMatchedMuonStations[2][2][3];
-  TH1D *h_lowerTrackerLayersWithMeasurement[2][2][3];
+  TH1D *h_lowerDxy[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerDz[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerDzError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerPtError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "booking no cut histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
-    for (int phb = 0; phb < 3; ++phb) {
+    // no need for the third phi bin, since there are no positive phi muons
+    for (int phb = 0; phb < 2; ++phb) {
       TString etaphilabel(etaBins[etb]+phiBins[phb]);
       g->cd();
       TDirectory* etaphidir = (TDirectory*)g->mkdir(etaphilabel);
@@ -496,77 +497,78 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // all histograms split into charge bins (plus/minus) and eta/phi bins
   // all can be combined at a later stage for any analysis
   // histograms for loose cuts (not applying the Dxy/Dz cuts)
-  TH1D *h_looseMuUpperPt[2][2][3];
-  TH1D *h_looseMuUpperEta[2][2][3];
-  TH1D *h_looseMuUpperPhi[2][2][3];
-  TH1D *h_looseMuUpperChi2[2][2][3];
-  TH1D *h_looseMuUpperNdof[2][2][3];
-  TH1D *h_looseMuUpperCharge[2][2][3];
-  TH1D *h_looseMuUpperCurve[2][2][3];
+  TH1D *h_looseMuUpperPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperChi2[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperNdof[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCharge[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCurve[2][2][2];  //[3]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuUpperDxy[2][2][3];
-  TH1D *h_looseMuUpperDz[2][2][3];
-  TH1D *h_looseMuUpperDxyError[2][2][3];
-  TH1D *h_looseMuUpperDzError[2][2][3];
-  TH1D *h_looseMuUpperTrackPt[2][2][3];
-  TH1D *h_looseMuUpperTrackEta[2][2][3];
-  TH1D *h_looseMuUpperTrackPhi[2][2][3];
-  TH1D *h_looseMuUpperPtError[2][2][3];
-  TH1D *h_looseMuUpperPtRelErr[2][2][3];
-  TH1D *h_looseMuUpperPixelHits[2][2][3];
-  TH1D *h_looseMuUpperTrackerHits[2][2][3];
-  TH1D *h_looseMuUpperMuonStationHits[2][2][3];
-  TH1D *h_looseMuUpperValidHits[2][2][3];
-  TH1D *h_looseMuUpperValidMuonHits[2][2][3];
-  TH1D *h_looseMuUpperMatchedMuonStations[2][2][3];
-  TH1D *h_looseMuUpperTrackerLayersWithMeasurement[2][2][3];
+  TH1D *h_looseMuUpperDxy[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDz[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDzError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPtError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuUpperCurvePlusBias[2][2][3][nBiasBins];
-  TH1D *h_looseMuUpperCurveMinusBias[2][2][3][nBiasBins];
+  TH1D *h_looseMuUpperCurvePlusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCurveMinusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
   // histograms for lower leg muons, inclusive in charge
-  TH1D *h_looseMuLowerPt[2][2][3];
-  TH1D *h_looseMuLowerEta[2][2][3];
-  TH1D *h_looseMuLowerPhi[2][2][3];
-  TH1D *h_looseMuLowerChi2[2][2][3];
-  TH1D *h_looseMuLowerNdof[2][2][3];
-  TH1D *h_looseMuLowerCharge[2][2][3];
-  TH1D *h_looseMuLowerCurve[2][2][3];
+  TH1D *h_looseMuLowerPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerChi2[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerNdof[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCharge[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCurve[2][2][2];  //[3]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuLowerDxy[2][2][3];
-  TH1D *h_looseMuLowerDz[2][2][3];
-  TH1D *h_looseMuLowerDxyError[2][2][3];
-  TH1D *h_looseMuLowerDzError[2][2][3];
-  TH1D *h_looseMuLowerTrackPt[2][2][3];
-  TH1D *h_looseMuLowerTrackEta[2][2][3];
-  TH1D *h_looseMuLowerTrackPhi[2][2][3];
-  TH1D *h_looseMuLowerPtError[2][2][3];
-  TH1D *h_looseMuLowerPtRelErr[2][2][3];
-  TH1D *h_looseMuLowerPixelHits[2][2][3];
-  TH1D *h_looseMuLowerTrackerHits[2][2][3];
-  TH1D *h_looseMuLowerMuonStationHits[2][2][3];
-  TH1D *h_looseMuLowerValidHits[2][2][3];
-  TH1D *h_looseMuLowerValidMuonHits[2][2][3];
-  TH1D *h_looseMuLowerMatchedMuonStations[2][2][3];
-  TH1D *h_looseMuLowerTrackerLayersWithMeasurement[2][2][3];
+  TH1D *h_looseMuLowerDxy[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDz[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDzError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPtError[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuLowerCurvePlusBias[2][2][3][nBiasBins];
-  TH1D *h_looseMuLowerCurveMinusBias[2][2][3][nBiasBins];
+  TH1D *h_looseMuLowerCurvePlusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCurveMinusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "booking loose histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
-    for (int phb = 0; phb < 3; ++phb) {
+    // no need for the third phi bin, since there are no positive phi muons
+    for (int phb = 0; phb < 2; ++phb) {
       TString etaphilabel(etaBins[etb]+phiBins[phb]);
       g->cd();
       TDirectory* etaphidir = (TDirectory*)g->GetDirectory(etaphilabel);

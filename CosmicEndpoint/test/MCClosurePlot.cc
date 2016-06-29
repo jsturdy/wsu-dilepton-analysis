@@ -178,11 +178,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     std::cout << "setting up histograms" << std::endl;
 
   // all histograms separated eta/phi
-  TString etaBins[2]    = {"EtaPlus","EtaMinus"};
-  TString phiBins[3]    = {"PhiPlus","PhiZero","PhiMinus"};
+  TString etaBins[2]    = {"EtaMinus","EtaPlus"};
+  TString phiBins[3]    = {"PhiMinus","PhiZero","PhiPlus"};
 
   // for histograms separated by charge
-  TString chargeBins[2] = {"Plus","Minus"};
+  TString chargeBins[2] = {"Minus","Plus"};
 
   // control the curvature histograms
   // bin width = MAX_CURVE_RANGE/N_CURVE_BINS
@@ -407,8 +407,15 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
     Double_t *randvals = new Double_t[N_PSEUDO];
     closureRand.RndmArray(N_PSEUDO,randvals);
-    for (int ri = 0; ri < N_PSEUDO; ++ri)
+    if (j < 2)
+      std::cout << "random values: ";
+    for (int ri = 0; ri < N_PSEUDO; ++ri) {
       h_randvals->Fill(ri,randvals[ri]);
+      if (j < 2)
+	std::cout << " " << ri << ":" << randvals[ri];
+    }
+    if (j < 2)
+      std::cout << std::endl;
 
     if (debug && j < 2)
       std::cout << "Made it into the first loop" << std::endl;
@@ -573,15 +580,18 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
+		      if (j < 2)
+			std::cout << "filling pseudo data: " 
+				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
+				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
 			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 			// h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -589,10 +599,14 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    if (j < 2)
+		      std::cout << "filling mc closure data: " 
+				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
+				<< (randvals[ri] > pseudoThresh) << std::endl;
 		    // h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		    // h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
 
@@ -729,15 +743,18 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
+		      if (j < 2)
+			std::cout << "filling pseudo data: " 
+				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
+				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
 			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 			// h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -745,10 +762,14 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    if (j < 2)
+		      std::cout << "filling mc closure data: " 
+				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
+				<< (randvals[ri] > pseudoThresh) << std::endl;
 		    // h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		    // h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
 
