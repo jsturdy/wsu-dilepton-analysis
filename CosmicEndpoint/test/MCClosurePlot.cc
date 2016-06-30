@@ -39,7 +39,7 @@
 #define const_N_PSEUDO 100
 #define const_N_CLOSURE_BINS 5
 #define const_closureBins (0 ,5, 10, 20, 30)
-#define const_pseudoThresh 0.0025
+#define const_pseudoThresh 0.1
 
 void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
@@ -211,7 +211,9 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 						     CLOSURE_BIN2,
 						     CLOSURE_BIN3,
 						     CLOSURE_BIN4 };      // injected bias bin to recover
-  static const double pseudoThresh = 0.005;  // fraction of events to treat as data, twice the rate we see in data
+
+  // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
+  static const double pseudoThresh = 0.0375;  // fraction of events to treat as data, half the rate we see in data per sample
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
