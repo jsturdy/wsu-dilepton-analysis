@@ -79,6 +79,8 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 												1000.,simlow,simhigh,
 												symmetric,trigger,isMC))
 		for tk in range(5):
+			if debug and tk < 4:
+				continue
 			f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
 													symasym,outputFile,i,
 													tk+1,
@@ -86,13 +88,17 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 													1000.,simlow,simhigh,
 													symmetric,trigger,isMC))
 			if (toolName=="Plot" and isMC and tk==4):
-				f.write("  for (int etb = 0; etb < 2; ++etb)\n")
-				f.write("    for (int phb = 0; phb < 3; ++phb)\n")
+				if debug:
+					f.write("  for (int etb = 0; etb < 1; ++etb)\n")
+					f.write("    for (int phb = 0; phb < 1; ++phb)\n")
+				else:
+					f.write("  for (int etb = 0; etb < 2; ++etb)\n")
+					f.write("    for (int phb = 0; phb < 2; ++phb)\n")
+					pass
 				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
 																	  symasym,outputFile,i,
 																	  tk+1,
-																	  #minPt,maxBias,nBiasBins,
-																	  minPt,maxBias/4.,nBiasBins/5,
+																	  minPt,maxBias/4.,nBiasBins/4,
 																	  1000.,simlow,simhigh,
 																	  symmetric,trigger,isMC))
 		f.write("}\n")
