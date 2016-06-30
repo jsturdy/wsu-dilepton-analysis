@@ -211,7 +211,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 						     CLOSURE_BIN2,
 						     CLOSURE_BIN3,
 						     CLOSURE_BIN4 };      // injected bias bin to recover
-  static const double pseudoThresh = 0.0025;  // fraction of events to treat as data
+  static const double pseudoThresh = 0.005;  // fraction of events to treat as data, twice the rate we see in data
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
