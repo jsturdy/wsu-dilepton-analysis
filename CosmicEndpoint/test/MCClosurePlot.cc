@@ -36,7 +36,7 @@
 
 #define const_N_CURVE_BINS 320
 #define const_MAX_CURVE_RANGE 0.0080
-#define const_N_PSEUDO 250
+#define const_N_PSEUDO 100
 #define const_N_CLOSURE_BINS 5
 #define const_closureBins (0 ,5, 10, 20, 30)
 #define const_pseudoThresh 0.0025
@@ -149,8 +149,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   }
 
   std::ifstream file(inputfiles.str());
-  std:: cout << "opening input file list "
-	     << inputfiles.str() << std::hex << "  " << file << std::dec << std::endl;
+  std::cout << "opening input file list "
+	    << inputfiles.str() << std::hex << "  " << file << std::dec << std::endl;
 
   while (std::getline(file,name)) {
     std::stringstream newString;
@@ -199,7 +199,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   static const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  static const int    N_PSEUDO = 250;
+  static const int    N_PSEUDO = 100;
   static const int    N_CLOSURE_BINS = 5;
   static const int    CLOSURE_BIN0   =  0;
   static const int    CLOSURE_BIN1   =  5;
@@ -306,6 +306,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 									  symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
 
 	    // recover minus bias
+	    title.str("");
+	    title.clear();
 	    title << "#Delta#kappa = -"
 		  << (i)*(factor_*maxBias/nBiasBins);
 	    h_looseMuUpperCurvePseudoData[chb][(2*clb)][rab] = new TH1F(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"RecoverMinusBias"+name.str()+"PseudoData"+name2.str()),
@@ -470,8 +472,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	bool up_tightdxy = (*upTrackerDxy < 0.2) ? 1 : 0;
 	bool up_tightdz  = (*upTrackerDz  < 0.5) ? 1 : 0;
 	bool up_etaBar   = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool up_superpointing = ((std::fabs(*upTrackerDxy) < 10) && (std::fabs(*upTrackerDz)  < 50))
-	  ? 1 : 0;
+	bool up_superpointing = ((std::fabs(*upTrackerDxy) < 10) && (std::fabs(*upTrackerDz) < 50)) ? 1 : 0;
 
 	// if using TuneP or TrackerOnly and pT < 200, should *not* apply muon system cuts
 	// bool upperMuStationHits = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerMatchedMuonStations > 1 : 1;
@@ -522,6 +523,10 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 				 (*upTrackerLayersWithMeasurement > 5))
 	  ? 1 : 0;
 
+	int etabin    = getEtaBin(upTrackerTrack->eta());
+	int phibin    = getPhiBin(upTrackerTrack->phi());
+	int chargebin = getChargeBin(*upTrackerCharge);
+
 	if ((j % 100) == 0)
 	  std::cout << "upper leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << upTrackerMuonP4->pt()
@@ -532,14 +537,20 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		    << "trk pt = "    << std::setw(8) << std::setprecision(2) << std::fixed << sqrt(upTrackerTrack->perp2())
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerTrack->eta()
 		    << " - phi = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerTrack->phi()
+		    << std::endl
+
+		    << " - etabin = "    << etabin
+		    << " - phibin = "    << phibin
+		    << " - chargebin = " << chargebin
 		    << std::endl;
 
-	int etabin    = getEtaBin(upTrackerTrack->eta());
-	int phibin    = getPhiBin(upTrackerTrack->phi());
-	int chargebin = getChargeBin(*upTrackerCharge);
-
 	if (etabin == etaBin_ && phibin == phiBin_) {
+	  if (debug)
+	    std::cout << "upper leg passed eta and phi bin cuts" << std::endl;
+
 	  if (up_superpointing && up_etabar) {
+	    if (debug)
+	      std::cout << "upper leg passed superpointing cuts" << std::endl;
 
 	    // if a variable doesn't appear in the High-pT muon selection, then apply all the cuts
 	    if (up_n1pt) {
@@ -552,27 +563,39 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		int clb = -1;
 		switch(i) {
 		case  (CLOSURE_BIN0) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN1) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN2) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN3) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN4) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
 		default:
-		  int clb = -1;
+		  if (debug)
+		    std::cout << "no pseudo data for bin " << i << std::endl;
+		  clb = -1;
 		  fillPseudoData = false;
 		  break;
 		}
@@ -580,8 +603,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
-		      if (j < 2)
-			std::cout << "filling pseudo data: " 
+		      if (debug)
+			std::cout << "filling pseudo data " << ri << ": "
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
@@ -599,8 +622,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    if (j < 2)
-		      std::cout << "filling mc closure data: " 
+		    if (debug)
+		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
 		    // h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
@@ -633,8 +656,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	bool low_tightdxy = (*lowTrackerDxy < 0.2) ? 1 : 0;
 	bool low_tightdz  = (*lowTrackerDz  < 0.5) ? 1 : 0;
 	bool low_etaBar   = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool low_superpointing = ((std::fabs(*lowTrackerDxy) < 10) && (std::fabs(*lowTrackerDz)  < 50))
-	  ? 1 : 0;
+	bool low_superpointing = ((std::fabs(*lowTrackerDxy) < 10) && (std::fabs(*lowTrackerDz) < 50)) ? 1 : 0;
 
 	// if using TrackerOnly or TuneP and pT < 200, should *not* apply muon system cuts
 	// bool lowerMuStationHits = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerMatchedMuonStations > 1 : 1;
@@ -685,6 +707,10 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 				  (*lowTrackerLayersWithMeasurement > 5))
 	  ? 1 : 0;
 
+	etabin    = getEtaBin(lowTrackerTrack->eta());
+	phibin    = getPhiBin(lowTrackerTrack->phi());
+	chargebin = getChargeBin(*lowTrackerCharge);
+
 	if ((j % 100) == 0)
 	  std::cout << "lower leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->pt()
@@ -695,15 +721,21 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		    << "trk pt = "    << std::setw(8) << std::setprecision(2) << std::fixed << sqrt(lowTrackerTrack->perp2())
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerTrack->eta()
 		    << " - phi = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerTrack->phi()
+		    << std::endl
+
+		    << " - etabin = "    << etabin
+		    << " - phibin = "    << phibin
+		    << " - chargebin = " << chargebin
 		    << std::endl;
 
-	etabin    = getEtaBin(lowTrackerTrack->eta());
-	phibin    = getPhiBin(lowTrackerTrack->phi());
-	chargebin = getChargeBin(*lowTrackerCharge);
-
 	if (etabin == etaBin_ && phibin == phiBin_) {
-	  // fill the counters histogram for the lower leg muons passing the super-pointing selection
+	  if (debug)
+	    std::cout << "lower leg passed eta and phi bin cuts" << std::endl;
+
 	  if (low_superpointing && low_etabar) {
+	    if (debug)
+	      std::cout << "lower leg passed superpointing cuts" << std::endl;
+
 	    // if a variable doesn't appear in the High-pT muon selection, then apply all the cuts
 	    if (low_n1pt) {
 	      for (int i = 0; i < nBiasBins+1; ++i) {
@@ -715,27 +747,39 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		int clb = -1;
 		switch(i) {
 		case  (CLOSURE_BIN0) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN1) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN2) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN3) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN4) :
+		  if (debug)
+		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
 		default:
-		  int clb = -1;
+		  if (debug)
+		    std::cout << "no pseudo data for bin " << i << std::endl;
+		  clb = -1;
 		  fillPseudoData = false;
 		  break;
 		}
@@ -743,8 +787,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
-		      if (j < 2)
-			std::cout << "filling pseudo data: " 
+		      if (debug)
+			std::cout << "filling pseudo data " << ri << ": "
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
@@ -762,8 +806,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    if (j < 2)
-		      std::cout << "filling mc closure data: " 
+		    if (debug)
+		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
 		    // h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);

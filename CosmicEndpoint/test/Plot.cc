@@ -882,8 +882,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	bool up_tightdxy = (*upTrackerDxy < 0.2) ? 1 : 0;
 	bool up_tightdz  = (*upTrackerDz  < 0.5) ? 1 : 0;
 	bool up_etaBar   = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool up_superpointing = ((std::fabs(*upTrackerDxy) < 10) && (std::fabs(*upTrackerDz)  < 50))
-	  ? 1 : 0;
+	bool up_superpointing = ((std::fabs(*upTrackerDxy) < 10) && (std::fabs(*upTrackerDz) < 50)) ? 1 : 0;
 
 	// if using TuneP or TrackerOnly and pT < 200, should *not* apply muon system cuts
 	// bool upperMuStationHits = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerMatchedMuonStations > 1 : 1;
@@ -934,6 +933,10 @@ void Plot(std::string const& filelist, std::string const& outFile,
 				 (*upTrackerLayersWithMeasurement > 5))
 	  ? 1 : 0;
 
+	int etabin    = getEtaBin(upTrackerTrack->eta());
+	int phibin    = getPhiBin(upTrackerTrack->phi());
+	int chargebin = getChargeBin(*upTrackerCharge);
+
 	if ((j % 100) == 0)
 	  std::cout << "upper leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << upTrackerMuonP4->pt()
@@ -944,11 +947,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << "trk pt = "    << std::setw(8) << std::setprecision(2) << std::fixed << sqrt(upTrackerTrack->perp2())
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerTrack->eta()
 		    << " - phi = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerTrack->phi()
-		    << std::endl;
+		    << std::endl
 
-	int etabin    = getEtaBin(upTrackerTrack->eta());
-	int phibin    = getPhiBin(upTrackerTrack->phi());
-	int chargebin = getChargeBin(*upTrackerCharge);
+		    << " - etabin = "    << etabin
+		    << " - phibin = "    << phibin
+		    << " - chargebin = " << chargebin
+		    << std::endl;
 
 	h_upperPt[chargebin][    etabin][phibin]->Fill(upTrackerMuonP4->pt());
 	h_upperEta[chargebin][   etabin][phibin]->Fill(upTrackerMuonP4->eta());
@@ -1195,8 +1199,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	bool low_tightdxy = (*lowTrackerDxy < 0.2) ? 1 : 0;
 	bool low_tightdz  = (*lowTrackerDz  < 0.5) ? 1 : 0;
 	bool low_etaBar   = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool low_superpointing = ((std::fabs(*lowTrackerDxy) < 10) && (std::fabs(*lowTrackerDz)  < 50))
-	  ? 1 : 0;
+	bool low_superpointing = ((std::fabs(*lowTrackerDxy) < 10) && (std::fabs(*lowTrackerDz) < 50)) ? 1 : 0;
 
 	// if using TrackerOnly or TuneP and pT < 200, should *not* apply muon system cuts
 	// bool lowerMuStationHits = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerMatchedMuonStations > 1 : 1;
@@ -1247,6 +1250,10 @@ void Plot(std::string const& filelist, std::string const& outFile,
 				  (*lowTrackerLayersWithMeasurement > 5))
 	  ? 1 : 0;
 
+	etabin    = getEtaBin(lowTrackerTrack->eta());
+	phibin    = getPhiBin(lowTrackerTrack->phi());
+	chargebin = getChargeBin(*lowTrackerCharge);
+
 	if ((j % 100) == 0)
 	  std::cout << "lower leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->pt()
@@ -1257,11 +1264,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << "trk pt = "    << std::setw(8) << std::setprecision(2) << std::fixed << sqrt(lowTrackerTrack->perp2())
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerTrack->eta()
 		    << " - phi = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerTrack->phi()
-		    << std::endl;
+		    << std::endl
 
-	etabin    = getEtaBin(lowTrackerTrack->eta());
-	phibin    = getPhiBin(lowTrackerTrack->phi());
-	chargebin = getChargeBin(*lowTrackerCharge);
+		    << " - etabin = "    << etabin
+		    << " - phibin = "    << phibin
+		    << " - chargebin = " << chargebin
+		    << std::endl;
 
 	h_lowerPt[chargebin][    etabin][phibin]->Fill(lowTrackerMuonP4->pt());
 	h_lowerEta[chargebin][   etabin][phibin]->Fill(lowTrackerMuonP4->eta());
