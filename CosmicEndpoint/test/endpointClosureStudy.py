@@ -53,14 +53,37 @@ class endpointClosureStudy():
         self.p100top500ScaleFactor = 1028051./58898.
 
         self.outfile   = r.TFile(outfile,"recreate")
-        self.chi2min   = r.TH1D("chi2Min", "", 500,  0, 250.)
-        self.chi2dist  = r.TH1D("chi2Dist", "",200, -maxbias/10, maxbias/10)
-        self.chi2width = r.TH1D("chi2Width","",200,  0, maxbias/50)
-        self.chi2pull1 = r.TH1D("chi2Pull1","",200, -5, 5)
-        self.chi2pull2 = r.TH1D("chi2Pull2","",200, -5, 5)
-        self.chi2pull3 = r.TH1D("chi2Pull3","",200, -5, 5)
-        self.chi2pull4 = r.TH1D("chi2Pull4","",200, -5, 5)
-        self.chi2pull5 = r.TH1D("chi2Pull5","",200, -5, 5)
+        self.chi2min   = r.TH1D("chi2Min", "", 500,  0.0, 250.)
+
+        recoverNegative = False
+        expectedBiasValue = (maxbias/nBiasBins)*injBiasBin
+        if recoverNegative:
+            expectedBiasValue = -(maxbias/nBiasBins)*injBiasBin
+            pass
+
+        minBin = expectedBiasValue-(0.2*expectedBiasValue)
+        maxBin = expectedBiasValue+(0.2*expectedBiasValue)
+
+        if injBiasBin == 0:
+            minBin = -0.05
+            maxBin =  0.05
+            pass
+
+        print "expect to recover a bias of %2.4f"%(expectedBiasValue)
+        print "creating chi2 distribution histogram with range [%2.4f,%2.4f]"%(minBin,maxBin)
+        self.chi2dist  = r.TH1D("chi2Dist", "",500, minBin, maxBin)
+
+        self.chi2width = r.TH1D("chi2Width","",100,  0.05, 0.015)
+        self.chi2pull1 = r.TH1D("chi2Pull1","#Delta#kappa_{inj} - #Delta#kappa_{meas}",
+                                200, -0.1, 0.1)
+        self.chi2pull2 = r.TH1D("chi2Pull2","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(fit_{width}(#chi^{2}_{min}+1))",
+                                200, -5.0, 5.0)
+        self.chi2pull3 = r.TH1D("chi2Pull3","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sqrt{2/fit''(#Delta#kappa_{meas})})",
+                                200, -5.0, 5.0)
+        self.chi2pull4 = r.TH1D("chi2Pull4","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{lower})",
+                                200, -5.0, 5.0)
+        self.chi2pull5 = r.TH1D("chi2Pull5","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{upper})",
+                                200, -5.0, 5.0)
 
         self.etaphiexclusivebins = ["EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
                                     "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
@@ -158,7 +181,7 @@ class endpointClosureStudy():
 
         mcBiasSuffix = "%03dPseudoData%03d"%(self.injBiasBin,pseudoExp)
 
-        print "%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,mcBiasSuffix)
+        print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,mcBiasSuffix)
         plusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
                                                                  self.etaphi,mcBiasSuffix)).Clone("clonep100")
         plusClosureHistp100.Scale(self.p100top500ScaleFactor)
@@ -247,22 +270,23 @@ class endpointClosureStudy():
         self.refHist.SetLineWidth(2)
 
         ### calculating a scale factor from the un-biased MC
-        plusScaleHistp100 = self.p100InFile.Get("%s/%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi)).Clone("plusScaleHistp100")
+        print "Scaling: %s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,pseudoExp)
+        plusScaleHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,pseudoExp)).Clone("plusScaleHistp100")
         plusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
-        minusScaleHistp100 = self.p100InFile.Get("%s/%s%s%s"%(self.etaphi,self.histName,"MinusCurve",self.etaphi)).Clone("minusScaleHistp100")
+        minusScaleHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",self.etaphi,pseudoExp)).Clone("minusScaleHistp100")
         minusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
-        plusScaleHistp500  = self.p500InFile.Get("%s/%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi)).Clone("plusScaleHistp500")
-        minusScaleHistp500 = self.p500InFile.Get("%s/%s%s%s"%(self.etaphi,self.histName,"MinusCurve",self.etaphi)).Clone("minusScaleHistp500")
+        plusScaleHistp500  = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,pseudoExp)).Clone("plusScaleHistp500")
+        minusScaleHistp500 = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",self.etaphi,pseudoExp)).Clone("minusScaleHistp500")
 
-        plusScaleHist = plusScaleHistp500.Clone("%s%s_scaling"%(self.histName,"PlusCurve"))
+        plusScaleHist = plusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"PlusCurve",pseudoExp))
         plusScaleHist.Add(plusScaleHistp100)
 
-        minusScaleHist = minusScaleHistp500.Clone("%s%s_scaling"%(self.histName,"MinusCurve"))
+        minusScaleHist = minusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"MinusCurve",pseudoExp))
         minusScaleHist.Add(minusScaleHistp100)
 
-        compScaleHist = plusScaleHist.Clone("%s_compScaleHist"%(self.histName))
+        compScaleHist = plusScaleHist.Clone("%s%sMCClosure%03d_compScaleHist"%(self.etaphi,self.histName,pseudoExp))
         compScaleHist.Add(minusScaleHist)
 
         if debug:
