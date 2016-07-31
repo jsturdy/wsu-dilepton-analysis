@@ -78,7 +78,7 @@ def main():
         config.General.workArea = options.workArea
         config.General.transferOutputs = True
         config.General.transferLogs = False
-                
+
         config.JobType.pluginName = 'Analysis'
 
         config.Data.inputDBS         = 'global'
@@ -97,12 +97,9 @@ def main():
         certFile = "https://cmsdoc.cern.ch/~sturdy/Cosmics/JSON/Cosmics2016/2016-07-14/cosmics_Combined2016_Tracker_PIXEL_TRACKER_CertifiedAndDT_DCSOnly_2016-07-14.json"
         inputDatasetMap = {
             "MC": [
-                ##'/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                ##'/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                ##'/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RAW',
-                '/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
-                '/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
-                '/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',
+                ['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
+                ['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+                ['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
                 ],
             "DATA": [
                 ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
@@ -118,12 +115,12 @@ def main():
 
         for key in inputDatasetMap.keys():
             inputDatasets = None
-            
+
             if key == 'DATA':
                 inputDatasets = inputDatasetMap[key]
                 ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for data
                 config.JobType.psetName = 'wsuMuonTree_data.py'
-                
+
                 config.Data.splitting = 'LumiBased'
                 config.Data.unitsPerJob = 250
 
@@ -131,20 +128,24 @@ def main():
                 inputDatasets = inputDatasetMap[key]
                 ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for MC
                 config.JobType.psetName = 'wsuMuonTree_MC.py'
-                
+
                 config.Data.splitting = 'FileBased'
                 config.Data.unitsPerJob = 5
-                
+                pass
+
             for inDS in inputDatasets:
+                print "Key: %s - Creating config for for input dataset %s" % (key,inDS[0])
                 # inDS is of the form /A/B/C. Since B is unique for each inDS, use this in the CRAB request name.
                 config.General.requestName = inDS[0].split('/')[2]
                 config.Data.inputDataset = inDS[0]
                 config.Data.outputDatasetTag = '%s_%s' % (config.General.workArea, config.General.requestName)
-                config.Data.lumiMask = inDS[1]
+                if key == 'DATA':
+                    config.Data.lumiMask = inDS[1]
+                    pass
                 # Submit.
                 try:
                     print "Submitting for input dataset %s" % (inDS[0])
-                    crabCommand(options.crabCmd, config = config, *options.crabCmdOpts.split())
+                    #crabCommand(options.crabCmd, config = config, *options.crabCmdOpts.split())
                 except HTTPException as hte:
                     print "Submission for input dataset %s failed: %s" % (inDS[0], hte.headers)
                 except ClientException as cle:
