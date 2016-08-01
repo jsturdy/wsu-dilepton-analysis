@@ -145,7 +145,7 @@ def main():
                 # Submit.
                 try:
                     print "Submitting for input dataset %s" % (inDS[0])
-                    #crabCommand(options.crabCmd, config = config, *options.crabCmdOpts.split())
+                    crabCommand(options.crabCmd, config = config, *options.crabCmdOpts.split())
                 except HTTPException as hte:
                     print "Submission for input dataset %s failed: %s" % (inDS[0], hte.headers)
                 except ClientException as cle:
