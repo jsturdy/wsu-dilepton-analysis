@@ -98,7 +98,7 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
 																	  symasym,outputFile,i,
 																	  tk+1,
-																	  minPt,maxBias/4.,nBiasBins/4,
+																	  minPt,maxBias,nBiasBins/4,
 																	  1000.,simlow,simhigh,
 																	  symmetric,trigger,isMC))
 		f.write("}\n")
