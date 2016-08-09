@@ -209,7 +209,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     muon_tkLayWMeas[ idx] = -1;
 
     // initialize muon track ref variables (global, outer, inner, tracker, tpfms, dyt, picky, tunep)
-    for (int tk = 0; tk < 7; ++tk) {
+    for (int tk = 0; tk < 8; ++tk) {
       track_innerY[tk][idx] = 0; // what's a good nonsense value for this?
       track_outerY[tk][idx] = 0; // what's a good nonsense value for this?
       track_tpin[tk][idx]   = 0; // what's a good nonsense value for this?
@@ -445,7 +445,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
       // get info from all track types
       for (int tref = 0; tref < 5; ++tref) {
-	ref = GetTrackType(tref, &(*mu));
+	ref = GetTrackType(tref+1, &(*mu));
 
 	if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	  track_isLower[   2+tref+1][muIdx] = ref->outerPosition().Y() < 0;
@@ -878,37 +878,37 @@ void MuonTree::beginJob()
   muonTree->Branch("tkLayersWMeas",    muon_tkLayWMeas,  "tkLayersWMeas[nMuons]/I"   );
 
   // variables per muon ([nTracks] indexed)
-  muonTree->Branch("trk_innerY",    track_innerY, "trk_innerY[7][25]/D");
-  muonTree->Branch("trk_outerY",    track_outerY, "trk_outerY[7][25]/D");
-  muonTree->Branch("trk_tpin",      track_tpin,   "trk_tpin[7][25]/D"  );
-  muonTree->Branch("trk_tpout",     track_tpout,  "trk_tpout[7][25]/D" );
+  muonTree->Branch("trk_innerY",    track_innerY, "trk_innerY[8][25]/D");
+  muonTree->Branch("trk_outerY",    track_outerY, "trk_outerY[8][25]/D");
+  muonTree->Branch("trk_tpin",      track_tpin,   "trk_tpin[8][25]/D"  );
+  muonTree->Branch("trk_tpout",     track_tpout,  "trk_tpout[8][25]/D" );
 
-  muonTree->Branch("trk_trackpT",   track_trackPt,   "trk_trackpT[7][25]/D" );
-  muonTree->Branch("trk_trackEta",  track_trackEta,  "trk_trackEta[7][25]/D");
-  muonTree->Branch("trk_trackPhi",  track_trackPhi,  "trk_trackPhi[7][25]/D");
-  muonTree->Branch("trk_chi2",      track_chi2,      "trk_chi2[7][25]/D"    );
-  muonTree->Branch("trk_isLower",   track_isLower,   "trk_isLower[7][25]/I" );
-  muonTree->Branch("trk_isUpper",   track_isUpper,   "trk_isUpper[7][25]/I" );
-  muonTree->Branch("trk_isLowerOld",track_isLowerOld,"trk_isLowerOld[7][25]/I" );
-  muonTree->Branch("trk_isUpperOld",track_isUpperOld,"trk_isUpperOld[7][25]/I" );
-  muonTree->Branch("trk_ndof",      track_ndof,      "trk_ndof[7][25]/I"    );
-  muonTree->Branch("trk_charge",    track_charge,    "trk_charge[7][25]/I"  );
-  muonTree->Branch("trk_dxy",       track_dxy,       "trk_dxy[7][25]/D"     );
-  muonTree->Branch("trk_dz",        track_dz,        "trk_dz[7][25]/D"      );
-  muonTree->Branch("trk_ptError",   track_ptError,   "trk_ptError[7][25]/D" );
-  muonTree->Branch("trk_dxyError",  track_dxyError,  "trk_dxyError[7][25]/D");
-  muonTree->Branch("trk_dzError",   track_dzError,   "trk_dzError[7][25]/D" );
+  muonTree->Branch("trk_trackpT",   track_trackPt,   "trk_trackpT[8][25]/D" );
+  muonTree->Branch("trk_trackEta",  track_trackEta,  "trk_trackEta[8][25]/D");
+  muonTree->Branch("trk_trackPhi",  track_trackPhi,  "trk_trackPhi[8][25]/D");
+  muonTree->Branch("trk_chi2",      track_chi2,      "trk_chi2[8][25]/D"    );
+  muonTree->Branch("trk_isLower",   track_isLower,   "trk_isLower[8][25]/I" );
+  muonTree->Branch("trk_isUpper",   track_isUpper,   "trk_isUpper[8][25]/I" );
+  muonTree->Branch("trk_isLowerOld",track_isLowerOld,"trk_isLowerOld[8][25]/I" );
+  muonTree->Branch("trk_isUpperOld",track_isUpperOld,"trk_isUpperOld[8][25]/I" );
+  muonTree->Branch("trk_ndof",      track_ndof,      "trk_ndof[8][25]/I"    );
+  muonTree->Branch("trk_charge",    track_charge,    "trk_charge[8][25]/I"  );
+  muonTree->Branch("trk_dxy",       track_dxy,       "trk_dxy[8][25]/D"     );
+  muonTree->Branch("trk_dz",        track_dz,        "trk_dz[8][25]/D"      );
+  muonTree->Branch("trk_ptError",   track_ptError,   "trk_ptError[8][25]/D" );
+  muonTree->Branch("trk_dxyError",  track_dxyError,  "trk_dxyError[8][25]/D");
+  muonTree->Branch("trk_dzError",   track_dzError,   "trk_dzError[8][25]/D" );
 
-  muonTree->Branch("trk_matchedMuIdx",   track_matchedMuIdx,   "trk_matchedMuIdx[7][25]/I"  );
+  muonTree->Branch("trk_matchedMuIdx",   track_matchedMuIdx,   "trk_matchedMuIdx[8][25]/I"  );
 
-  muonTree->Branch("trk_firstPixel",       track_firstPixel,  "trk_firstPixel[7][25]/I"      );
-  muonTree->Branch("trk_pixelHits",        track_pixHits,     "trk_pixelHits[7][25]/I"       );
-  muonTree->Branch("trk_trackerHits",      track_tkHits,      "trk_trackerHits[7][25]/I"     );
-  muonTree->Branch("trk_muonStationHits",  track_muonStaHits, "trk_muonStationHits[7][25]/I" );
-  muonTree->Branch("trk_nValidHits",       track_nVHits,      "trk_nValidHits[7][25]/I"      );
-  muonTree->Branch("trk_nValidMuonHits",   track_nVMuHits,    "trk_nValidMuonHits[7][25]/I"  );
-  muonTree->Branch("trk_nMatchedStations", track_nMatSta,     "trk_nMatchedStations[7][25]/I");
-  muonTree->Branch("trk_tkLayersWMeas",    track_tkLayWMeas,  "trk_tkLayersWMeas[7][25]/I"   );
+  muonTree->Branch("trk_firstPixel",       track_firstPixel,  "trk_firstPixel[8][25]/I"      );
+  muonTree->Branch("trk_pixelHits",        track_pixHits,     "trk_pixelHits[8][25]/I"       );
+  muonTree->Branch("trk_trackerHits",      track_tkHits,      "trk_trackerHits[8][25]/I"     );
+  muonTree->Branch("trk_muonStationHits",  track_muonStaHits, "trk_muonStationHits[8][25]/I" );
+  muonTree->Branch("trk_nValidHits",       track_nVHits,      "trk_nValidHits[8][25]/I"      );
+  muonTree->Branch("trk_nValidMuonHits",   track_nVMuHits,    "trk_nValidMuonHits[8][25]/I"  );
+  muonTree->Branch("trk_nMatchedStations", track_nMatSta,     "trk_nMatchedStations[8][25]/I");
+  muonTree->Branch("trk_tkLayersWMeas",    track_tkLayWMeas,  "trk_tkLayersWMeas[8][25]/I"   );
 
   // per luminosity block information
   perLumiTree = fs->make<TTree>( "LumiTree", "Per lumi block variables" );
@@ -923,15 +923,15 @@ void MuonTree::beginJob()
   perLumiTree->Branch("nMuonsPt1000", &nMuonsPt1000, "nMuonsPt1000/I");
   perLumiTree->Branch("nMuonsPt1500", &nMuonsPt1500, "nMuonsPt1500/I");
 
-  perLumiTree->Branch("nTracksPt50",   nTracksPt50,   "nTracksPt50[7]/I"  );
-  perLumiTree->Branch("nTracksPt100",  nTracksPt100,  "nTracksPt100[7]/I" );
-  perLumiTree->Branch("nTracksPt200",  nTracksPt200,  "nTracksPt200[7]/I" );
-  perLumiTree->Branch("nTracksPt300",  nTracksPt300,  "nTracksPt300[7]/I" );
-  perLumiTree->Branch("nTracksPt400",  nTracksPt400,  "nTracksPt400[7]/I" );
-  perLumiTree->Branch("nTracksPt500",  nTracksPt500,  "nTracksPt500[7]/I" );
-  perLumiTree->Branch("nTracksPt750",  nTracksPt750,  "nTracksPt750[7]/I" );
-  perLumiTree->Branch("nTracksPt1000", nTracksPt1000, "nTracksPt1000[7]/I");
-  perLumiTree->Branch("nTracksPt1500", nTracksPt1500, "nTracksPt1500[7]/I");
+  perLumiTree->Branch("nTracksPt50",   nTracksPt50,   "nTracksPt50[8]/I"  );
+  perLumiTree->Branch("nTracksPt100",  nTracksPt100,  "nTracksPt100[8]/I" );
+  perLumiTree->Branch("nTracksPt200",  nTracksPt200,  "nTracksPt200[8]/I" );
+  perLumiTree->Branch("nTracksPt300",  nTracksPt300,  "nTracksPt300[8]/I" );
+  perLumiTree->Branch("nTracksPt400",  nTracksPt400,  "nTracksPt400[8]/I" );
+  perLumiTree->Branch("nTracksPt500",  nTracksPt500,  "nTracksPt500[8]/I" );
+  perLumiTree->Branch("nTracksPt750",  nTracksPt750,  "nTracksPt750[8]/I" );
+  perLumiTree->Branch("nTracksPt1000", nTracksPt1000, "nTracksPt1000[8]/I");
+  perLumiTree->Branch("nTracksPt1500", nTracksPt1500, "nTracksPt1500[8]/I");
 }
 
 
@@ -971,7 +971,7 @@ void MuonTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
   nMuonsPt1000 = 0;
   nMuonsPt1500 = 0;
 
-  for (int tk = 0; tk < 7; ++tk) {
+  for (int tk = 0; tk < 8; ++tk) {
     nTracksPt50[tk]   = 0;
     nTracksPt100[tk]  = 0;
     nTracksPt200[tk]  = 0;
@@ -1001,7 +1001,7 @@ void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
     std::cout << "nMuonsPt1000 " << nMuonsPt1000 << " " << std::hex << &nMuonsPt1000 << std::dec << std::endl;
     std::cout << "nMuonsPt1500 " << nMuonsPt1500 << " " << std::hex << &nMuonsPt1500 << std::dec << std::endl;
 
-    for (int tk = 0; tk < 7; ++tk) {
+    for (int tk = 0; tk < 8; ++tk) {
       std::cout << "nTracksPt50["   << tk << "] " << nTracksPt50[tk]   << " " << std::hex << nTracksPt50   << std::dec << std::endl;
       std::cout << "nTracksPt100["  << tk << "] " << nTracksPt100[tk]  << " " << std::hex << nTracksPt100  << std::dec << std::endl;
       std::cout << "nTracksPt200["  << tk << "] " << nTracksPt200[tk]  << " " << std::hex << nTracksPt200  << std::dec << std::endl;

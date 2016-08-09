@@ -134,15 +134,15 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   int muon_firstPixel[25],muon_pixHits[25],muon_tkHits[25],muon_muonStaHits[25],
     muon_nVHits[25],muon_nVMuHits[25],muon_nMatSta[25],muon_tkLayWMeas[25];
 
-  double track_innerY[7][25], track_outerY[7][25], track_tpin[7][25], track_tpout[7][25];
-  double track_chi2[7][25], track_dxy[7][25], track_dz[7][25], track_pT[7][25];
-  double track_ptError[7][25], track_dxyError[7][25], track_dzError[7][25];
-  double track_Pt[7][25], track_Eta[7][25], track_Phi[7][25];
-  double track_trackPt[7][25], track_trackEta[7][25], track_trackPhi[7][25];
-  int track_isUpper[7][25], track_isLower[7][25], track_isUpperOld[7][25], track_isLowerOld[7][25];
-  int track_ndof[7][25], track_charge[7][25], track_matchedMuIdx[7][25];
-  int track_firstPixel[7][25],track_pixHits[7][25],track_tkHits[7][25],track_muonStaHits[7][25],
-    track_nVHits[7][25],track_nVMuHits[7][25],track_nMatSta[7][25],track_tkLayWMeas[7][25];
+  double track_innerY[8][25], track_outerY[8][25], track_tpin[8][25], track_tpout[8][25];
+  double track_chi2[8][25], track_dxy[8][25], track_dz[8][25], track_pT[8][25];
+  double track_ptError[8][25], track_dxyError[8][25], track_dzError[8][25];
+  double track_Pt[8][25], track_Eta[8][25], track_Phi[8][25];
+  double track_trackPt[8][25], track_trackEta[8][25], track_trackPhi[8][25];
+  int track_isUpper[8][25], track_isLower[8][25], track_isUpperOld[8][25], track_isLowerOld[8][25];
+  int track_ndof[8][25], track_charge[8][25], track_matchedMuIdx[8][25];
+  int track_firstPixel[8][25],track_pixHits[8][25],track_tkHits[8][25],track_muonStaHits[8][25],
+    track_nVHits[8][25],track_nVMuHits[8][25],track_nMatSta[8][25],track_tkLayWMeas[8][25];
 
   // per lumi block values
   TTree *perLumiTree;
@@ -150,8 +150,8 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   int nMuonsPt50, nMuonsPt100, nMuonsPt200, nMuonsPt300,
     nMuonsPt400, nMuonsPt500, nMuonsPt750, nMuonsPt1000, nMuonsPt1500;
 
-  int nTracksPt50[7], nTracksPt100[7], nTracksPt200[7], nTracksPt300[7],
-    nTracksPt400[7], nTracksPt500[7], nTracksPt750[7], nTracksPt1000[7], nTracksPt1500[7];
+  int nTracksPt50[8], nTracksPt100[8], nTracksPt200[8], nTracksPt300[8],
+    nTracksPt400[8], nTracksPt500[8], nTracksPt750[8], nTracksPt1000[8], nTracksPt1500[8];
 };
 //}
 
