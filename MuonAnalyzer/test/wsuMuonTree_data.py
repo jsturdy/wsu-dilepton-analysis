@@ -23,9 +23,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #comm16v1
         #comm16v2
-        cosmics16av1
+        #cosmics16av1
         #cosmics16av2
-        #cosmics16bv1
+        cosmics16bv1
         #cosmics16bv2
     )
 )
@@ -33,10 +33,12 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring(
     "keep *",
     "drop FEDRawDataCollection_rawDataCollector_*_*",
+    "drop *_cosmicDCTracks_*_*",
+    "drop *_hltGtStage2ObjectMap_*_*",
 )
 process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
 process.load("WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi")
