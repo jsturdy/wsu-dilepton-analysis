@@ -45,6 +45,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
 		   int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
 		   double factor_=1.0, double lowpT_=-1.0, double highpT_=-1.0,
+		   double pseudoThresh_=0.0375,
 		   bool symmetric_=false, bool applyTrigger_=false, bool mcFlag_=false,
 		   bool debug_=false)
 
@@ -61,10 +62,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     std::cout<<"arg  7 (maxBias_) is:  "   << maxBias_   << std::endl;
     std::cout<<"arg  8 (nBiasBins_) is:  " << nBiasBins_ << std::endl;
     std::cout<<"arg  9 (factor_) is:  "    << factor_    << std::endl;
-    std::cout<<"arg 10 (symmetric_) is:  " << symmetric_ << std::endl;
-    std::cout<<"arg 11 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
-    std::cout<<"arg 12 (mcFlag_) is:  "       << mcFlag_       << std::endl;
-    std::cout<<"arg 13 (debug_) is:  "        << debug_        << std::endl;
+    std::cout<<"arg 10 (pseudoThresh_) is:  " << pseudoThresh_ << std::endl;
+    std::cout<<"arg 11 (symmetric_) is:  "    << symmetric_    << std::endl;
+    std::cout<<"arg 12 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
+    std::cout<<"arg 13 (mcFlag_) is:  "       << mcFlag_       << std::endl;
+    std::cout<<"arg 14 (debug_) is:  "        << debug_        << std::endl;
   }
 
   TFile *g;
@@ -213,7 +215,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 						     CLOSURE_BIN4 };      // injected bias bin to recover
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
-  static const double pseudoThresh = 0.0375;  // fraction of events to treat as data, half the rate we see in data per sample
+  static const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
