@@ -36,7 +36,7 @@
 
 #define const_N_CURVE_BINS 320
 #define const_MAX_CURVE_RANGE 0.0080
-#define const_N_PSEUDO 100
+#define const_N_PSEUDO 250
 #define const_N_CLOSURE_BINS 5
 #define const_closureBins (0 ,10, 30, 50, 75)
 #define const_pseudoThresh 0.1
@@ -201,13 +201,13 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   static const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  static const int    N_PSEUDO = 100;
+  static const int    N_PSEUDO = 250;
   static const int    N_CLOSURE_BINS = 5;
   static const int    CLOSURE_BIN0   =  0;
   static const int    CLOSURE_BIN1   = 10;
-  static const int    CLOSURE_BIN2   = 30;
-  static const int    CLOSURE_BIN3   = 50;
-  static const int    CLOSURE_BIN4   = 75;
+  static const int    CLOSURE_BIN2   = 25;
+  static const int    CLOSURE_BIN3   = 40;
+  static const int    CLOSURE_BIN4   = 50;
   static const int    closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
 						     CLOSURE_BIN1,
 						     CLOSURE_BIN2,
