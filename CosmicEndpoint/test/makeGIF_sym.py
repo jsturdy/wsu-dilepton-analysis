@@ -140,7 +140,7 @@ if __name__ == "__main__":
     histName = options.histbase
 
     ### Get a reference to make all histograms have the same Y-range
-    testHist = myInFile.Get("%s%s%s"%(histName,"PlusCurve",options.etaphi)).Clone("test")
+    testHist = myInFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi)).Clone("test")
 
     if options.mcclosure:
         mcBiasSign = "Plus"
@@ -154,9 +154,9 @@ if __name__ == "__main__":
             mcBiasSuffix = "%sBias%03d"%(mcBiasSign,mcBiasBin)
             pass
 
-        plusClosureHistp100 = p100InFile.Get("%s%s%s%s"%(histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("clonep100")
+        plusClosureHistp100 = p100InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("clonep100")
         plusClosureHistp100.Scale(p100top500ScaleFactor)
-        plusClosureHistp500 = p500InFile.Get("%s%s%s%s"%(histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("clonep500")
+        plusClosureHistp500 = p500InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("clonep500")
 
         plusClosureHist  = plusClosureHistp500.Clone("%s%s%s%s_scaling"%(histName,"PlusCurve",options.etaphi,mcBiasSuffix))
         plusClosureHist.Add(plusClosureHistp100)
@@ -218,14 +218,14 @@ if __name__ == "__main__":
 
         print "Using %s%s%s%s as reference histograms"%(histName,"Plus[Minus]Curve",options.etaphi,mcBiasSuffix)
 
-        plusClosureHistp100 = p100InFile.Get("%s%s%s%s"%(histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("plusClosureHistp100")
+        plusClosureHistp100 = p100InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi,mcBiasSuffix)).Clone("plusClosureHistp100")
         plusClosureHistp100.Scale(p100top500ScaleFactor)
 
-        minusClosureHistp100 = p100InFile.Get("%s%s%s%s"%(histName,"MinusCurve",options.etaphi,mcBiasSuffix)).Clone("minusClosureHistp100")
+        minusClosureHistp100 = p100InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi,mcBiasSuffix)).Clone("minusClosureHistp100")
         minusClosureHistp100.Scale(p100top500ScaleFactor)
 
-        plusClosureHistp500  = p500InFile.Get("%s%s%s%s"%(histName,"PlusCurve", options.etaphi,mcBiasSuffix)).Clone("plusClosureHistp500")
-        minusClosureHistp500 = p500InFile.Get("%s%s%s%s"%(histName,"MinusCurve",options.etaphi,mcBiasSuffix)).Clone("minusClosureHistp500")
+        plusClosureHistp500  = p500InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"PlusCurve", options.etaphi,mcBiasSuffix)).Clone("plusClosureHistp500")
+        minusClosureHistp500 = p500InFile.Get("%s/%s%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi,mcBiasSuffix)).Clone("minusClosureHistp500")
 
         plusClosureHist  = plusClosureHistp500.Clone("%s%s%s_scaling"%(histName,"PlusCurve",mcBiasSuffix))
         plusClosureHist.Add(plusClosureHistp100)
@@ -237,8 +237,8 @@ if __name__ == "__main__":
         minusRefHist = minusClosureHist
     else:
         ## use data histogram as reference
-        plusRefHist  = myInFile.Get("%s%s%s"%(histName,"PlusCurve", options.etaphi))
-        minusRefHist = myInFile.Get("%s%s%s"%(histName,"MinusCurve",options.etaphi))
+        plusRefHist  = myInFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve", options.etaphi))
+        minusRefHist = myInFile.Get("%s/%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi))
         pass
 
     if options.debug:
@@ -283,14 +283,20 @@ if __name__ == "__main__":
     refHist.SetLineWidth(2)
 
     ### calculating a scale factor from the un-biased MC
-    plusScaleHistp100 = p100InFile.Get("%s%s%s"%(histName,"PlusCurve",options.etaphi)).Clone("plusScaleHistp100")
+    plusScaleHistp100 = p100InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi)).Clone("plusScaleHistp100")
+    print "before: plusScaleHistp100 integral %d"%(plusScaleHistp100.Integral())
     plusScaleHistp100.Scale(p100top500ScaleFactor)
+    print "after: plusScaleHistp100 integral %d"%(plusScaleHistp100.Integral())
 
-    minusScaleHistp100 = p100InFile.Get("%s%s%s"%(histName,"MinusCurve",options.etaphi)).Clone("minusScaleHistp100")
+    minusScaleHistp100 = p100InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi)).Clone("minusScaleHistp100")
+    print "before: minusScaleHistp100 integral %d"%(minusScaleHistp100.Integral())
     minusScaleHistp100.Scale(p100top500ScaleFactor)
+    print "after: minusScaleHistp100 integral %d"%(minusScaleHistp100.Integral())
 
-    plusScaleHistp500  = p500InFile.Get("%s%s%s"%(histName,"PlusCurve",options.etaphi)).Clone("plusScaleHistp500")
-    minusScaleHistp500 = p500InFile.Get("%s%s%s"%(histName,"MinusCurve",options.etaphi)).Clone("minusScaleHistp500")
+    plusScaleHistp500  = p500InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi)).Clone("plusScaleHistp500")
+    print "before: plusScaleHistp500 integral %d"%(plusScaleHistp500.Integral())
+    minusScaleHistp500 = p500InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi)).Clone("minusScaleHistp500")
+    print "before: minusScaleHistp500 integral %d"%(minusScaleHistp500.Integral())
 
     plusScaleHist = plusScaleHistp500.Clone("%s%s_scaling"%(histName,"PlusCurve"))
     plusScaleHist.Add(plusScaleHistp100)
@@ -356,18 +362,18 @@ if __name__ == "__main__":
         gifcanvas.cd()
 
         if options.debug:
-            print "%s%s%sMinusBias%03d"%(histName,"PlusCurve", options.etaphi,
+            print "%s%s%sMinusBias%03d"%(options.etaphi,histName,"PlusCurve", options.etaphi,
                                          options.biasbins-step*options.stepsize)
-        plusHistp100  = p100InFile.Get("%s%s%sMinusBias%03d"%(histName,"PlusCurve", options.etaphi,
+        plusHistp100  = p100InFile.Get("%s/%s%s%sMinusBias%03d"%(options.etaphi,histName,"PlusCurve", options.etaphi,
                                                               options.biasbins-step*options.stepsize))
-        minusHistp100 = p100InFile.Get("%s%s%sMinusBias%03d"%(histName,"MinusCurve",options.etaphi,
+        minusHistp100 = p100InFile.Get("%s/%s%s%sMinusBias%03d"%(options.etaphi,histName,"MinusCurve",options.etaphi,
                                                               options.biasbins-step*options.stepsize))
         plusHistp100.Scale( p100top500ScaleFactor)
         minusHistp100.Scale(p100top500ScaleFactor)
 
-        plusHistp500  = p500InFile.Get("%s%s%sMinusBias%03d"%(histName,"PlusCurve", options.etaphi,
+        plusHistp500  = p500InFile.Get("%s/%s%s%sMinusBias%03d"%(options.etaphi,histName,"PlusCurve", options.etaphi,
                                                             options.biasbins-step*options.stepsize))
-        minusHistp500 = p500InFile.Get("%s%s%sMinusBias%03d"%(histName,"MinusCurve",options.etaphi,
+        minusHistp500 = p500InFile.Get("%s/%s%s%sMinusBias%03d"%(options.etaphi,histName,"MinusCurve",options.etaphi,
                                                             options.biasbins-step*options.stepsize))
 
         plusHist  = plusHistp500.Clone("%s%s_combined_MinusBias%03d"%(histName,"PlusCurve",
@@ -555,13 +561,13 @@ if __name__ == "__main__":
     ### No injected bias
     gifcanvas.cd()
 
-    plusHistp100  = p100InFile.Get("%s%s%s"%(histName,"PlusCurve",options.etaphi))
-    minusHistp100 = p100InFile.Get("%s%s%s"%(histName,"MinusCurve",options.etaphi))
+    plusHistp100  = p100InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi))
+    minusHistp100 = p100InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi))
     plusHistp100.Scale(p100top500ScaleFactor)
     minusHistp100.Scale(p100top500ScaleFactor)
 
-    plusHistp500  = p500InFile.Get("%s%s%s"%(histName,"PlusCurve",options.etaphi))
-    minusHistp500 = p500InFile.Get("%s%s%s"%(histName,"MinusCurve",options.etaphi))
+    plusHistp500  = p500InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"PlusCurve",options.etaphi))
+    minusHistp500 = p500InFile.Get("%s/%s%s%s"%(options.etaphi,histName,"MinusCurve",options.etaphi))
 
     plusHist  = plusHistp500.Clone("%s%s_combined"%(histName,"PlusCurve"))
     plusHist.Add(plusHistp100)
@@ -736,16 +742,16 @@ if __name__ == "__main__":
     for step in range(0,options.biasbins/options.stepsize):
         gifcanvas.cd()
 
-        plusHistp100  = p100InFile.Get("%s%s%sPlusBias%03d"%(histName,"PlusCurve", options.etaphi,
+        plusHistp100  = p100InFile.Get("%s/%s%s%sPlusBias%03d"%(options.etaphi,histName,"PlusCurve", options.etaphi,
                                                              (1+step)*options.stepsize))
-        minusHistp100 = p100InFile.Get("%s%s%sPlusBias%03d"%(histName,"MinusCurve",options.etaphi,
+        minusHistp100 = p100InFile.Get("%s/%s%s%sPlusBias%03d"%(options.etaphi,histName,"MinusCurve",options.etaphi,
                                                              (1+step)*options.stepsize))
         plusHistp100.Scale(p100top500ScaleFactor)
         minusHistp100.Scale(p100top500ScaleFactor)
 
-        plusHistp500  = p500InFile.Get("%s%s%sPlusBias%03d"%(histName,"PlusCurve", options.etaphi,
+        plusHistp500  = p500InFile.Get("%s/%s%s%sPlusBias%03d"%(options.etaphi,histName,"PlusCurve", options.etaphi,
                                                              (1+step)*options.stepsize))
-        minusHistp500 = p500InFile.Get("%s%s%sPlusBias%03d"%(histName,"MinusCurve",options.etaphi,
+        minusHistp500 = p500InFile.Get("%s/%s%s%sPlusBias%03d"%(options.etaphi,histName,"MinusCurve",options.etaphi,
                                                              (1+step)*options.stepsize))
 
         plusHist  = plusHistp500.Clone("%s%s_combined_PlusBias%03d"%(histName,"PlusCurve",
