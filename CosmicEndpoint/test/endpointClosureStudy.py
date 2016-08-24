@@ -23,6 +23,7 @@ class endpointClosureStudy():
                  injBiasBin=10, stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
                  pmScaling=True,
+                 makeLog=False,
                  debug=False) :
 
         r.gROOT.SetBatch(not debug)
@@ -46,7 +47,8 @@ class endpointClosureStudy():
         if self.pmScaling:
             self.pmstring    = "pm"
             pass
-        self.debug       = debug
+        self.makeLog = makeLog
+        self.debug   = debug
 
         self.p100InFile = r.TFile("%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
         self.p500InFile = r.TFile("%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
@@ -655,9 +657,13 @@ class endpointClosureStudy():
 
         compHist.Draw()
         compHist.GetXaxis().SetTitle("#kappa [c/TeV]")
-        compHist.SetMaximum(1.2*self.refmax)
-        compHist.SetMinimum(0.001)
+        #compHist.SetMaximum(1.2*self.refmax)
+        compHist.SetMaximum(100)
+        compHist.SetMinimum(0.1)
         self.refHist.Draw("sames")
+        if (self.makeLog):
+            pad.SetLogy(True)
+            pass
 
         r.gPad.Update()
 
@@ -880,8 +886,11 @@ if __name__ == "__main__":
                       metavar="etaphi", default="",
                       help="[OPTIONAL] Eta/Phi bin to use")
     parser.add_option("--pm", action="store_true", dest="pm",
-                      metavar="mcclosure",
+                      metavar="pm",
                       help="[OPTIONAL] Scale plus and minus separately")
+    parser.add_option("--log", action="store_true", dest="log",
+                      metavar="log",
+                      help="[OPTIONAL] Make curvature plots in log scale")
     parser.add_option("--mcbias", type="int", dest="mcbias",
                       metavar="mcbias", default=20,
                       help="[OPTIONAL] Bias bin value to recover (default is 20)")
@@ -911,6 +920,7 @@ if __name__ == "__main__":
                                        nTotalBins=options.totalbins,
                                        rebins=options.rebins,
                                        pmScaling=options.pm,
+                                       makeLog=options.log,
                                        debug=options.debug)
 
     closuretest.loop()
