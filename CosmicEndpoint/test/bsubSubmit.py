@@ -51,7 +51,7 @@ parser.add_option("--simhigh", type="float", dest="simhigh",
                   metavar="simhigh", default=-1.,
                   help="[OPTIONAL] Maximum pT cut to apply to sim trkcs (only for MC)")
 parser.add_option("--pseudoThresh", type="float", dest="pseudoThresh",
-                  metavar="pseudoThresh", default=0.0.0375,
+                  metavar="pseudoThresh", default=0.0375,
                   help="[OPTIONAL] Threshold for pseudo experiments (default = 0.0375)")
 
 (options, args) = parser.parse_args()
@@ -72,11 +72,11 @@ if options.asymmetric:
     bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
-                  options.simlow, options.simhigh,options,pseudoThresh,
+                  options.simlow, options.simhigh,options.pseudoThresh,
                   False, options.trigger, options.mc, debug)
 else:
     bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
-                  options.simlow, options.simhigh,options,pseudoThresh,
+                  options.simlow, options.simhigh,options.pseudoThresh,
                   True, options.trigger, options.mc, debug)
