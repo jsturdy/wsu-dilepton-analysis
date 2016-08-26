@@ -160,16 +160,17 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
   while (std::getline(file,name)) {
     std::stringstream newString;
-    newString << "root://xrootd.unl.edu//" << name;
+    // newString << "root://xrootd.unl.edu//" << name;
+    newString << "root://cmseos.fnal.gov//" << name;
 
-    //Use the following line with line above commented out for running on local files.
-    //newString << name;
+    // Use the following line with line above commented out for running on local files.
+    // newString << name;
     std::cout << newString.str() << std::endl;
     myChain->Add(TString(newString.str()));
   }
   std::cout << "Successfully opened inputfiles list!" << std::endl;
-  //  myChain->Add(TString());
-  //   newString << "root://xrootd.unl.edu//" << name;
+  // myChain->Add(TString());
+  // newString << "root://xrootd.unl.edu//" << name;
 
   TTree *myTree = myChain;
   TTreeReader trackReader(myTree);

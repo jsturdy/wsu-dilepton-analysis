@@ -40,7 +40,8 @@ def splitJobsForBsub(inputFile,numberOfJobs,maxBias,minPt,nBiasBins,symasym):
 		return fid
 
 def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJobs,
-		  maxBias,minPt,nBiasBins,simlow,simhigh,symmetric,trigger,isMC,debug):
+		  maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
+		  symmetric,trigger,isMC,debug):
 	symasym = "asym"
 	if symmetric:
 		symasym = "sym"
@@ -95,12 +96,14 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 					f.write("  for (int etb = 0; etb < 2; ++etb)\n")
 					f.write("    for (int phb = 0; phb < 2; ++phb)\n")
 					pass
-				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
-																	  symasym,outputFile,i,
-																	  tk+1,
-																	  minPt,maxBias/4.,nBiasBins/4,
-																	  1000.,simlow,simhigh,
-																	  symmetric,trigger,isMC))
+				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
+																	      symasym,outputFile,i,
+																	      tk+1,
+																	      minPt,maxBias,nBiasBins/4,
+																	      1000.,simlow,simhigh,pseudoThresh,
+																	      symmetric,trigger,isMC))
+				pass ## end if (toolName=="Plot")
+			pass ## end for tk in range(5)
 		f.write("}\n")
 		# root -x -b -q  put this in the shell script
 		pyCommand = "%s"%(rootScriptName)
