@@ -211,32 +211,6 @@ class endpointClosureStudy():
         return
 
     def getHistogram(self, sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=False):
-
-        ### in runStudy
-        ### for scaling
-        ##histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        ##histSuffix = "%s"%(mcBiasSuffix)
-        ##plusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        ##                                                         self.etaphi,mcBiasSuffix)).Clone("clonep100")
-        ### for reference histogram
-        ##histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        ##histSuffix = "%s"%(mcBiasSuffix)
-        ##plusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        ##                                                         self.etaphi,mcBiasSuffix)).Clone("plusClosureHistp100")
-        ### for scale factor from unbiased histogram
-        ##histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        ##histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
-        ##plusScaleHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,
-        ##                                                                             "PlusCurve",self.etaphi,
-        ##                                                                             pseudoExp)).Clone("plusScaleHistp100")
-        ##
-        ### in biasLoop
-        ##histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        ##histSuffix = "%sBias%03dMCClosure%03d"%(biasChange,biasBin,pseudoExp)
-        ##plusHistp100  = self.p100InFile.Get("%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
-        ##                                                                        self.etaphi,biasChange,
-        ##                                                                        biasBin,pseudoExp))
-
         outHist = None
         for etaphibin in self.etaphibins[etaphi]:
             if debug:
@@ -264,8 +238,6 @@ class endpointClosureStudy():
         print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,mcBiasSuffix)
         print "p100InFile",self.p100InFile
         print "p500InFile",self.p500InFile
-        #plusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        #                                                         self.etaphi,mcBiasSuffix)).Clone("clonep100")
         
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "%s"%(mcBiasSuffix)
@@ -273,8 +245,6 @@ class endpointClosureStudy():
         #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
         #plusClosureHistp100.SetBinError(bin,err)
 
-        #plusClosureHistp500 = self.p500InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        #                                                         self.etaphi,mcBiasSuffix)).Clone("clonep500")
         plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"clonep500")
 
         #testing#binvals = []
@@ -316,31 +286,22 @@ class endpointClosureStudy():
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "%s"%(mcBiasSuffix)
-        #plusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        #                                                         self.etaphi,mcBiasSuffix)).Clone("plusClosureHistp100")
         plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp100")
 
         #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        #minusClosureHistp100 = self.p100InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"MinusCurve",
-        #                                                          self.etaphi,mcBiasSuffix)).Clone("minusClosureHistp100")
         minusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp100")
         #minusClosureHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        #plusClosureHistp500  = self.p500InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",
-        #                                                          self.etaphi,mcBiasSuffix)).Clone("plusClosureHistp500")
         plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp500")
         plusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        #minusClosureHistp500 = self.p500InFile.Get("%s/%s%s%s%s"%(self.etaphi,self.histName,"MinusCurve",
-        #                                                          self.etaphi,mcBiasSuffix)).Clone("minusClosureHistp500")
         minusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp500")
 
         minusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
-
 
         plusClosureHist  = plusClosureHistp500.Clone("%s%s%s_scaling"%(self.histName,"PlusCurve",mcBiasSuffix))
         plusClosureHist.Add(plusClosureHistp100)
@@ -396,33 +357,20 @@ class endpointClosureStudy():
         print "Scaling: %s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,pseudoExp)
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
-        #plusScaleHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,
-        #                                                                             "PlusCurve",self.etaphi,
-        #                                                                             pseudoExp)).Clone("plusScaleHistp100")
         plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100")
         #plusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        #minusScaleHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,
-        #                                                                              "MinusCurve",self.etaphi,
-        #                                                                              pseudoExp)).Clone("minusScaleHistp100")
         minusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp100")
         #minusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        #plusScaleHistp500  = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,
-        #                                                                              "PlusCurve",self.etaphi,
-        #                                                                              pseudoExp)).Clone("plusScaleHistp500")
         plusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp500")
         plusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        #minusScaleHistp500 = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,
-        #                                                                              "MinusCurve",self.etaphi,
-        #                                                                              pseudoExp)).Clone("minusScaleHistp500")
         minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500")
         minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
-
 
         plusScaleHist = plusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"PlusCurve",pseudoExp))
         plusScaleHist.Add(plusScaleHistp100)
@@ -559,29 +507,17 @@ class endpointClosureStudy():
 
                 histPrefix = "%s%s"%(self.histName,"PlusCurve")
                 histSuffix = "%sBias%03dMCClosure%03d"%(biasChange,biasBin,pseudoExp)
-                #plusHistp100  = self.p100InFile.Get("%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
-                #                                                                        self.etaphi,biasChange,
-                #                                                                        biasBin,pseudoExp))
                 plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
 
                 histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                #minusHistp100 = self.p100InFile.Get("%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",
-                #                                                                        self.etaphi,biasChange,
-                #                                                                        biasBin,pseudoExp))
                 minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
                 #plusHistp100.Scale( self.p100top500ScaleFactor)
                 #minusHistp100.Scale(self.p100top500ScaleFactor)
 
                 histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                #plusHistp500  = self.p500InFile.Get("%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
-                #                                                                        self.etaphi,biasChange,
-                #                                                                        biasBin,pseudoExp))
                 plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
 
                 histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                #minusHistp500 = self.p500InFile.Get("%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",
-                #                                                                        self.etaphi,biasChange,
-                #                                                                        biasBin,pseudoExp))
                 minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
                 plusHistp500.Scale( 1./self.p100top500ScaleFactor)
                 minusHistp500.Scale(1./self.p100top500ScaleFactor)
@@ -615,31 +551,22 @@ class endpointClosureStudy():
         else:
             histPrefix = "%s%s"%(self.histName,"PlusCurve")
             histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
-            #plusHistp100  = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
-            #                                                                         self.etaphi,pseudoExp))
             plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
 
             histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            #minusHistp100 = self.p100InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",
-            #                                                                         self.etaphi,pseudoExp))
             minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
 
             #plusHistp100.Scale( self.p100top500ScaleFactor)
             #minusHistp100.Scale(self.p100top500ScaleFactor)
 
             histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            #plusHistp500  = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
-            #                                                                         self.etaphi,pseudoExp))
             plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
 
             histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            #minusHistp500 = self.p500InFile.Get("%s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"MinusCurve",
-            #                                                                         self.etaphi,pseudoExp))
             minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
 
             plusHistp500.Scale( 1./self.p100top500ScaleFactor)
             minusHistp500.Scale(1./self.p100top500ScaleFactor)
-
 
             plusHist  = plusHistp500.Clone("%s%s_combined"%(self.histName,"PlusCurve"))
             plusHist.Add(plusHistp100)
