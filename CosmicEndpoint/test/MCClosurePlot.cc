@@ -36,7 +36,7 @@
 
 #define const_N_CURVE_BINS 320
 #define const_MAX_CURVE_RANGE 0.0080
-#define const_N_PSEUDO 100
+#define const_N_PSEUDO 50
 #define const_N_CLOSURE_BINS 5
 #define const_closureBins (0 ,10, 25, 40, 50)
 #define const_pseudoThresh 0.1
@@ -45,7 +45,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
 		   int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
 		   double factor_=1.0, double lowpT_=-1.0, double highpT_=-1.0,
-		   double pseudoThresh_=0.0375,
+		   double pseudoThresh_=0.0375, int seed_=1,
 		   bool symmetric_=false, bool applyTrigger_=false, bool mcFlag_=false,
 		   bool debug_=false)
 
@@ -63,10 +63,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     std::cout<<"arg  8 (nBiasBins_) is:  " << nBiasBins_ << std::endl;
     std::cout<<"arg  9 (factor_) is:  "    << factor_    << std::endl;
     std::cout<<"arg 10 (pseudoThresh_) is:  " << pseudoThresh_ << std::endl;
-    std::cout<<"arg 11 (symmetric_) is:  "    << symmetric_    << std::endl;
-    std::cout<<"arg 12 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
-    std::cout<<"arg 13 (mcFlag_) is:  "       << mcFlag_       << std::endl;
-    std::cout<<"arg 14 (debug_) is:  "        << debug_        << std::endl;
+    std::cout<<"arg 11 (seed_) is:  "         << seed_         << std::endl;
+    std::cout<<"arg 12 (symmetric_) is:  "    << symmetric_    << std::endl;
+    std::cout<<"arg 13 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
+    std::cout<<"arg 14 (mcFlag_) is:  "       << mcFlag_       << std::endl;
+    std::cout<<"arg 15 (debug_) is:  "        << debug_        << std::endl;
   }
 
   TFile *g;
@@ -202,7 +203,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   static const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  static const int    N_PSEUDO = 100;
+  static const int    N_PSEUDO = 50;
   static const int    N_CLOSURE_BINS = 5;
   static const int    CLOSURE_BIN0   =  0;
   static const int    CLOSURE_BIN1   = 10;
@@ -217,6 +218,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
   static const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
+  static const int    seed         = seed_;          // doing multiple pseudo experiments, need to ensure that we don't overlap
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
@@ -228,7 +230,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   TH1F *h_looseMuUpperCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
   TH1F *h_looseMuLowerCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
 
-  TRandom3 closureRand(197351);
+  TRandom3 closureRand(197351*seed);
 
   int etb = etaBin_;
   int phb = phiBin_;
@@ -254,9 +256,10 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
       for (int rab = 0; rab < N_PSEUDO; ++rab) {
 	std::stringstream name2;
-	name2 << std::setw(3) << std::setfill('0') << rab;
+	name2 << std::setw(3) << std::setfill('0') << (N_PSEUDO*(seed-1))+rab;
 	std::stringstream title2;
-	title2 << "pseudoexperiment " << rab;
+	title2 << "pseudoexperiment " << (N_PSEUDO*(seed-1))+rab;
+
 	bool fillPseudoData = false;
 	int clb = -1;
 	switch(i) {
@@ -281,7 +284,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	  fillPseudoData = true;
 	  break;
 	default:
-	  int clb = -1;
+	  clb = -1;
 	  fillPseudoData = false;
 	  break;
 	}
@@ -407,6 +410,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   std::cout << "Made it to Histogramming!" << std::endl;
   int j = 0;
+  int k = 0;
 
   //double maxDR = 0.15; // what is reasonable here? Aachen did dPhi < 0.1, dTheta (eta?) < 0.05
 
@@ -414,17 +418,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
     Double_t *randvals = new Double_t[N_PSEUDO];
     closureRand.RndmArray(N_PSEUDO,randvals);
-    if (j < 2)
-      std::cout << "random values: ";
+    if (k < 2)
+      std::cout << "k = " << k << " random values: ";
     for (int ri = 0; ri < N_PSEUDO; ++ri) {
       h_randvals->Fill(ri,randvals[ri]);
-      if (j < 2)
+      if (k < 2)
 	std::cout << " " << ri << ":" << randvals[ri];
     }
-    if (j < 2)
+    if (k < 2)
       std::cout << std::endl;
 
-    if (debug && j < 2)
+    if (debug && k < 2)
       std::cout << "Made it into the first loop" << std::endl;
     g->cd();
 
@@ -831,10 +835,12 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	//} // end if (sqrt(lowTrackerTrack->perp2()) > minPt_)
       } // end if (sqrt(upTrackerTrack->perp2()) > minPt_ || sqrt(lowTrackerTrack->perp2()) > minPt_)
 
-      ++j;
+      ++j;  // increment here to count processed events with non-empty muon collections
       if (debug && j < 2)
 	std::cout << "Made it through " << j << " sets of fills" << std::endl;
     } // closing if (*upTrackerChi2 > -1)
+
+    ++k;  // increment here to count processed events
 
     delete randvals;
   } // end while loop

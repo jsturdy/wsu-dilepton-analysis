@@ -213,9 +213,9 @@ class endpointClosureStudy():
     def getHistogram(self, sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=False):
         outHist = None
         for etaphibin in self.etaphibins[etaphi]:
-            if debug:
-                print "%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
-                pass
+            #if debug:
+            print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
+            #pass
 
             tmpHist = sampleFile.Get("%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("%s_%s"%(etaphibin,cloneName))
             if outHist:
@@ -246,24 +246,6 @@ class endpointClosureStudy():
         #plusClosureHistp100.SetBinError(bin,err)
 
         plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"clonep500")
-
-        #testing#binvals = []
-        #testing#binerrs = []
-        #testing#for b in range(plusClosureHistp500.GetNbinsX()+1):
-        #testing#    binvals.append(plusClosureHistp500.GetBinContent(b))
-        #testing#    binerrs.append(plusClosureHistp500.GetBinError(b))
-        #testing#    pass
-
-        plusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
-        #testing#print "Errors on reference histogram:"
-        #testing#print "bin  val1  val2  err1  err2  err3"
-        #testing#for b in range(plusClosureHistp500.GetNbinsX()+1):
-        #testing#    rawerr = plusClosureHistp500.GetBinError(b)
-        #testing#    binval = plusClosureHistp500.GetBinContent(b)
-        #testing#    err    = math.sqrt(binval)
-        #testing#    plusClosureHistp500.SetBinError(b,err)
-        #testing#    print "%3d  %4d  %2.4f  %2.4f  %2.4f  %2.4f"%(b,binvals[b],binval,binerrs[b],rawerr,err)
-        #testing#    pass
 
         plusClosureHist  = plusClosureHistp500.Clone("%s%s%s%s_scaling"%(self.histName,"PlusCurve",
                                                                          self.etaphi,mcBiasSuffix))
@@ -354,9 +336,10 @@ class endpointClosureStudy():
         self.refHist.SetLineWidth(2)
 
         ### calculating a scale factor from the un-biased MC
-        print "Scaling: %s/%s%s%sPlusBias000MCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,pseudoExp)
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
+
+        print "Scaling: %s/%s%s%s"%(self.etaphi,histPrefix,self.etaphi,histSuffix)
         plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100")
         #plusScaleHistp100.Scale(self.p100top500ScaleFactor)
 

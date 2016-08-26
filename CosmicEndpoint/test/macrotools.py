@@ -91,17 +91,20 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 			if (toolName=="Plot" and isMC and tk==4):
 				if debug:
 					f.write("  for (int etb = 0; etb < 1; ++etb)\n")
-					f.write("    for (int phb = 0; phb < 1; ++phb)\n")
+					f.write("    for (int phb = 0; phb < 1; ++phb) {\n")
 				else:
 					f.write("  for (int etb = 0; etb < 2; ++etb)\n")
-					f.write("    for (int phb = 0; phb < 2; ++phb)\n")
+					f.write("    for (int phb = 0; phb < 2; ++phb) {\n")
 					pass
-				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
-																	      symasym,outputFile,i,
-																	      tk+1,
-																	      minPt,maxBias,nBiasBins/4,
-																	      1000.,simlow,simhigh,pseudoThresh,
-																	      symmetric,trigger,isMC))
+				for seed in range(10):
+					f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %f, %d, %d, %d, %d);\n"%(inputFileList,
+																			  symasym,outputFile,i,
+																			  tk+1,
+																			  minPt,maxBias,nBiasBins/4,
+																			  1000.,simlow,simhigh,pseudoThresh,seed+1,
+																			  symmetric,trigger,isMC))
+					pass
+				f.write("    }\n")
 				pass ## end if (toolName=="Plot")
 			pass ## end for tk in range(5)
 		f.write("}\n")
