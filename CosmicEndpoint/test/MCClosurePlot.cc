@@ -38,13 +38,14 @@
 #define const_MAX_CURVE_RANGE 0.0080
 #define const_N_PSEUDO 100
 #define const_N_CLOSURE_BINS 5
-#define const_closureBins (0 ,5, 10, 20, 30)
+#define const_closureBins (0 ,10, 25, 40, 50)
 #define const_pseudoThresh 0.1
 
 void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
 		   int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
 		   double factor_=1.0, double lowpT_=-1.0, double highpT_=-1.0,
+		   double pseudoThresh_=0.0375,
 		   bool symmetric_=false, bool applyTrigger_=false, bool mcFlag_=false,
 		   bool debug_=false)
 
@@ -61,10 +62,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     std::cout<<"arg  7 (maxBias_) is:  "   << maxBias_   << std::endl;
     std::cout<<"arg  8 (nBiasBins_) is:  " << nBiasBins_ << std::endl;
     std::cout<<"arg  9 (factor_) is:  "    << factor_    << std::endl;
-    std::cout<<"arg 10 (symmetric_) is:  " << symmetric_ << std::endl;
-    std::cout<<"arg 11 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
-    std::cout<<"arg 12 (mcFlag_) is:  "       << mcFlag_       << std::endl;
-    std::cout<<"arg 13 (debug_) is:  "        << debug_        << std::endl;
+    std::cout<<"arg 10 (pseudoThresh_) is:  " << pseudoThresh_ << std::endl;
+    std::cout<<"arg 11 (symmetric_) is:  "    << symmetric_    << std::endl;
+    std::cout<<"arg 12 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
+    std::cout<<"arg 13 (mcFlag_) is:  "       << mcFlag_       << std::endl;
+    std::cout<<"arg 14 (debug_) is:  "        << debug_        << std::endl;
   }
 
   TFile *g;
@@ -154,16 +156,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   while (std::getline(file,name)) {
     std::stringstream newString;
-    newString << "root://xrootd.unl.edu//" << name;
+    // newString << "root://xrootd.unl.edu//" << name;
+    newString << "root://cmseos.fnal.gov//" << name;
 
-    //Use the following line with line above commented out for running on local files.
-    //newString << name;
+    // Use the following line with line above commented out for running on local files.
+    // newString << name;
     std::cout << newString.str() << std::endl;
     myChain->Add(TString(newString.str()));
   }
   std::cout << "Successfully opened inputfiles list!" << std::endl;
-  //  myChain->Add(TString());
-  //   newString << "root://xrootd.unl.edu//" << name;
+  // myChain->Add(TString());
+  // newString << "root://xrootd.unl.edu//" << name;
 
   TTree *myTree = myChain;
   TTreeReader trackReader(myTree);
@@ -202,10 +205,10 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   static const int    N_PSEUDO = 100;
   static const int    N_CLOSURE_BINS = 5;
   static const int    CLOSURE_BIN0   =  0;
-  static const int    CLOSURE_BIN1   =  5;
-  static const int    CLOSURE_BIN2   = 10;
-  static const int    CLOSURE_BIN3   = 20;
-  static const int    CLOSURE_BIN4   = 30;
+  static const int    CLOSURE_BIN1   = 10;
+  static const int    CLOSURE_BIN2   = 25;
+  static const int    CLOSURE_BIN3   = 40;
+  static const int    CLOSURE_BIN4   = 50;
   static const int    closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
 						     CLOSURE_BIN1,
 						     CLOSURE_BIN2,
@@ -213,7 +216,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 						     CLOSURE_BIN4 };      // injected bias bin to recover
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
-  static const double pseudoThresh = 0.0375;  // fraction of events to treat as data, half the rate we see in data per sample
+  static const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
