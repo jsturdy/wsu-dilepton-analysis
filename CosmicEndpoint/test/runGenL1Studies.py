@@ -55,6 +55,7 @@ if __name__ == "__main__":
         maxpT = 10000
         pass
 
+    print "min pT: %d, max pT: %d"%(minpT,maxpT)
     if options.mc:
         print "setting up scaling"
         scaling = getMCScaleFactors(options.infile,outfile,minpT,maxpT,options.tchain,options.debug)

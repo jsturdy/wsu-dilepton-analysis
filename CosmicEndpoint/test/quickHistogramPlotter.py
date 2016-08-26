@@ -76,10 +76,10 @@ if __name__ == "__main__":
     etaphibins = [
         "EtaPlusPhiMinus",
         "EtaPlusPhiZero",
-        "EtaPlusPhiPlus",
+        #"EtaPlusPhiPlus",
         "EtaMinusPhiMinus",
         "EtaMinusPhiZero",
-        "EtaMinusPhiPlus"
+        #"EtaMinusPhiPlus"
         ]
 
     tightmuons = [
