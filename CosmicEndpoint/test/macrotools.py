@@ -71,23 +71,23 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		f.write("  gROOT->ProcessLine(\" .L %s.so\");\n"%(toolName))
 		if (toolName=="Plot" and isMC):
 			f.write("  gROOT->ProcessLine(\" .L MCClosurePlot.so\");\n")
+			pass
 		##the first execution seems to clear the proxy error
-		
-		f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-												symasym,outputFile,i,
-												1,
-												minPt,maxBias,nBiasBins,
-												1000.,simlow,simhigh,
-												symmetric,trigger,isMC))
+		f.write("  %s(\"%s\", \"%s_%s_%d_\", %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d);\n"%(toolName,inputFileList,
+														symasym,outputFile,i,
+														1,
+														minPt,maxBias,nBiasBins,
+														1000.,simlow,simhigh,
+														symmetric,trigger,isMC,debug))
 		for tk in range(5):
 			if debug and tk < 4:
 				continue
-			f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-													symasym,outputFile,i,
-													tk+1,
-													minPt,maxBias,nBiasBins,
-													1000.,simlow,simhigh,
-													symmetric,trigger,isMC))
+			f.write("  %s(\"%s\", \"%s_%s_%d_\", %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d);\n"%(toolName,inputFileList,
+															symasym,outputFile,i,
+															tk+1,
+															minPt,maxBias,nBiasBins,
+															1000.,simlow,simhigh,
+															symmetric,trigger,isMC,debug))
 			if (toolName=="Plot" and isMC and tk==4):
 				if debug:
 					f.write("  for (int etb = 0; etb < 1; ++etb)\n")
@@ -97,12 +97,12 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 					f.write("    for (int phb = 0; phb < 2; ++phb) {\n")
 					pass
 				for seed in range(10):
-					f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %f, %d, %d, %d, %d);\n"%(inputFileList,
-																			  symasym,outputFile,i,
-																			  tk+1,
-																			  minPt,maxBias,nBiasBins/4,
-																			  1000.,simlow,simhigh,pseudoThresh,seed+1,
-																			  symmetric,trigger,isMC))
+					f.write("      MCClosurePlot(\"%s\", \"%s_%s_%d_\", etb, phb, %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %.5f, %d, %d, %d, %d, %d);\n"%(inputFileList,
+																					   symasym,outputFile,i,
+																					   tk+1,
+																					   minPt,maxBias,nBiasBins/4,
+																					   1000.,simlow,simhigh,pseudoThresh,seed+1,
+																					   symmetric,trigger,isMC,debug))
 					pass
 				f.write("    }\n")
 				pass ## end if (toolName=="Plot")
@@ -112,10 +112,13 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		pyCommand = "%s"%(rootScriptName)
 		makeBsubShellScript(pyCommand,toolName,rootScriptDir,"%s/splitLists_b%.2f_pt%2.0f_n%d/%s"%(samplesListsDir,1000*maxBias,
 													   minPt,nBiasBins,splitListFile),
-				    pyScriptName,i,proxyPath,maxBias,minPt,nBiasBins,symasym,debug)
-		
+				    pyScriptName,i,proxyPath,maxBias,minPt,nBiasBins,symasym,outputFile,debug)
+		pass
+	pass
+
+
 def makeBsubShellScript(pyCommand,toolName,rootScriptDir,splitListName,pyScriptName,index,proxyPath,
-			maxBias,minPt,nBiasBins,symasym,debug):
+			maxBias,minPt,nBiasBins,symasym,outputFile,debug):
 	subfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.sh"%( os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	logfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.log"%(os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	f = open(subfile,"w")
@@ -147,6 +150,8 @@ cd ${JOBDIR}
 ls -tar
 root -b -q -x %s
 tree
+hadd  ${OUTPUTDIR}/%s_%s_%d_closure_TuneP.root ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
+rm ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
 echo "rsync \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
 rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/
 """%(proxyPath,
@@ -158,6 +163,8 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
      toolName,
      rootScriptDir,pyCommand,#logfile,
      pyCommand,#logfile,
+     symasym,outputFile,index,symasym,outputFile,index,
+     symasym,outputFile,index,
      socket.gethostname(),
      socket.gethostname()))
 	f.close()
@@ -169,7 +176,7 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
 	else:
 		cmd = "bsub -q test -W 240 %s"%(subfile)
 		print cmd
-		
+
 def clearSplitLists(maxBias,minPt,nBiasBins,symasym,title):
 	samplesListsDir="samplesLists_data"
 	splitListsDir=samplesListsDir+"/splitLists_b%.2f_pt%2.0f_n%d/"%(1000*maxBias,minPt,nBiasBins)
