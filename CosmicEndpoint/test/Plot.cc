@@ -3,6 +3,9 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 
+#include <time.h>
+#include <chrono>
+
 #include "TLorentzVector.h"
 #include "TROOT.h"
 #include "TFile.h"
@@ -30,7 +33,13 @@
 #include <math.h>
 #include <cmath>
 
+#include <TStopwatch.h>
+
 #include "WSUDiLeptons/CosmicEndpoint/test/binFunctions.h"
+
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::milliseconds milliseconds;
+typedef std::chrono::seconds seconds;
 
 void Plot(std::string const& filelist, std::string const& outFile,
 	  int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
@@ -39,8 +48,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  bool debug_=false)
 
 {
-  bool debug = debug_;
+  Clock::time_point tstart = Clock::now();
 
+  bool debug = debug_;
 
   if (debug) {
     std::cout<<"arg  1 (filelist) is:  "   << filelist   << std::endl;
@@ -50,10 +60,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
     std::cout<<"arg  5 (maxBias_) is:  "   << maxBias_   << std::endl;
     std::cout<<"arg  6 (nBiasBins_) is:  " << nBiasBins_ << std::endl;
     std::cout<<"arg  7 (factor_) is:  "    << factor_    << std::endl;
-    std::cout<<"arg  8 (symmetric_) is:  " << symmetric_ << std::endl;
-    std::cout<<"arg  9 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
-    std::cout<<"arg 10 (mcFlag_) is:  "       << mcFlag_       << std::endl;
-    std::cout<<"arg 11 (debug_) is:  "        << debug_        << std::endl;
+    std::cout<<"arg  8 (lowpT_) is:  "     << lowpT_     << std::endl;
+    std::cout<<"arg  9 (highpT_) is:  "    << highpT_    << std::endl;
+    std::cout<<"arg 10 (symmetric_) is:  " << symmetric_ << std::endl;
+    std::cout<<"arg 11 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
+    std::cout<<"arg 12 (mcFlag_) is:  "       << mcFlag_       << std::endl;
+    std::cout<<"arg 13 (debug_) is:  "        << debug_        << std::endl;
   }
 
   TFile *g;
@@ -107,17 +119,18 @@ void Plot(std::string const& filelist, std::string const& outFile,
     return;
   }
 
-  std::cout << "chose the track object"  << std::endl;
+  if (debug)
+    std::cout << "chose the track object"  << std::endl;
 
   std::stringstream outrootfile, outlumifile;
-  std::cout << "checking for OUTPUTDIR " << std::endl;
+  if (debug)
+    std::cout << "checking for OUTPUTDIR " << std::endl;
   const char* envvar = std::getenv("OUTPUTDIR");
   if (envvar) {
     std::string outdir = std::string(envvar);
     outrootfile << outdir << "/" << outFile << outname;
     outlumifile << outdir << "/" << outFile << trackAlgo;
-    std::cout << "checked for found OUTPUTDIR "
-	      << outdir << std::endl;
+    std::cout << "OUTPUTDIR " << outdir << std::endl;
   }
   else {
     outrootfile << outFile << outname;
@@ -143,7 +156,8 @@ void Plot(std::string const& filelist, std::string const& outFile,
   std::string name;
   std::stringstream inputfiles;
 
-  std::cout << "checking for AFSJOBDIR " << std::endl;
+  if (debug)
+    std::cout << "checking for AFSJOBDIR " << std::endl;
   const char* afsvar = std::getenv("AFSJOBDIR");
   if (afsvar) {
     std::string jobdir = std::string(afsvar);
@@ -763,7 +777,8 @@ void Plot(std::string const& filelist, std::string const& outFile,
     }  // end loop over phi bins
   }  // end loop over eta bins
 
-  std::cout << "Creating upper muMinus TTreeReaderValues" << std::endl;
+  if (debug)
+    std::cout << "Creating upper muMinus TTreeReaderValues" << std::endl;
   TTreeReaderValue<Int_t>    run(  trackReader, "muonRunNumber"  );
   TTreeReaderValue<Int_t>    lumi( trackReader, "muonLumiBlock"  );
   TTreeReaderValue<Int_t>    event(trackReader, "muonEventNumber");
@@ -795,7 +810,8 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Int_t> upTrackerLayersWithMeasurement(trackReader, "upperMuon_trackerLayersWithMeasurement");
 
 
-  std::cout << "Creating lower muMinus TTreeReaderValues" << std::endl;
+  if (debug)
+    std::cout << "Creating lower muMinus TTreeReaderValues" << std::endl;
   TTreeReaderValue<math::XYZTLorentzVector> lowTrackerMuonP4(trackReader,"lowerMuon_P4"      );
   TTreeReaderValue<math::XYZVector>         lowTrackerTrack( trackReader,"lowerMuon_trackVec");
   TTreeReaderValue<Double_t> lowTrackerPt(      trackReader, "lowerMuon_trackPt" );
@@ -816,25 +832,67 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Int_t>    lowTrackerMatchedMuonStations(  trackReader, "lowerMuon_numberOfMatchedStations"     );
   TTreeReaderValue<Int_t>    lowTrackerLayersWithMeasurement(trackReader, "lowerMuon_trackerLayersWithMeasurement");
 
-  std::cout << "Made it to Histogramming!" << std::endl;
+  if (debug)
+    std::cout << "Made it to Histogramming!" << std::endl;
+
   int j = 0;
+  int k = 0;
 
   //double maxDR = 0.15; // what is reasonable here? Aachen did dPhi < 0.1, dTheta (eta?) < 0.05
 
+  TStopwatch tsw;
+  //int tenthpcount(1);
+  int onepcount(1);
+  int tenpcount(1);
+  Long64_t nentries = myChain->GetEntries();
+
+  Clock::time_point loopStart = Clock::now();
+
   while (trackReader.Next()) {
-    if (debug)
+    //Timing information
+    if ( k==0) {
+      tsw.Start();
+      std::cout << "." << std::flush;
+    }
+
+    if ((k*10)/nentries == tenpcount ) {
+      tsw.Stop();
+      Double_t time = tsw.RealTime();
+      tsw.Start(kFALSE);
+      Double_t finTime(0.);
+      Double_t frac = (k*1.0)/(nentries*1.0);
+      if (frac>0) finTime = time / frac - time;
+      Double_t finMin = finTime / 60.;
+      std::cout << std::setprecision(3) << std::fixed << tenpcount*10 << "% done.  "
+		<< "t = " << std::setw(7) << time
+		<< " projected finish =" << std::setw(7) << finTime << " s ("
+		<< std::setprecision(1)
+		<< finMin << " min).   "
+		<< std::endl;
+      tenpcount++;
+    } else if ( (k*100)/nentries == onepcount ) {
+      std::cout << ".";
+      std::cout << std::flush;
+      onepcount++;
+    }
+
+    if (debug && k < 1)
       std::cout << "Made it into the first loop" << std::endl;
     g->cd();
 
     // apply the trigger, i.e., don't process if the trigger didn't fire
-    if (applyTrigger_ && !(*fakeL1SingleMu))
+    if (applyTrigger_ && !(*fakeL1SingleMu)) {
+      ++k;  // increment here to count processed events
       continue;
+    }
 
     // make combination of samples easy
     if (mcFlag_) {
       if (*nSimTracks > 0) {
-	if ((simTrackpT[0] >= highpT_) || (simTrackpT[0] < lowpT_))
+	if ((simTrackpT[0] >= highpT_) || (simTrackpT[0] < lowpT_)) {
+	  ++k;  // increment here to count processed events
 	  continue;
+	}
       }
     }
 
@@ -938,7 +996,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	int phibin    = getPhiBin(upTrackerTrack->phi());
 	int chargebin = getChargeBin(*upTrackerCharge);
 
-	if ((j % 100) == 0)
+	if (debug && (j % 100) == 0)
 	  std::cout << "upper leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << upTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerMuonP4->eta()
@@ -1137,9 +1195,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
 	      // h_looseMuUpperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
 	      // h_looseMuUpperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
-
-	      if (debug)
-		std::cout << "Made it through the upper bias loop " << i << std::endl;
 	    }
 
 	    if (sqrt(upTrackerTrack->perp2()) > 100) {
@@ -1255,7 +1310,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	phibin    = getPhiBin(lowTrackerTrack->phi());
 	chargebin = getChargeBin(*lowTrackerCharge);
 
-	if ((j % 100) == 0)
+	if (debug && (j % 100) == 0)
 	  std::cout << "lower leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->eta()
@@ -1454,9 +1509,6 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
 	      // h_looseMuLowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
 	      // h_looseMuLowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
-
-	      if (debug)
-		std::cout << "Made it through the lower bias loop " << i << std::endl;
 	    }
 
 	    if (sqrt(lowTrackerTrack->perp2()) > 100) {
@@ -1553,10 +1605,20 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  << std::endl;
 
       ++j;
-      if (debug)
+      if (debug && j < 1)
 	std::cout << "Made it through " << j << " sets of fills" << std::endl;
     } // closing if (*upTrackerChi2 > -1)
+    ++k;
+    if (debug && k > 1000)
+      break;
   } // end while loop
+
+  Clock::time_point loopFinish = Clock::now();
+
+  std::cout << "100% done, "
+	    << "looping over TTree took: "
+	    << (std::chrono::duration_cast<seconds>(loopFinish - loopStart)).count()
+	    << "s" << std::endl;
 
   lumiFileOut100_loose.close();
   lumiFileOut200_loose.close();
@@ -1569,8 +1631,29 @@ void Plot(std::string const& filelist, std::string const& outFile,
   if (debug)
     std::cout << std::hex << g << std::dec << std::endl;
 
+  Clock::time_point t0 = Clock::now();
+
   g->Write();
+  Clock::time_point t1 = Clock::now();
+
+  std::cout << "writing file took: "
+	    << (std::chrono::duration_cast<seconds>(t1 - t0)).count()
+	    << "s" << std::endl;
   g->Close();
+
+  Clock::time_point t2 = Clock::now();
+
+  std::cout << "closing file took: "
+	    << (std::chrono::duration_cast<milliseconds>(t2 - t1)).count()
+	    << "ms" << std::endl;
+
+  std::cout << "file I/O took: "
+	    << (std::chrono::duration_cast<seconds>(t2 - t0)).count()
+	    << "s" << std::endl;
+
+  std::cout << "total duration: "
+	    << (std::chrono::duration_cast<seconds>(t2 - tstart)).count()
+	    << "s" << std::endl;
 
   return;
 }
