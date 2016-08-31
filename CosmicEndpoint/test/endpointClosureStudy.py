@@ -19,7 +19,7 @@ class endpointClosureStudy():
     from wsuPythonUtils import setMinPT,prettifyGraph
 
     def __init__(self, infiledir, outfile, histName, etaphi, minpt,
-                 maxbias=0.2, nBiasBins=40, nPseudoExp=250,
+                 maxbias=0.2, nBiasBins=40, nPseudoExp=250, pseudoExp=0,
                  injBiasBin=10, stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
                  pmScaling=True,
@@ -36,6 +36,7 @@ class endpointClosureStudy():
         self.minpt       = minpt
         self.maxbias     = maxbias
         self.nPseudoExp  = nPseudoExp
+        self.pseudoExp   = pseudoExp
         self.injBiasBin  = injBiasBin
         self.stepsize    = stepsize
         self.nBiasBins   = nBiasBins
@@ -74,13 +75,13 @@ class endpointClosureStudy():
             expectedBiasValue = -(maxbias/nBiasBins)*injBiasBin
             pass
 
-        # should set this up to be +/- 3*expected width
-        minBin = expectedBiasValue-(3*abs(expectedBiasValue))
-        maxBin = expectedBiasValue+(3*abs(expectedBiasValue))
+        # should set this up to be +/- 5*expected width
+        minBin = expectedBiasValue-(5*abs(expectedBiasValue))
+        maxBin = expectedBiasValue+(5*abs(expectedBiasValue))
 
         if injBiasBin == 0:
-            minBin = -0.075
-            maxBin =  0.075
+            minBin = -0.1
+            maxBin =  0.1
             pass
 
         print "expect to recover a bias of %2.4f"%(expectedBiasValue)
@@ -125,7 +126,7 @@ class endpointClosureStudy():
                            }
 
         if self.etaphi not in self.etaphibins.keys():
-            print "Invalid eta/phi option specified.  Allowed options are:"
+            print "Invalid eta/phi option specified: %s.  Allowed options are:"%(self.etaphi)
             print self.etaphibins.keys()
             exit(1)
 
@@ -182,21 +183,25 @@ class endpointClosureStudy():
 
     def loop(self):
         for pseudo in range(self.nPseudoExp):
-
-            ### Create arrays to store the graph points, length = (2*self.nBiasBins)+1
-            xVals = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
-
-            ### Need three Y-arrays, store them as a map
-            yVals = {}
-
-            for test in ["KS","Chi2","Chi2NDF"]:
-                yVals[test] = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
-                pass
-
-            results = self.runStudy(xVals, yVals, pseudo, debug=self.debug)
+            runPseudoExperiment(pseudo)
             pass
+        return
 
+    def runPseudoExperiment(self, pseudo):
+        ### Create arrays to store the graph points, length = (2*self.nBiasBins)+1
+        xVals = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
+        
+        ### Need three Y-arrays, store them as a map
+        yVals = {}
+        
+        for test in ["KS","Chi2","Chi2NDF"]:
+            yVals[test] = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
+            pass
+        
+        # results = self.runStudy(xVals, yVals, pseudo, debug=self.debug)
+        return self.runStudy(xVals, yVals, pseudo, debug=self.debug)
 
+    def writeOut(self):
         self.outfile.cd()
         self.chi2min.Write()
         self.chi2dist.Write()
@@ -213,9 +218,9 @@ class endpointClosureStudy():
     def getHistogram(self, sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=False):
         outHist = None
         for etaphibin in self.etaphibins[etaphi]:
-            #if debug:
-            print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
-            #pass
+            if debug:
+                print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
+            pass
 
             tmpHist = sampleFile.Get("%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("%s_%s"%(etaphibin,cloneName))
             if outHist:
@@ -241,11 +246,11 @@ class endpointClosureStudy():
         
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "%s"%(mcBiasSuffix)
-        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"clonep100")
+        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"clonep100",True)
         #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
         #plusClosureHistp100.SetBinError(bin,err)
 
-        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"clonep500")
+        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"clonep500",True)
 
         plusClosureHist  = plusClosureHistp500.Clone("%s%s%s%s_scaling"%(self.histName,"PlusCurve",
                                                                          self.etaphi,mcBiasSuffix))
@@ -268,20 +273,20 @@ class endpointClosureStudy():
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = "%s"%(mcBiasSuffix)
-        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp100")
+        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp100",self.debug)
 
         #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp100")
+        minusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp100",self.debug)
         #minusClosureHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp500")
+        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp500",self.debug)
         plusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp500")
+        minusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp500",self.debug)
 
         minusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
 
@@ -340,19 +345,19 @@ class endpointClosureStudy():
         histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
 
         print "Scaling: %s/%s%s%s"%(self.etaphi,histPrefix,self.etaphi,histSuffix)
-        plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100")
+        plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100",self.debug)
         #plusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp100")
+        minusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp100",self.debug)
         #minusScaleHistp100.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        plusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp500")
+        plusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp500",self.debug)
         plusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500")
+        minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500",self.debug)
         minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
 
         plusScaleHist = plusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"PlusCurve",pseudoExp))
@@ -490,18 +495,18 @@ class endpointClosureStudy():
 
                 histPrefix = "%s%s"%(self.histName,"PlusCurve")
                 histSuffix = "%sBias%03dMCClosure%03d"%(biasChange,biasBin,pseudoExp)
-                plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
+                plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
                 histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
+                minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
                 #plusHistp100.Scale( self.p100top500ScaleFactor)
                 #minusHistp100.Scale(self.p100top500ScaleFactor)
 
                 histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
+                plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
                 histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
+                minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
                 plusHistp500.Scale( 1./self.p100top500ScaleFactor)
                 minusHistp500.Scale(1./self.p100top500ScaleFactor)
 
@@ -534,19 +539,19 @@ class endpointClosureStudy():
         else:
             histPrefix = "%s%s"%(self.histName,"PlusCurve")
             histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
-            plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
+            plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
             histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"")
+            minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
             #plusHistp100.Scale( self.p100top500ScaleFactor)
             #minusHistp100.Scale(self.p100top500ScaleFactor)
 
             histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
+            plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
             histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"")
+            minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
             plusHistp500.Scale( 1./self.p100top500ScaleFactor)
             minusHistp500.Scale(1./self.p100top500ScaleFactor)
@@ -921,11 +926,14 @@ if __name__ == "__main__":
                       metavar="log",
                       help="[OPTIONAL] Make curvature plots in log scale")
     parser.add_option("--mcbias", type="int", dest="mcbias",
-                      metavar="mcbias", default=20,
-                      help="[OPTIONAL] Bias bin value to recover (default is 20)")
+                      metavar="mcbias", default=25,
+                      help="[OPTIONAL] Bias bin value to recover (default is 25)")
     parser.add_option("--num_pseudo", type="int", dest="num_pseudo",
-                      metavar="num_pseudo", default=250,
-                      help="[OPTIONAL] Number of pseudoexperiments to take results from (default is 250)")
+                      metavar="num_pseudo", default=500,
+                      help="[OPTIONAL] Number of pseudoexperiments to run (default is 500, -1 for specific pseudo experiment)")
+    parser.add_option("--pseudo", type="int", dest="pseudo",
+                      metavar="pseudo", default=0,
+                      help="[OPTIONAL] Specific pseudoexperiment to take results from (default is 0)")
 
     (options, args) = parser.parse_args()
 
@@ -943,6 +951,7 @@ if __name__ == "__main__":
                                        minpt=options.minpt,
                                        maxbias=options.maxbias,
                                        nPseudoExp=options.num_pseudo,
+                                       pseudoExp=options.pseudo,
                                        injBiasBin=options.mcbias,
                                        stepsize=options.stepsize,
                                        nBiasBins=options.biasbins,
@@ -952,7 +961,13 @@ if __name__ == "__main__":
                                        makeLog=options.log,
                                        debug=options.debug)
 
-    closuretest.loop()
+
+    if (options.num_pseudo > 0):
+        closuretest.loop()
+    else:
+        closuretest.runPseudoExperiment(options.pseudo)
+        pass
+    closuretest.writeOut()
 
     if options.debug:
         raw_input("press enter to exit")
