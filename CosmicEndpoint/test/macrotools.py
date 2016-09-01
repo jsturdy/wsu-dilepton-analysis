@@ -141,7 +141,7 @@ ls -tar
 
 cd %s
 export AFSJOBDIR=${PWD}
-eval `scramv1 runtime -sh`
+eval `scram runtime -sh`
 cp binFunctions.h ${JOBDIR}/
 cp MCClosurePlot* ${JOBDIR}/
 cp %s* ${JOBDIR}/
@@ -152,8 +152,8 @@ root -b -q -x %s
 tree
 hadd  ${OUTPUTDIR}/%s_%s_%d_closure_TuneP.root ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
 rm ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
-echo "rsync \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
-rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/
+echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
+rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/
 """%(proxyPath,
      #logfile,logfile,
      pyScriptName,

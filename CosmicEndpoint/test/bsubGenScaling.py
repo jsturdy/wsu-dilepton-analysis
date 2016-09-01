@@ -72,7 +72,7 @@ ls -tar
 
 cd %s
 export AFSJOBDIR=${PWD}
-eval `scramv1 runtime -sh`
+eval `scram runtime -sh`
 cp %s.py ${JOBDIR}/
 cp ../python/wsuPythonUtils.py ${JOBDIR}/
 cp ../python/wsuPyROOTUtils.py ${JOBDIR}/
@@ -88,8 +88,8 @@ xrdcp -d 1 -f root://cms-xrd-global.cern.ch//%s ${PWD}/local_copy_job_%d.root
 ./%s.py -i ${PWD}/local_copy_job_%d.root %s -o ${OUTPUTDIR}/gen_scaling_%s_job_%d
 #./%s.py -i root://cms-xrd-global.cern.ch//%s %s -o ${OUTPUTDIR}/gen_scaling_%s_job_%d
 tree
-echo "rsync \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
-rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/
+echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
+rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/
 """%(proxyPath,
      options.title,options.tool,
      os.getcwd(),
