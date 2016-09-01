@@ -23,6 +23,7 @@ class endpointClosureStudy():
                  injBiasBin=10, stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
                  pmScaling=True,
+                 asymdeco=False,
                  makeLog=False,
                  debug=False) :
 
@@ -48,8 +49,17 @@ class endpointClosureStudy():
         if self.pmScaling:
             self.pmstring    = "pm"
             pass
-        self.makeLog = makeLog
-        self.debug   = debug
+        self.asymdeco = asymdeco
+        self.makeLog  = makeLog
+        self.debug    = debug
+
+        p100InFileName = "%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+        p500InFileName = "%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+
+        if self.asymdeco:
+            p100InFileName = "%s/asym_deco_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+            p500InFileName = "%s/asym_deco_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+        pass
 
         self.p100InFile = r.TFile("%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
         self.p500InFile = r.TFile("%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
