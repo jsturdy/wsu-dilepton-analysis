@@ -96,29 +96,50 @@ ls -tar
 
 cd %s
 export AFSJOBDIR=${PWD}
-eval `scramv1 runtime -sh`
+eval `scram runtime -sh`
 cp ../python/wsuPythonUtils.py ${JOBDIR}/
 cp ../python/wsuPyROOTUtils.py ${JOBDIR}/
 cp ../python/wsuMuonTreeUtils.py ${JOBDIR}/
 cp endpointClosureStudy.py ${JOBDIR}/
-rsync -aAXchuq --progress ${PWD}/%s ${JOBDIR}/
+
+echo "rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/"
+rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/
+
+echo "decompressing ROOT files"
+cd ${JOBDIR}/%s/startup_peak_p100_v5_b0.80_pt75_n400_sym
+xz --decompress *.xz
+
+cd ${JOBDIR}/%s/startup_peak_p500_v5_b0.80_pt75_n400_sym
+xz --decompress *.xz
+
 cd ${JOBDIR}
+
+echo "Setting up path and enviornment"
 export PATH=${PWD}:${PATH}
 export PYTHONPATH=${PWD}:${PYTHONPATH}
+
 ls -tar
+
+echo "Running closure study"
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --pm
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_b0_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=0 --pm
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_m25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=-25 --pm
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_b0_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=0
 ./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=-25
+
 mv sampleGIFs ${OUTPUTDIR}/
+
 tree
-echo "rsync \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -aAXchuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
-rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -aAXchuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/
+
+echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
+rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/
 """%(proxyPath,
      options.infiledir,
      os.getcwd(),
+     options.infiledir,
+     options.infiledir,
+     options.infiledir,
      options.infiledir,
      options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
      options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
@@ -132,11 +153,11 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
     os.chmod(scriptname,0777)
 
     if not debug:
-        cmd = "bsub -q 8nh -W 240 %s/%s"%(os.getcwd(),scriptname)
+        cmd = "bsub -q 8nh -W 300 %s/%s"%(os.getcwd(),scriptname)
         print cmd
         os.system(cmd)
     elif count == 3:
-        cmd = "bsub -q test -W 240 %s/%s"%(os.getcwd(),scriptname)
+        cmd = "bsub -q test -W 300 %s/%s"%(os.getcwd(),scriptname)
         print cmd
         #os.system(cmd)
 
