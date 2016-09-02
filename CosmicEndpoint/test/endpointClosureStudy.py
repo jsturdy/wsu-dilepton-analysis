@@ -90,8 +90,8 @@ class endpointClosureStudy():
         maxBin = expectedBiasValue+(5*abs(expectedBiasValue))
 
         if injBiasBin == 0:
-            minBin = -0.1
-            maxBin =  0.1
+            minBin = -0.5
+            maxBin =  0.5
             pass
 
         print "expect to recover a bias of %2.4f"%(expectedBiasValue)
