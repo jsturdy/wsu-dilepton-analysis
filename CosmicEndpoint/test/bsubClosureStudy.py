@@ -102,15 +102,15 @@ cp ../python/wsuPyROOTUtils.py ${JOBDIR}/
 cp ../python/wsuMuonTreeUtils.py ${JOBDIR}/
 cp endpointClosureStudy.py ${JOBDIR}/
 
-echo "rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/"
-rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/
-
-echo "decompressing ROOT files"
-cd ${JOBDIR}/%s/startup_peak_p100_v5_b0.80_pt75_n400_sym
-xz --decompress *.xz
-
-cd ${JOBDIR}/%s/startup_peak_p500_v5_b0.80_pt75_n400_sym
-xz --decompress *.xz
+#echo "rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/"
+#rsync -ah --progress --relative ./%s/*startup*/*TuneP.root.xz ${JOBDIR}/
+#
+#echo "decompressing ROOT files"
+#cd ${JOBDIR}/%s/startup_peak_p100_v5_b0.80_pt75_n400_sym
+#xz --decompress *.xz
+#
+#cd ${JOBDIR}/%s/startup_peak_p500_v5_b0.80_pt75_n400_sym
+#xz --decompress *.xz
 
 cd ${JOBDIR}
 
@@ -121,12 +121,25 @@ export PYTHONPATH=${PWD}:${PYTHONPATH}
 ls -tar
 
 echo "Running closure study"
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --pm
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_b0_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=0 --pm
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_m25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=-25 --pm
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_b0_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=0
-./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m25_job%d.root -b40 --minpt 100 -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --mcbias=-25
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p50_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=50 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p40_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=40 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p25_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=25 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_p10_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=10 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_b0_job%d.root  -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=0  --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_b0_job%d.root  -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-10 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_m25_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-25 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_m40_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-40 --pm
+#./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s-pm_rec_m50_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-50 --pm
+
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p50_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=50
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p40_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=40
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p25_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=25
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_p10_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=10
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_b0_job%d.root  -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=0 
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m10_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-10
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m25_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-25
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m40_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-40
+./endpointClosureStudy.py -i %s -o ${OUTPUTDIR}/%s-closure-%s_rec_m50_job%d.root -b%d --minpt %d -m 0.8 --etaphi %s --num_pseudo 0 --pseudo %d -n 100 --xroot --mcbias=-50
 
 mv sampleGIFs ${OUTPUTDIR}/
 
@@ -141,12 +154,30 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
      options.infiledir,
      options.infiledir,
      options.infiledir,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
-     options.infiledir,options.infiledir,options.etaphi,count,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+     options.infiledir,options.infiledir,options.etaphi,count,options.rebins,options.minpt,options.etaphi,count,
+
      socket.gethostname(),socket.gethostname()))
 
     script.close()

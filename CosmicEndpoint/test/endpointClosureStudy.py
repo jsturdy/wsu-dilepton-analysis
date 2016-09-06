@@ -6,6 +6,7 @@ import numpy as np
 
 from optparse import OptionParser
 from wsuPythonUtils import *
+from wsuPyROOTUtils import *
 
 class endpointClosureStudy():
     """
@@ -17,12 +18,14 @@ class endpointClosureStudy():
     import numpy as np
 
     from wsuPythonUtils import setMinPT,prettifyGraph
+    from wsuPyROOTUtils import styleHistogram
 
     def __init__(self, infiledir, outfile, histName, etaphi, minpt,
                  maxbias=0.2, nBiasBins=40, nPseudoExp=250, pseudoExp=0,
                  injBiasBin=10, stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
                  pmScaling=True,
+                 xroot=False,
                  asymdeco=False,
                  makeLog=False,
                  debug=False) :
@@ -49,6 +52,7 @@ class endpointClosureStudy():
         if self.pmScaling:
             self.pmstring    = "pm"
             pass
+        self.xroot    = xroot
         self.asymdeco = asymdeco
         self.makeLog  = makeLog
         self.debug    = debug
@@ -59,10 +63,24 @@ class endpointClosureStudy():
         if self.asymdeco:
             p100InFileName = "%s/asym_deco_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
             p500InFileName = "%s/asym_deco_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
-        pass
+            pass
 
-        self.p100InFile = r.TFile("%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
-        self.p500InFile = r.TFile("%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins),"read")
+        if self.xroot:
+            p100InFileName = "root://cmseos.fnal.gov///store/user/sturdy/CosmicEndpoint/2015/Closure/%s"%(p100InFileName)
+            p500InFileName = "root://cmseos.fnal.gov///store/user/sturdy/CosmicEndpoint/2015/Closure/%s"%(p500InFileName)
+            pass
+        
+        self.p100InFile = None
+        self.p500InFile = None
+
+        if (p100InFileName).find("root://") > -1:
+            print "using TNetXNGFile for EOS access"
+            self.p100InFile = r.TNetXNGFile(p100InFileName,"read")
+            self.p500InFile = r.TNetXNGFile(p500InFileName,"read")
+        else:        
+            self.p100InFile = r.TFile(p100InFileName,"read")
+            self.p500InFile = r.TFile(p500InFileName,"read")
+            pass
 
         if not self.p100InFile or not self.p500InFile:
             print "input files invalid"
@@ -77,7 +95,18 @@ class endpointClosureStudy():
 
         self.outfile   = r.TFile(outfile,"recreate")
         r.TH1.SetDefaultSumw2()
-        self.chi2min   = r.TH1D("chi2Min", "", 100,  0.0, 250.)
+
+        histparams = {
+            "marker":{
+                "color":r.kBlack,
+                "style":r.kFullDiamond
+                },
+            "line":{
+                "color":r.kBlack,
+                "style":1,
+                "width":2
+                },
+            }
 
         recoverNegative = False
         expectedBiasValue = (maxbias/nBiasBins)*injBiasBin
@@ -86,29 +115,48 @@ class endpointClosureStudy():
             pass
 
         # should set this up to be +/- 5*expected width
-        minBin = expectedBiasValue-(5*abs(expectedBiasValue))
-        maxBin = expectedBiasValue+(5*abs(expectedBiasValue))
+        #minBin = expectedBiasValue-(5*abs(expectedBiasValue))
+        #maxBin = expectedBiasValue+(5*abs(expectedBiasValue))
+        minBin = expectedBiasValue-1.0
+        maxBin = expectedBiasValue+1.0
 
         if injBiasBin == 0:
-            minBin = -0.5
-            maxBin =  0.5
+            #minBin = -0.5
+            #maxBin =  0.5
+            minBin = -1.0
+            maxBin =  1.0
             pass
 
         print "expect to recover a bias of %2.4f"%(expectedBiasValue)
         print "creating chi2 distribution histogram with range [%2.4f,%2.4f]"%(minBin,maxBin)
         self.chi2dist  = r.TH1D("chi2Dist", "",500, minBin, maxBin)
+        self.chi2dist = styleHistogram(self.chi2dist,histparams)
 
-        self.chi2width = r.TH1D("chi2Width","",100,  0.05, 0.015)
+        self.chi2min   = r.TH1D("chi2Min", "", 100,  0.0, 100.)
+        self.chi2min = styleHistogram(self.chi2min,histparams)
+
+        self.chi2width = r.TH1D("chi2Width","",100,  0.0, 0.5)
+        self.chi2width = styleHistogram(self.chi2width,histparams)
+
         self.chi2pull1 = r.TH1D("chi2Pull1","#Delta#kappa_{inj} - #Delta#kappa_{meas}",
                                 200, -0.1, 0.1)
+        self.chi2pull1 = styleHistogram(self.chi2pull1,histparams)
+
         self.chi2pull2 = r.TH1D("chi2Pull2","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(fit_{width}(#chi^{2}_{min}+1))",
                                 200, -5.0, 5.0)
+        self.chi2pull2 = styleHistogram(self.chi2pull2,histparams)
+
         self.chi2pull3 = r.TH1D("chi2Pull3","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sqrt{2/fit''(#Delta#kappa_{meas})})",
                                 200, -5.0, 5.0)
+        self.chi2pull3 = styleHistogram(self.chi2pull3,histparams)
+
         self.chi2pull4 = r.TH1D("chi2Pull4","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{lower})",
                                 200, -5.0, 5.0)
+        self.chi2pull4 = styleHistogram(self.chi2pull4,histparams)
+
         self.chi2pull5 = r.TH1D("chi2Pull5","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{upper})",
                                 200, -5.0, 5.0)
+        self.chi2pull5 = styleHistogram(self.chi2pull5,histparams)
 
         self.etaphiexclusivebins = ["EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
                                     "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
@@ -895,6 +943,11 @@ class endpointClosureStudy():
         return results
 
 if __name__ == "__main__":
+
+    #import cProfile, pstats, StringIO
+    #pr = cProfile.Profile()
+    #pr.enable()
+
     parser = OptionParser(usage="Usage: %prog --infiledir path/to/MC/files -o outputfile.root [-d]")
     parser.add_option("-i", "--infiledir", type="string", dest="infiledir",
                       metavar="infiledir",
@@ -932,6 +985,12 @@ if __name__ == "__main__":
     parser.add_option("--pm", action="store_true", dest="pm",
                       metavar="pm",
                       help="[OPTIONAL] Scale plus and minus separately")
+    parser.add_option("--xroot", action="store_true", dest="xroot",
+                      metavar="xroot",
+                      help="[OPTIONAL] Access files over xrootd")
+    parser.add_option("--asymdeco", action="store_true", dest="asymdeco",
+                      metavar="asymdeco",
+                      help="[OPTIONAL] Process the asym_deco sample")
     parser.add_option("--log", action="store_true", dest="log",
                       metavar="log",
                       help="[OPTIONAL] Make curvature plots in log scale")
@@ -968,6 +1027,8 @@ if __name__ == "__main__":
                                        nTotalBins=options.totalbins,
                                        rebins=options.rebins,
                                        pmScaling=options.pm,
+                                       xroot=options.xroot,
+                                       asymdeco=options.asymdeco,
                                        makeLog=options.log,
                                        debug=options.debug)
 
@@ -983,3 +1044,9 @@ if __name__ == "__main__":
         raw_input("press enter to exit")
         pass
 
+    #pr.disable()
+    #s = StringIO.StringIO()
+    #sortby = 'cumulative'
+    #ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    #ps.print_stats()
+    #print s.getvalue()
