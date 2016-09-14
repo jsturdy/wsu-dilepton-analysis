@@ -225,18 +225,18 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  const int    N_PSEUDO = 50;
-  const int    N_CLOSURE_BINS = 5;
-  const int    CLOSURE_BIN0   =  0;
-  const int    CLOSURE_BIN1   = 10;
-  const int    CLOSURE_BIN2   = 25;
-  const int    CLOSURE_BIN3   = 40;
-  const int    CLOSURE_BIN4   = 50;
-  const int    closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
-					      CLOSURE_BIN1,
-					      CLOSURE_BIN2,
-					      CLOSURE_BIN3,
-					      CLOSURE_BIN4 };      // injected bias bin to recover
+  const int N_PSEUDO       = 50;
+  const int N_CLOSURE_BINS = 5;
+  const int CLOSURE_BIN0   =  0;
+  const int CLOSURE_BIN1   = 10;
+  const int CLOSURE_BIN2   = 25;
+  const int CLOSURE_BIN3   = 40;
+  const int CLOSURE_BIN4   = 50;
+  const int closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
+					   CLOSURE_BIN1,
+					   CLOSURE_BIN2,
+					   CLOSURE_BIN3,
+					   CLOSURE_BIN4 };      // injected bias bin to recover
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
   const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
@@ -697,13 +697,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
-			h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-			// h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -715,10 +719,12 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
-		    // h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    // h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
-		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
-		    h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
+		    // properly account for cases where injecting the bias migrates the muon from
+		    // positive to negative, and vice versa
+		    h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
+		    h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    // h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    // h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
 	      }  // end for (int i = 0; i < nBiasBins+1; ++i) {
@@ -878,13 +884,17 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
-			h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-			// h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -896,10 +906,12 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
-		    // h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    // h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
-		    h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
-		    h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
+		    // properly account for cases where injecting the bias migrates the muon from
+		    // positive to negative, and vice versa
+		    h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
+		    h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    // h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    // h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
 	      }  // end for (int i = 0; i < nBiasBins+1; ++i) {

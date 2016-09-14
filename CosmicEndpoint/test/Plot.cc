@@ -193,7 +193,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
   int nBiasBins = nBiasBins_;
 
   std::string counterBinLabels[55] = {
-    "00 - Uncut",                                // 0
+    "00 - superpointing and barrel",             // 0
     "01 - #frac{#Deltap_{T}}{p_{T}} N-1 (loose)",// 1
     "02 - N_{Trk Hits} N-1 (loose)",             // 2
     "03 - N_{Pix Hits} N-1 (loose)",             // 3
@@ -249,9 +249,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
     "49 - p_{T} > 2000", // 49
     "50 - p_{T} > 3000", // 50
     "51",
-    "52",
-    "53",
-    "54"
+    "52 - trueL1_SingleMuOpen", // 52
+    "53 - fakeL1_SingleMuOpen", // 53
+    "54 - Uncut",               // 54
   };
 
   // turn on Sumw2 by default
@@ -880,6 +880,21 @@ void Plot(std::string const& filelist, std::string const& outFile,
       std::cout << "Made it into the first loop" << std::endl;
     g->cd();
 
+    // count events passing the trigger
+    if (*trueL1SingleMu) {
+      h_countersUpper->Fill(52);
+      h_countersLower->Fill(52);
+    }
+
+    if (*fakeL1SingleMu) {
+      h_countersUpper->Fill(53);
+      h_countersLower->Fill(53);
+    }
+
+    // proper un-cut count
+    h_countersUpper->Fill(54);
+    h_countersLower->Fill(54);
+
     // apply the trigger, i.e., don't process if the trigger didn't fire
     if (applyTrigger_ && !(*fakeL1SingleMu)) {
       ++k;  // increment here to count processed events
@@ -1190,11 +1205,13 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	      double posBias = upperCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = upperCpT-(i+1)*(factor_*maxBias/nBiasBins);
 
-	      h_looseMuUpperCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
-	      h_looseMuUpperCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
+	      //h_looseMuUpperCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
+	      //h_looseMuUpperCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
 
-	      // h_looseMuUpperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
-	      // h_looseMuUpperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
+	      // properly account for cases where injecting the bias migrates the muon from
+	      // positive to negative, and vice versa
+	      h_looseMuUpperCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
+	      h_looseMuUpperCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
 	    }
 
 	    if (sqrt(upTrackerTrack->perp2()) > 100) {
@@ -1504,11 +1521,13 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	      double posBias = lowerCpT+(i+1)*(factor_*maxBias/nBiasBins);
 	      double negBias = lowerCpT-(i+1)*(factor_*maxBias/nBiasBins);
 
-	      h_looseMuLowerCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
-	      h_looseMuLowerCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
+	      //h_looseMuLowerCurvePlusBias[chargebin][etabin][phibin][i]->Fill(posBias);
+	      //h_looseMuLowerCurveMinusBias[chargebin][etabin][phibin][i]->Fill(negBias);
 
-	      // h_looseMuLowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
-	      // h_looseMuLowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
+	      // properly account for cases where injecting the bias migrates the muon from
+	      // positive to negative, and vice versa
+	      h_looseMuLowerCurvePlusBias[getChargeBin(posBias)][etabin][phibin][i]->Fill(posBias);
+	      h_looseMuLowerCurveMinusBias[getChargeBin(negBias)][etabin][phibin][i]->Fill(negBias);
 	    }
 
 	    if (sqrt(lowTrackerTrack->perp2()) > 100) {
