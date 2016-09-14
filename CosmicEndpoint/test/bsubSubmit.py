@@ -44,6 +44,9 @@ parser.add_option("--trigger", action="store_true", dest="trigger",
 parser.add_option("--mc", action="store_true", dest="mc",
                   metavar="mc", default=False,
                   help="[OPTIONAL] Whether or not running on MC")
+parser.add_option("--closure", action="store_true", dest="closure",
+                  metavar="closure", default=False,
+                  help="[OPTIONAL] Whether or not to generate the closure study histograms")
 parser.add_option("--simlow", type="float", dest="simlow",
                   metavar="simlow", default=-1.,
                   help="[OPTIONAL] Minimum pT cut to apply to the sim tracks (only for MC)")
@@ -73,10 +76,10 @@ if options.asymmetric:
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
-                  False, options.trigger, options.mc, debug)
+                  False, options.trigger, options.mc, options.closure, debug)
 else:
     bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
-                  True, options.trigger, options.mc, debug)
+                  True, options.trigger, options.mc, options.closure, debug)

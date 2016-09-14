@@ -41,7 +41,7 @@ def splitJobsForBsub(inputFile,numberOfJobs,maxBias,minPt,nBiasBins,symasym):
 
 def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJobs,
 		  maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
-		  symmetric,trigger,isMC,debug):
+		  symmetric,trigger,isMC,doClosure,debug):
 	symasym = "asym"
 	if symmetric:
 		symasym = "sym"
@@ -69,7 +69,7 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		#f.write("  gROOT->ProcessLine(\" .L %s/%s.so\");\n"%(os.getcwd()))
 		inputFileList = samplesListsDir + "/splitLists_b%.2f_pt%2.0f_n%d/"%(1000*maxBias,minPt,nBiasBins) + splitListFile
 		f.write("  gROOT->ProcessLine(\" .L %s.so\");\n"%(toolName))
-		if (toolName=="Plot" and isMC):
+		if (toolName=="Plot" and isMC and doClosure):
 			f.write("  gROOT->ProcessLine(\" .L MCClosurePlot.so\");\n")
 			pass
 		##the first execution seems to clear the proxy error
@@ -88,7 +88,7 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 															minPt,maxBias,nBiasBins,
 															1000.,simlow,simhigh,
 															symmetric,trigger,isMC,debug))
-			if (toolName=="Plot" and isMC and tk==4):
+			if (toolName=="Plot" and isMC and doClosure and tk==4):
 				if debug:
 					f.write("  for (int etb = 0; etb < 1; ++etb)\n")
 					f.write("    for (int phb = 0; phb < 1; ++phb) {\n")
