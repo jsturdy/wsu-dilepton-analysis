@@ -139,7 +139,7 @@ class endpointClosureStudy():
         self.chi2width = styleHistogram(self.chi2width,histparams)
 
         self.chi2pull1 = r.TH1D("chi2Pull1","#Delta#kappa_{inj} - #Delta#kappa_{meas}",
-                                200, -0.1, 0.1)
+                                200, -1.0, 1.0)
         self.chi2pull1 = styleHistogram(self.chi2pull1,histparams)
 
         self.chi2pull2 = r.TH1D("chi2Pull2","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(fit_{width}(#chi^{2}_{min}+1))",
@@ -826,14 +826,17 @@ class endpointClosureStudy():
         r.gPad.Update()
 
         if self.injBiasBin < 0:
-            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin, pseudoExp,
-                                                                                self.rebins,self.stepsize,self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                    pseudoExp, self.rebins, self.injBiasBin,
+                                                                                    self.stepsize,self.pmstring))
         elif self.injBiasBin > 0:
-            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin, pseudoExp,
-                                                                                self.rebins,self.stepsize,self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                    pseudoExp, self.rebins, self.injBiasBin,
+                                                                                    self.stepsize, self.pmstring))
         else:
-            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin, pseudoExp,
-                                                                               self.rebins,self.stepsize,self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                   pseudoExp, self.rebins,self.injBiasBin,
+                                                                                   self.stepsize, self.pmstring))
         return (xvals, yvals)
 
     def makeGraphs(self, xvals, yvals, pseudoExp, debug=False):
