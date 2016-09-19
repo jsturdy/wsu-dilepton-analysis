@@ -66,8 +66,10 @@ class endpointClosureStudy():
             pass
 
         if self.xroot:
-            p100InFileName = "root://cmseos.fnal.gov///store/user/sturdy/CosmicEndpoint/2015/Closure/%s"%(p100InFileName)
-            p500InFileName = "root://cmseos.fnal.gov///store/user/sturdy/CosmicEndpoint/2015/Closure/%s"%(p500InFileName)
+            eossrc = "root://cmseos.fnal.gov///store/user/sturdy"
+            eossrc = "root://eoscms.cern.ch//eos/cms/store/user/sturdy"
+            p100InFileName = "%s/CosmicEndpoint/2015/Closure/%s"%(eossrc,p100InFileName)
+            p500InFileName = "%s/CosmicEndpoint/2015/Closure/%s"%(eossrc,p500InFileName)
             pass
         
         self.p100InFile = None
@@ -479,8 +481,8 @@ class endpointClosureStudy():
         graphs = self.makeGraphs(xvals, yvals, pseudoExp, debug=self.debug)
 
         ## this should not be hardcoded
-        funcrange = [-0.8,0.8]
-        fitrange  = [-0.8,0.8]
+        funcrange = [-self.maxbias,self.maxbias]
+        fitrange  = [-self.maxbias,self.maxbias]
         fitresults = self.fitCurve(graphs["chi2"], 8, funcrange, fitrange, debug=self.debug)
 
         self.outfile.cd()
@@ -886,8 +888,8 @@ class endpointClosureStudy():
         preFitMinChi2 = preFitPoly.GetMinimum(fitrange[0], fitrange[1])
         preFitLower = preFitPoly.GetX(preFitMinChi2+deltaChi2, fitrange[0],   preFitMinBias)
         preFitUpper = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, fitrange[1])
-        preFitUncUp  = 3*(preFitUpper - preFitMinBias)
-        preFitUncLow = 3*(preFitMinBias - preFitLower)
+        preFitUncUp  = 5*(preFitUpper - preFitMinBias)
+        preFitUncLow = 5*(preFitMinBias - preFitLower)
 
         #if debug:
         print "preFitMinBias  preFitMinChi2  preFitLowVal  preFitHighVal  preFitLowErr  preFitHighErr"

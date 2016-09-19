@@ -60,6 +60,8 @@ print "%12s:  %12s  %12s  %12s  %12s  %12s  %12s  %12s  %12s  %12s  %12s"%("name
                                                                            "fit par2","par2 err")
 sys.stdout.flush()
 
+outfile = r.TFile("aug31_thresh04-shawn_closure_study_All_output.root","recreate")
+
 for filename in infiles.keys():
     infile = r.TFile("aug31_thresh04-shawn/closure_study/All/%s%s.root"%(jobname,filename),"READ")
     N_BINS = 500
@@ -70,60 +72,70 @@ for filename in infiles.keys():
     minBin = 0.2-(5*abs(0.2))
     maxBin = 0.2+(5*abs(0.2))
     resBin = 2
+    filesuffix = "none"
 
     if (filename.find("m50") > 0):
         minBin = -0.4-1.0
         maxBin = -0.4+1.0
         resBin = 0
         xVals[resBin] = -0.4
+        filesuffix = "m50"
 
     elif (filename.find("m40") > 0):
         minBin = -0.32-1.0
         maxBin = -0.32+1.0
         resBin = 1
         xVals[resBin] = -0.32
+        filesuffix = "m40"
 
     elif (filename.find("m25") > 0):
         minBin = -0.2-1.0
         maxBin = -0.2+1.0
         resBin = 2
         xVals[resBin] = -0.2
+        filesuffix = "m25"
 
     elif (filename.find("m10") > 0):
         minBin = -0.2-1.0
         maxBin = -0.2+1.0
         resBin = 3
         xVals[resBin] = -0.08
+        filesuffix = "m10"
 
     elif (filename.find("b0") > 0):
         minBin = -1.0
         maxBin =  1.0
         resBin = 4
         xVals[resBin] = 0.0
+        filesuffix = "b0"
 
     elif (filename.find("p10") > 0):
         minBin = 0.2-1.0
         maxBin = 0.2+1.0
         resBin = 5
         xVals[resBin] = 0.08
+        filesuffix = "p10"
 
     elif (filename.find("p25") > 0):
         minBin = 0.2-1.0
         maxBin = 0.2+1.0
         resBin = 6
         xVals[resBin] = 0.2
+        filesuffix = "p25"
 
     elif (filename.find("p40") > 0):
         minBin = 0.32-1.0
         maxBin = 0.32+1.0
         resBin = 7
         xVals[resBin] = 0.32
+        filesuffix = "p40"
 
     elif (filename.find("p50") > 0):
         minBin = 0.4-1.0
         maxBin = 0.4+1.0
         resBin = 8
         xVals[resBin] = 0.4
+        filesuffix = "p50"
 
     else:
         print "Unknown input file"
@@ -131,18 +143,28 @@ for filename in infiles.keys():
     print filename,resBin
     sys.stdout.flush()
 
-    preFitDist = r.TH1D("preFitDist", "pre-fit",500, minBin, maxBin)
+    preFitDist = r.TH1D("%s_preFitDist"%(filesuffix), "pre-fit",500, minBin, maxBin)
     preFitDist.Sumw2()
-    chi2Pull1 = r.TH1D("chi2Pull1","#Delta#kappa_{inj} - #Delta#kappa_{meas}",200, -1.0, 1.0)
+    chi2Pull1 = r.TH1D("%s_chi2Pull1"%(filesuffix),"#Delta#kappa_{inj} - #Delta#kappa_{meas}",200, -1.0, 1.0)
     chi2Pull1.Sumw2()
 
     for cbin in range(N_BINS):
-        graphname = "chi2_looseMuLowerAll_closureBin%03d"%(cbin)
+        graphname  = "chi2_looseMuLowerAll_closureBin%03d"%(cbin)
         prefitname = "preFitPoly_looseMuLowerAll_closureBin%03d"%(cbin)
         fitname    = "fitPoly_looseMuLowerAll_closureBin%03d"%(cbin)
-        graph = infile.Get(graphname)
+        graph  = infile.Get(graphname)
         prefit = infile.Get(prefitname)
         fit    = infile.Get(fitname)
+
+        graph.SetName("%s_%s"%(filesuffix,graphname))
+        prefit.SetName("%s_%s"%(filesuffix,prefitname))
+        fit.SetName("%s_%s"%(filesuffix,fitname))
+
+        outfile.cd()
+        graph.Write()
+        prefit.Write()
+        fit.Write()
+
         if cbin == 0:
             if graph:
                 graph.Draw("AP")
@@ -159,18 +181,18 @@ for filename in infiles.keys():
         pass
 
     fitFunc = []
-    fitFunc.append(r.TF1("fitFunc","gaus",minBin/2,maxBin/2))
+    fitFunc.append(r.TF1("%s_fitFunc"%(filesuffix),"gaus",minBin/2,maxBin/2))
     fitFunc[0].SetParameters(0,0)
     outcan.cd(2)
     chi2Dist = infile.Get("chi2Dist")
+    chi2Dist.SetName("%s_chi2Dist"%(filesuffix))
     chi2Dist.Rebin(10)
-    chi2Dist.SetName("")
     chi2Dist.SetTitle("#chi^{2} minimized #Delta#kappa_{B}^{rec.} distribution")
     chi2Dist.GetXaxis().SetTitle("#Delta#kappa_{rec.} c/TeV")
     chi2Dist.GetYaxis().SetTitle("Pseudoexperiments per %2.2f c/TeV"%(chi2Dist.GetBinWidth(2)))
     chi2Dist.Draw()
     fitFunc[0].SetParameters(0,0)
-    chi2Dist.Fit("fitFunc","QEMIPR")
+    chi2Dist.Fit("%s_fitFunc"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Dist",chi2Dist.GetMean(),chi2Dist.GetMeanError(),
         chi2Dist.GetRMS(),chi2Dist.GetRMSError(),
@@ -202,19 +224,27 @@ for filename in infiles.keys():
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
     r.gPad.Update()
+    chi2Dist.Write()
+    preFitDist.Write()
+    fitFunc[0].Write()
 
     outcan.cd(3)
     chi2Min = infile.Get("chi2Min")
+    chi2Min.SetName("%s_chi2Min"%(filesuffix))
     chi2Min.Rebin(2)
     chi2Min.SetStats(r.kFALSE)
     chi2Min.SetTitle("#chi^{2} minimum distribution")
     chi2Min.Draw()
+    chi2Min.Write()
+
     outcan.cd(4)
     chi2Width = infile.Get("chi2Width")
+    chi2Width.SetName("%s_chi2Width"%(filesuffix))
     chi2Width.Rebin(2)
     chi2Width.SetStats(r.kFALSE)
     chi2Width.SetTitle("#chi^{2} minimization width distribution")
     chi2Width.Draw()
+    chi2Width.Write()
     outcan.Update()
 
     #raw_input("press enter to continue")
@@ -223,6 +253,7 @@ for filename in infiles.keys():
     pullcan.Divide(2,3)
     pullcan.cd(1)
     #chi2Pull1 = infile.Get("chi2Pull1")
+    #chi2Pull1.SetName("%s_chi2Pull1"%(filesuffix))
     chi2Pull1.SetMarkerColor(r.kBlack)
     chi2Pull1.SetMarkerStyle(r.kFullDiamond)
     chi2Pull1.SetLineColor(r.kBlack)
@@ -230,9 +261,9 @@ for filename in infiles.keys():
     chi2Pull1.SetLineWidth(2)
     chi2Pull1.Rebin(4)
     chi2Pull1.Draw()
-    fitFunc.append(r.TF1("fitFunc1","gaus",-0.25,0.25))
+    fitFunc.append(r.TF1("%s_fitFunc1"%(filesuffix),"gaus",-0.25,0.25))
     fitFunc[1].SetParameters(0,0)
-    chi2Pull1.Fit("fitFunc1","QEMIPR")
+    chi2Pull1.Fit("%s_fitFunc1"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Pull1",chi2Pull1.GetMean(),chi2Pull1.GetMeanError(),
         chi2Pull1.GetRMS(),chi2Pull1.GetRMSError(),
@@ -258,14 +289,17 @@ for filename in infiles.keys():
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
     r.gPad.Update()
+    chi2Pull1.Write()
+    fitFunc[1].Write()
 
     pullcan.cd(2)
     chi2Pull2 = infile.Get("chi2Pull2")
+    chi2Pull2.SetName("%s_chi2Pull2"%(filesuffix))
     chi2Pull2.Rebin(4)
     chi2Pull2.Draw()
-    fitFunc.append(r.TF1("fitFunc2","gaus",-2.5,2.5))
+    fitFunc.append(r.TF1("%s_fitFunc2"%(filesuffix),"gaus",-2.5,2.5))
     fitFunc[2].SetParameters(0,0)
-    chi2Pull2.Fit("fitFunc2","QEMIPR")
+    chi2Pull2.Fit("%s_fitFunc2"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Pull2",chi2Pull2.GetMean(),chi2Pull2.GetMeanError(),
         chi2Pull2.GetRMS(),chi2Pull2.GetRMSError(),
@@ -290,15 +324,18 @@ for filename in infiles.keys():
     st2.SetX2NDC(0.9)
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
+    chi2Pull2.Write()
+    fitFunc[2].Write()
     r.gPad.Update()
 
     pullcan.cd(3)
     chi2Pull3 = infile.Get("chi2Pull3")
+    chi2Pull3.SetName("%s_chi2Pull3"%(filesuffix))
     chi2Pull3.Rebin(4)
     chi2Pull3.Draw()
-    fitFunc.append(r.TF1("fitFunc3","gaus",-2.5,2.5))
+    fitFunc.append(r.TF1("%s_fitFunc3"%(filesuffix),"gaus",-2.5,2.5))
     fitFunc[3].SetParameters(0,0)
-    chi2Pull3.Fit("fitFunc3","QEMIPR")
+    chi2Pull3.Fit("%s_fitFunc3"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Pull3",chi2Pull3.GetMean(),chi2Pull3.GetMeanError(),
         chi2Pull3.GetRMS(),chi2Pull3.GetRMSError(),
@@ -323,15 +360,18 @@ for filename in infiles.keys():
     st2.SetX2NDC(0.9)
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
+    chi2Pull3.Write()
+    fitFunc[3].Write()
     r.gPad.Update()
 
     pullcan.cd(4)
     chi2Pull4 = infile.Get("chi2Pull4")
+    chi2Pull4.SetName("%s_chi2Pull4"%(filesuffix))
     chi2Pull4.Rebin(4)
     chi2Pull4.Draw()
-    fitFunc.append(r.TF1("fitFunc4","gaus",-2.5,2.5))
+    fitFunc.append(r.TF1("%s_fitFunc4"%(filesuffix),"gaus",-2.5,2.5))
     fitFunc[4].SetParameters(0,0)
-    chi2Pull4.Fit("fitFunc4","QEMIPR")
+    chi2Pull4.Fit("%s_fitFunc4"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Pull4",chi2Pull4.GetMean(),chi2Pull4.GetMeanError(),
         chi2Pull4.GetRMS(),chi2Pull4.GetRMSError(),
@@ -356,15 +396,18 @@ for filename in infiles.keys():
     st2.SetX2NDC(0.9)
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
+    chi2Pull4.Write()
+    fitFunc[4].Write()
     r.gPad.Update()
 
     pullcan.cd(5)
     chi2Pull5 = infile.Get("chi2Pull5")
+    chi2Pull5.SetName("%s_chi2Pull5"%(filesuffix))
     chi2Pull5.Rebin(4)
     chi2Pull5.Draw()
-    fitFunc.append(r.TF1("fitFunc5","gaus",-2.5,2.5))
+    fitFunc.append(r.TF1("%s_fitFunc5"%(filesuffix),"gaus",-2.5,2.5))
     fitFunc[5].SetParameters(0,0)
-    chi2Pull5.Fit("fitFunc5","QEMIPR")
+    chi2Pull5.Fit("%s_fitFunc5"%(filesuffix),"QEMIPR")
     print "%12s:  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e  %12.4e"%(
         "chi2Pull5",chi2Pull5.GetMean(),chi2Pull5.GetMeanError(),
         chi2Pull5.GetRMS(),chi2Pull5.GetRMSError(),
@@ -389,6 +432,8 @@ for filename in infiles.keys():
     st2.SetX2NDC(0.9)
     st2.SetY1NDC(0.6)
     st2.SetY2NDC(0.9)
+    chi2Pull5.Write()
+    fitFunc[5].Write()
     r.gPad.Update()
     pullcan.Update()
 
@@ -447,6 +492,17 @@ distSigmaVsBiasGraph.Draw("PSAME")
 r.gPad.Update()
 r.gPad.SetGridx(r.kTRUE)
 r.gPad.SetGridy(r.kTRUE)
+
+distAvgVsBiasGraph.SetName("distAvgVsBiasGraph")
+distMeanVsBiasGraph.SetName("distMeanVsBiasGraph")
+distRMSVsBiasGraph.SetName("distRMSVsBiasGraph")
+distSigmaVsBiasGraph.SetName("distSigmaVsBiasGraph")
+
+outfile.cd()
+distAvgVsBiasGraph.Write()
+distMeanVsBiasGraph.Write()
+distRMSVsBiasGraph.Write()
+distSigmaVsBiasGraph.Write()
 
 pullAvgVsBiasGraph   = []
 pullMeanVsBiasGraph  = []
@@ -517,6 +573,18 @@ for pull in range(5):
     r.gPad.SetGridx(r.kTRUE)
     r.gPad.SetGridy(r.kTRUE)
     r.gPad.Update()
+
+    pullAvgVsBiasGraph[pull].SetName("pull%dAvgVsBiasGraph"%(pull+1))
+    pullMeanVsBiasGraph[pull].SetName("pull%dMeanVsBiasGraph"%(pull+1))
+    pullRMSVsBiasGraph[pull].SetName("pull%dRMSVsBiasGraph"%(pull+1))
+    pullSigmaVsBiasGraph[pull].SetName("pull%dSigmaVsBiasGraph"%(pull+1))
+
+    outfile.cd()
+    pullAvgVsBiasGraph[pull].Write()
+    pullMeanVsBiasGraph[pull].Write()
+    pullRMSVsBiasGraph[pull].Write()
+    pullSigmaVsBiasGraph[pull].Write()
+
     pass
 lastcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/%s_results.png"%(jobname))
 lastcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/%s_results.pdf"%(jobname))
@@ -524,6 +592,10 @@ lastcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/%s_results.eps"%
 lastcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/%s_results.C"  %(jobname))
 lastcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/%s_results.png"%(jobname))
 #raw_input("press enter to exit")
+
+outfile.cd()
+outfile.Write()
+outfile.Close()
 
 pr.disable()
 s = StringIO.StringIO()

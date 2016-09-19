@@ -21,9 +21,9 @@ class endpointDataMCStudy():
     from wsuPyROOTUtils import styleHistogram
 
     def __init__(self, infiledir, outfile, histName, etaphi, minpt,
-                 maxbias=0.2, nBiasBins=40,
-                 stepsize=1,
+                 maxbias=0.2, nBiasBins=40,stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
+                 algo="TuneP",
                  pmScaling=True,
                  xroot=False,
                  asymdeco=False,
@@ -44,6 +44,15 @@ class endpointDataMCStudy():
         self.nTotalBins  = nTotalBins
         self.factor      = factor
         self.rebins      = rebins
+        self.algo        = algo
+        self.trackAlgos = ["TrackerOnly","TuneP","DYT","TPFMS","Picky"]
+        if self.algo not in self.trackAlgos:
+            errmsg = "Invalid track algo specified: %s.  Allowed options are:\n"%(self.algo)
+            errmsg += self.trackAlgos
+            #exit(1)
+            raise NameError(errmsg)
+
+
         self.pmScaling   = pmScaling
         self.pmstring    = "normal"
         if self.pmScaling:
@@ -54,14 +63,32 @@ class endpointDataMCStudy():
         self.makeLog  = makeLog
         self.debug    = debug
 
-        cosmicDataInFileName = "%s/craft15_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
-        p100InFileName = "%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
-        p500InFileName = "%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
+        cosmicDataInFileName = "%s/craft15_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                          self.maxbias,
+                                                                                          self.nBiasBins,
+                                                                                          self.algo)
+        p100InFileName = "%s/startup_peak_p100_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
+        p500InFileName = "%s/startup_peak_p500_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
 
         if self.asymdeco:
-            cosmicDataInFileName = "%s/craft15_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
-            p100InFileName = "%s/asym_deco_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
-            p500InFileName = "%s/asym_deco_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,nBiasBins)
+            cosmicDataInFileName = "%s/craft15_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
+            p100InFileName = "%s/asym_deco_p100_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                               self.maxbias,
+                                                                                               self.nBiasBins,
+                                                                                               self.algo)
+            p500InFileName = "%s/asym_deco_p500_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                               self.maxbias,
+                                                                                               self.nBiasBins,
+                                                                                               self.algo)
             pass
 
         if self.xroot:
@@ -87,8 +114,9 @@ class endpointDataMCStudy():
             self.p500InFile = r.TFile(p500InFileName,"read")
             pass
 
-        if not self.p100InFile or not self.p500InFile:
+        if not self.cosmicDataInFile or not self.p100InFile or not self.p500InFile:
             print "input files invalid"
+            print "cosmicDataInFile",self.cosmicDataInFile
             print "p100InFile",self.p100InFile
             print "p500InFile",self.p500InFile
             exit(1)
@@ -133,10 +161,10 @@ class endpointDataMCStudy():
                            "PhiMinus"        :self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
                            "EtaPlusPhiMinus" :self.etaphiexclusivebins[0:1],
                            "EtaPlusPhiZero"  :self.etaphiexclusivebins[1:2],
-                           "EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
+                           #"EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
                            "EtaMinusPhiMinus":self.etaphiexclusivebins[3:4],
                            "EtaMinusPhiZero" :self.etaphiexclusivebins[4:5],
-                           "EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
+                           #"EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
                            }
 
         if self.etaphi not in self.etaphibins.keys():
@@ -371,8 +399,8 @@ class endpointDataMCStudy():
         graphs = self.makeGraphs(xvals, yvals, debug=self.debug)
 
         ## this should not be hardcoded
-        funcrange = [-0.8,0.8]
-        fitrange  = [-0.8,0.8]
+        funcrange = [-self.maxbias,self.maxbias]
+        fitrange  = [-self.maxbias,self.maxbias]
         fitresults = self.fitCurve(graphs["chi2"], 8, funcrange, fitrange, debug=self.debug)
 
         self.outfile.cd()
@@ -730,8 +758,8 @@ class endpointDataMCStudy():
         preFitMinChi2 = preFitPoly.GetMinimum(fitrange[0], fitrange[1])
         preFitLower = preFitPoly.GetX(preFitMinChi2+deltaChi2, fitrange[0],   preFitMinBias)
         preFitUpper = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, fitrange[1])
-        preFitUncUp  = 3*(preFitUpper - preFitMinBias)
-        preFitUncLow = 3*(preFitMinBias - preFitLower)
+        preFitUncUp  = 5*(preFitUpper - preFitMinBias)
+        preFitUncLow = 5*(preFitMinBias - preFitLower)
 
         #if debug:
         print "preFitMinBias  preFitMinChi2  preFitLowVal  preFitHighVal  preFitLowErr  preFitHighErr"
@@ -829,6 +857,9 @@ if __name__ == "__main__":
     parser.add_option("--etaphi", type="string", dest="etaphi",
                       metavar="etaphi", default="",
                       help="[OPTIONAL] Eta/Phi bin to use")
+    parser.add_option("--algo", type="string", dest="algo",
+                      metavar="algo", default="TuneP",
+                      help="[OPTIONAL] Tracking algorithm to use")
     parser.add_option("--pm", action="store_true", dest="pm",
                       metavar="pm",
                       help="[OPTIONAL] Scale plus and minus separately")
@@ -861,6 +892,7 @@ if __name__ == "__main__":
                                 nBiasBins=options.biasbins,
                                 nTotalBins=options.totalbins,
                                 rebins=options.rebins,
+                                algo=options.algo,
                                 pmScaling=options.pm,
                                 xroot=options.xroot,
                                 asymdeco=options.asymdeco,
