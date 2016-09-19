@@ -152,19 +152,27 @@ root -b -q -x %s
 tree
 hadd  ${OUTPUTDIR}/%s_%s_%d_closure_TuneP.root ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
 rm ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
-echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
-rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahuq --progress ${OUTPUTDIR} %s:/tmp/${USER}/
+
+export EOSOUTDIR=/eos/cms/store/user/${USER}/CosmicEndpoint/2015/Closure/output_%s_b%.2f_pt%2.0f_n%d_%s
+eos mkdir -p ${EOSOUTDIR}
+xrdcp -d 0 -f -r ${OUTPUTDIR}/*.root root://eoscms.cern.ch/${EOSOUTDIR}/
+
+#echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahu --progress ${OUTPUTDIR} ${JOBDIR}/myeos/output_%s_b%.2f_pt%2.0f_n%d_%s/ --exclude=\"*.png\" --exclude=\"*.txt\""
+#rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahu --progress ${OUTPUTDIR} ${JOBDIR}/myeos/output_%s_b%.2f_pt%2.0f_n%d_%s/ --exclude=\"*.png\" --exclude=\"*.txt\"
+
+echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahu --progress ${OUTPUTDIR} %s:/tmp/${USER}/" --exclude=\"*.png\" --exclude=\"*.root\"
+rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahu --progress ${OUTPUTDIR} %s:/tmp/${USER}/ --exclude=\"*.png\" --exclude=\"*.root\"
 """%(proxyPath,
-     #logfile,logfile,
-     pyScriptName,
-     1000*maxBias,minPt,nBiasBins,symasym,
-     #logfile,logfile,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      os.getcwd(),
      toolName,
-     rootScriptDir,pyCommand,#logfile,
-     pyCommand,#logfile,
+     rootScriptDir,pyCommand,
+     pyCommand,
      symasym,outputFile,index,symasym,outputFile,index,
      symasym,outputFile,index,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      socket.gethostname(),
      socket.gethostname()))
 	f.close()
