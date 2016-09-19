@@ -8,9 +8,9 @@ from optparse import OptionParser
 from wsuPythonUtils import *
 from wsuPyROOTUtils import *
 
-class endpointClosureStudy():
+class endpointDataMCStudy():
     """
-    Run the cosmic endpoint analysis closure test
+    Run the cosmic endpoint analysis
     """
 
     import ROOT as r
@@ -21,9 +21,9 @@ class endpointClosureStudy():
     from wsuPyROOTUtils import styleHistogram
 
     def __init__(self, infiledir, outfile, histName, etaphi, minpt,
-                 maxbias=0.2, nBiasBins=40, nPseudoExp=250, pseudoExp=0,
-                 injBiasBin=10, stepsize=1,
+                 maxbias=0.2, nBiasBins=40,stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
+                 algo="TuneP",
                  pmScaling=True,
                  xroot=False,
                  asymdeco=False,
@@ -39,14 +39,20 @@ class endpointClosureStudy():
         self.etaphi      = etaphi
         self.minpt       = minpt
         self.maxbias     = maxbias
-        self.nPseudoExp  = nPseudoExp
-        self.pseudoExp   = pseudoExp
-        self.injBiasBin  = injBiasBin
         self.stepsize    = stepsize
         self.nBiasBins   = nBiasBins
         self.nTotalBins  = nTotalBins
         self.factor      = factor
         self.rebins      = rebins
+        self.algo        = algo
+        self.trackAlgos = ["TrackerOnly","TuneP","DYT","TPFMS","Picky"]
+        if self.algo not in self.trackAlgos:
+            errmsg = "Invalid track algo specified: %s.  Allowed options are:\n"%(self.algo)
+            errmsg += self.trackAlgos
+            #exit(1)
+            raise NameError(errmsg)
+
+
         self.pmScaling   = pmScaling
         self.pmstring    = "normal"
         if self.pmScaling:
@@ -57,35 +63,60 @@ class endpointClosureStudy():
         self.makeLog  = makeLog
         self.debug    = debug
 
-        p100InFileName = "%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
-        p500InFileName = "%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+        cosmicDataInFileName = "%s/craft15_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                          self.maxbias,
+                                                                                          self.nBiasBins,
+                                                                                          self.algo)
+        p100InFileName = "%s/startup_peak_p100_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
+        p500InFileName = "%s/startup_peak_p500_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
 
         if self.asymdeco:
-            p100InFileName = "%s/asym_deco_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
-            p500InFileName = "%s/asym_deco_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+            cosmicDataInFileName = "%s/craft15_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                              self.maxbias,
+                                                                                              self.nBiasBins,
+                                                                                              self.algo)
+            p100InFileName = "%s/asym_deco_p100_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                               self.maxbias,
+                                                                                               self.nBiasBins,
+                                                                                               self.algo)
+            p500InFileName = "%s/asym_deco_p500_v5_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
+                                                                                               self.maxbias,
+                                                                                               self.nBiasBins,
+                                                                                               self.algo)
             pass
 
         if self.xroot:
             eossrc = "root://cmseos.fnal.gov///store/user/sturdy"
             eossrc = "root://eoscms.cern.ch//eos/cms/store/user/sturdy"
+            cosmicDataInFileName = "%s/CosmicEndpoint/2015/Closure/%s"%(eossrc,cosmicDataInFileName)
             p100InFileName = "%s/CosmicEndpoint/2015/Closure/%s"%(eossrc,p100InFileName)
             p500InFileName = "%s/CosmicEndpoint/2015/Closure/%s"%(eossrc,p500InFileName)
             pass
-        
+
+        self.cosmicDataInFile = None
         self.p100InFile = None
         self.p500InFile = None
 
-        if (p100InFileName).find("root://") > -1:
+        if (cosmicDataInFileName).find("root://") > -1:
             print "using TNetXNGFile for EOS access"
+            self.cosmicDataInFile = r.TNetXNGFile(cosmicDataInFileName,"read")
             self.p100InFile = r.TNetXNGFile(p100InFileName,"read")
             self.p500InFile = r.TNetXNGFile(p500InFileName,"read")
-        else:        
+        else:
+            self.cosmicDataInFile = r.TFile(cosmicDataInFileName,"read")
             self.p100InFile = r.TFile(p100InFileName,"read")
             self.p500InFile = r.TFile(p500InFileName,"read")
             pass
 
-        if not self.p100InFile or not self.p500InFile:
+        if not self.cosmicDataInFile or not self.p100InFile or not self.p500InFile:
             print "input files invalid"
+            print "cosmicDataInFile",self.cosmicDataInFile
             print "p100InFile",self.p100InFile
             print "p500InFile",self.p500InFile
             exit(1)
@@ -95,7 +126,8 @@ class endpointClosureStudy():
         # - p100, p500: scale p100 by (1028051./58898.)
         self.p100top500ScaleFactor = 1028051./58898.
 
-        self.outfile   = r.TFile(outfile,"recreate")
+        self.outfile   = r.TFile(outfile,"update")
+
         r.TH1.SetDefaultSumw2()
 
         histparams = {
@@ -109,56 +141,6 @@ class endpointClosureStudy():
                 "width":2
                 },
             }
-
-        recoverNegative = False
-        expectedBiasValue = (maxbias/nBiasBins)*injBiasBin
-        if recoverNegative:
-            expectedBiasValue = -(maxbias/nBiasBins)*injBiasBin
-            pass
-
-        # should set this up to be +/- 5*expected width
-        #minBin = expectedBiasValue-(5*abs(expectedBiasValue))
-        #maxBin = expectedBiasValue+(5*abs(expectedBiasValue))
-        minBin = expectedBiasValue-1.0
-        maxBin = expectedBiasValue+1.0
-
-        if injBiasBin == 0:
-            #minBin = -0.5
-            #maxBin =  0.5
-            minBin = -1.0
-            maxBin =  1.0
-            pass
-
-        print "expect to recover a bias of %2.4f"%(expectedBiasValue)
-        print "creating chi2 distribution histogram with range [%2.4f,%2.4f]"%(minBin,maxBin)
-        self.chi2dist  = r.TH1D("chi2Dist", "",500, minBin, maxBin)
-        self.chi2dist = styleHistogram(self.chi2dist,histparams)
-
-        self.chi2min   = r.TH1D("chi2Min", "", 100,  0.0, 100.)
-        self.chi2min = styleHistogram(self.chi2min,histparams)
-
-        self.chi2width = r.TH1D("chi2Width","",100,  0.0, 0.5)
-        self.chi2width = styleHistogram(self.chi2width,histparams)
-
-        self.chi2pull1 = r.TH1D("chi2Pull1","#Delta#kappa_{inj} - #Delta#kappa_{meas}",
-                                200, -1.0, 1.0)
-        self.chi2pull1 = styleHistogram(self.chi2pull1,histparams)
-
-        self.chi2pull2 = r.TH1D("chi2Pull2","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(fit_{width}(#chi^{2}_{min}+1))",
-                                200, -5.0, 5.0)
-        self.chi2pull2 = styleHistogram(self.chi2pull2,histparams)
-
-        self.chi2pull3 = r.TH1D("chi2Pull3","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sqrt{2/fit''(#Delta#kappa_{meas})})",
-                                200, -5.0, 5.0)
-        self.chi2pull3 = styleHistogram(self.chi2pull3,histparams)
-
-        self.chi2pull4 = r.TH1D("chi2Pull4","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{lower})",
-                                200, -5.0, 5.0)
-        self.chi2pull4 = styleHistogram(self.chi2pull4,histparams)
-
-        self.chi2pull5 = r.TH1D("chi2Pull5","(#Delta#kappa_{inj} - #Delta#kappa_{meas})/(#sigma_{MINOS}^{upper})",
-                                200, -5.0, 5.0)
-        self.chi2pull5 = styleHistogram(self.chi2pull5,histparams)
 
         self.etaphiexclusivebins = ["EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
                                     "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
@@ -179,10 +161,10 @@ class endpointClosureStudy():
                            "PhiMinus"        :self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
                            "EtaPlusPhiMinus" :self.etaphiexclusivebins[0:1],
                            "EtaPlusPhiZero"  :self.etaphiexclusivebins[1:2],
-                           "EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
+                           #"EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
                            "EtaMinusPhiMinus":self.etaphiexclusivebins[3:4],
                            "EtaMinusPhiZero" :self.etaphiexclusivebins[4:5],
-                           "EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
+                           #"EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
                            }
 
         if self.etaphi not in self.etaphibins.keys():
@@ -192,13 +174,13 @@ class endpointClosureStudy():
 
         self.graphInfo = {}
         self.graphInfo["KS"]   = {"color":r.kRed,"marker":r.kFullCircle,
-                                  "title":"Kolmogorov test statistic, #Delta#kappa_{b}^{exp} = %2.2f"%(expectedBiasValue),
+                                  "title":"Kolmogorov test statistic",
                                   "yaxis":""}
         self.graphInfo["Chi2"] = {"color":r.kBlue, "marker":r.kFullCircle,
-                                  "title":"ROOT #chi^{2}, #Delta#kappa_{b}^{exp} = %2.2f"%(expectedBiasValue),
+                                  "title":"ROOT #chi^{2}",
                                   "yaxis":""}
         self.graphInfo["Chi2NDF"] = {"color":r.kGreen, "marker":r.kFullCircle,
-                                  "title":"ROOT #chi^{2}/ndf, #Delta#kappa_{b}^{exp} = %2.2f"%(expectedBiasValue),
+                                  "title":"ROOT #chi^{2}/ndf",
                                   "yaxis":""}
 
         self.gifDir = "sampleGIFs/%s"%(self.etaphi)
@@ -241,36 +223,8 @@ class endpointClosureStudy():
         self.compscaleminta = None
         return
 
-    def loop(self):
-        for pseudo in range(self.nPseudoExp):
-            runPseudoExperiment(pseudo)
-            pass
-        return
-
-    def runPseudoExperiment(self, pseudo):
-        ### Create arrays to store the graph points, length = (2*self.nBiasBins)+1
-        xVals = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
-        
-        ### Need three Y-arrays, store them as a map
-        yVals = {}
-        
-        for test in ["KS","Chi2","Chi2NDF"]:
-            yVals[test] = np.zeros(2*self.nBiasBins/self.stepsize+1,np.dtype('float64'))
-            pass
-        
-        # results = self.runStudy(xVals, yVals, pseudo, debug=self.debug)
-        return self.runStudy(xVals, yVals, pseudo, debug=self.debug)
-
     def writeOut(self):
         self.outfile.cd()
-        self.chi2min.Write()
-        self.chi2dist.Write()
-        self.chi2width.Write()
-        self.chi2pull1.Write()
-        self.chi2pull2.Write()
-        self.chi2pull3.Write()
-        self.chi2pull4.Write()
-        self.chi2pull5.Write()
         self.outfile.Close()
 
         return
@@ -291,32 +245,18 @@ class endpointClosureStudy():
             pass
         return outHist
 
-    def runStudy(self, xvals, yvals, pseudoExp, debug=False):
+    def runStudy(self, xvals, yvals, debug=False):
         import math
 
-        mcBiasSuffix = "RecoverZeroBias%03dPseudoData%03d"%(self.injBiasBin,pseudoExp)
-        if self.injBiasBin < 0:
-            mcBiasSuffix = "RecoverMinusBias%03dPseudoData%03d"%(abs(self.injBiasBin),pseudoExp)
-        elif self.injBiasBin > 0:
-            mcBiasSuffix = "RecoverPlusBias%03dPseudoData%03d"%(self.injBiasBin,pseudoExp)
+        histPrefix = "%s%s"%(self.histName,"PlusCurve")
+        histSuffix = ""
 
-        print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,mcBiasSuffix)
+        print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,histSuffix)
+        print "cosmicDataInFile",self.cosmicDataInFile
         print "p100InFile",self.p100InFile
         print "p500InFile",self.p500InFile
-        
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        histSuffix = "%s"%(mcBiasSuffix)
-        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"clonep100",True)
-        #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
-        #plusClosureHistp100.SetBinError(bin,err)
 
-        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"clonep500",True)
-
-        plusClosureHist  = plusClosureHistp500.Clone("%s%s%s%s_scaling"%(self.histName,"PlusCurve",
-                                                                         self.etaphi,mcBiasSuffix))
-        plusClosureHist.Add(plusClosureHistp100)
-
-        testHist = plusClosureHist.Clone("testHistogram")
+        testHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"clonecosmicData",True)
 
         testHist = setMinPT(testHist,self.nTotalBins,self.minpt/1000.,True,debug)
         testHist.Rebin(self.rebins)
@@ -329,35 +269,13 @@ class endpointClosureStudy():
         ## use fixed MC bias histogram as reference
         if debug:
             print "Using %s/%s%s%s%s as reference histograms"%(self.etaphi,self.histName,"Plus[Minus]Curve",
-                                                               self.etaphi,mcBiasSuffix)
+                                                               self.etaphi,histSuffix)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        histSuffix = "%s"%(mcBiasSuffix)
-        plusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp100",self.debug)
-
-        #plusClosureHistp100.Scale(self.p100top500ScaleFactor)
+        plusRefHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"plusRefHist",self.debug)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusClosureHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp100",self.debug)
-        #minusClosureHistp100.Scale(self.p100top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        plusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusClosureHistp500",self.debug)
-        plusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusClosureHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusClosureHistp500",self.debug)
-
-        minusClosureHistp500.Scale(1./self.p100top500ScaleFactor)
-
-        plusClosureHist  = plusClosureHistp500.Clone("%s%s%s_scaling"%(self.histName,"PlusCurve",mcBiasSuffix))
-        plusClosureHist.Add(plusClosureHistp100)
-
-        minusClosureHist = minusClosureHistp500.Clone("%s%s%s_scaling"%(self.histName,"MinusCurve",mcBiasSuffix))
-        minusClosureHist.Add(minusClosureHistp100)
-
-        plusRefHist  = plusClosureHist
-        minusRefHist = minusClosureHist
+        minusRefHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"minusRefHist",self.debug)
 
         if debug:
             print "Minus integral %d, Plus integral %d"%(minusRefHist.Integral(),plusRefHist.Integral())
@@ -402,7 +320,7 @@ class endpointClosureStudy():
 
         ### calculating a scale factor from the un-biased MC
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
+        histSuffix = ""
 
         print "Scaling: %s/%s%s%s"%(self.etaphi,histPrefix,self.etaphi,histSuffix)
         plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100",self.debug)
@@ -420,13 +338,13 @@ class endpointClosureStudy():
         minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500",self.debug)
         minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
 
-        plusScaleHist = plusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"PlusCurve",pseudoExp))
+        plusScaleHist = plusScaleHistp500.Clone("%s%s%s_scaling"%(self.etaphi,self.histName,"PlusCurve"))
         plusScaleHist.Add(plusScaleHistp100)
 
-        minusScaleHist = minusScaleHistp500.Clone("%s%s%sMCClosure%03d_scaling"%(self.etaphi,self.histName,"MinusCurve",pseudoExp))
+        minusScaleHist = minusScaleHistp500.Clone("%s%s%s_scaling"%(self.etaphi,self.histName,"MinusCurve"))
         minusScaleHist.Add(minusScaleHistp100)
 
-        compScaleHist = plusScaleHist.Clone("%s%sMCClosure%03d_compScaleHist"%(self.etaphi,self.histName,pseudoExp))
+        compScaleHist = plusScaleHist.Clone("%s%s_compScaleHist"%(self.etaphi,self.histName))
         compScaleHist.Add(minusScaleHist)
 
         if debug:
@@ -472,13 +390,13 @@ class endpointClosureStudy():
         print "  mu minus: %2.4f = %8.2f/%8.2f"%(self.refminta/self.compscaleminta,self.refminta,self.compscaleminta)
 
         ## loop over negative bias
-        (xvals,yvals) = self.biasLoop(xvals, yvals, pseudoExp, negativeBias=True,  zeroBias=False, debug=self.debug)
+        (xvals,yvals) = self.biasLoop(xvals, yvals, negativeBias=True,  zeroBias=False, debug=self.debug)
         ## plots for zero bias
-        (xvals,yvals) = self.biasLoop(xvals, yvals, pseudoExp, negativeBias=False, zeroBias=True, debug=self.debug)
+        (xvals,yvals) = self.biasLoop(xvals, yvals, negativeBias=False, zeroBias=True, debug=self.debug)
         ## loop over negative bias
-        (xvals,yvals) = self.biasLoop(xvals, yvals, pseudoExp, negativeBias=False, zeroBias=False, debug=self.debug)
+        (xvals,yvals) = self.biasLoop(xvals, yvals, negativeBias=False, zeroBias=False, debug=self.debug)
 
-        graphs = self.makeGraphs(xvals, yvals, pseudoExp, debug=self.debug)
+        graphs = self.makeGraphs(xvals, yvals, debug=self.debug)
 
         ## this should not be hardcoded
         funcrange = [-self.maxbias,self.maxbias]
@@ -486,56 +404,18 @@ class endpointClosureStudy():
         fitresults = self.fitCurve(graphs["chi2"], 8, funcrange, fitrange, debug=self.debug)
 
         self.outfile.cd()
-        fitresults["preFitPoly"].SetName("preFitPoly_%s%s_closureBin%03d"%(self.histName,self.etaphi,pseudoExp))
-        fitresults["fitPoly"].SetName("fitPoly_%s%s_closureBin%03d"%(      self.histName,self.etaphi,pseudoExp))
+        fitresults["preFitPoly"].SetName("preFitPoly_%s%s"%(self.histName,self.etaphi))
+        fitresults["fitPoly"].SetName("fitPoly_%s%s"%(      self.histName,self.etaphi))
         fitresults["preFitPoly"].Write()
         fitresults["fitPoly"].Write()
 
-        self.chi2min.Fill(fitresults["minChi2"])
-
-        self.chi2dist.Fill(fitresults["minBias"])
-
         width = fitresults["upper"] - fitresults["lower"]
-        self.chi2width.Fill(width)
-
-        exp = (self.maxbias/self.nBiasBins)*self.injBiasBin
-
-        pull = (exp - fitresults["minBias"])
-        self.chi2pull1.Fill(pull)
-
-        try:
-            pull = (exp - fitresults["minBias"])/width
-            self.chi2pull2.Fill(pull)
-        except ZeroDivisionError:
-            print "unable to calculate pull, width = %2.2f(%2.2g - %2.2g)"%(width,fitresults["upper"],fitresults["lower"])
-            pass
-
-        try:
-            pull = (exp - fitresults["minBias"])/fitresults["error"]
-            self.chi2pull3.Fill(pull)
-        except ZeroDivisionError:
-            print "unable to calculate pull, error = %2.2f"%(fitresults["error"])
-            pass
-
-        try:
-            pull = (exp - fitresults["minBias"])/fitresults["minos"][0]
-            self.chi2pull4.Fill(pull)
-        except ZeroDivisionError:
-            print "unable to calculate pull, lower MINOS error = %2.2f"%(fitresults["minos"][0])
-            pass
-
-        try:
-            pull = (exp - fitresults["minBias"])/fitresults["minos"][1]
-            self.chi2pull5.Fill(pull)
-        except ZeroDivisionError:
-            print "unable to calculate pull, upper MINOS error = %2.2f"%(fitresults["minos"][1])
-            pass
 
         self.reset()
 
         return
 
-    def biasLoop(self, xvals, yvals, pseudoExp, negativeBias=False, zeroBias=False, debug=False):
+    def biasLoop(self, xvals, yvals, negativeBias=False, zeroBias=False, debug=False):
 
         if not zeroBias:
             biasChange = "Plus"
@@ -548,13 +428,13 @@ class endpointClosureStudy():
                 if negativeBias:
                     biasBin = self.nBiasBins-step*self.stepsize
                 if debug:
-                    print "%s/%s%s%s%sBias%03dMCClosure%03d"%(self.etaphi,self.histName,"PlusCurve",
+                    print "%s/%s%s%s%sBias%03d"%(self.etaphi,self.histName,"PlusCurve",
                                                               self.etaphi,biasChange,
-                                                              biasBin,pseudoExp)
+                                                              biasBin)
                     pass
 
                 histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                histSuffix = "%sBias%03dMCClosure%03d"%(biasChange,biasBin,pseudoExp)
+                histSuffix = "%sBias%03d"%(biasChange,biasBin)
                 plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
                 histPrefix = "%s%s"%(self.histName,"MinusCurve")
@@ -570,7 +450,6 @@ class endpointClosureStudy():
                 plusHistp500.Scale( 1./self.p100top500ScaleFactor)
                 minusHistp500.Scale(1./self.p100top500ScaleFactor)
 
-
                 plusHist  = plusHistp500.Clone("%s%s_combined_%sBias%03d"%(self.histName,"PlusCurve",
                                                                            biasChange,
                                                                            biasBin))
@@ -581,7 +460,6 @@ class endpointClosureStudy():
                                                                             biasBin))
                 minusHist.Add(minusHistp100)
 
-
                 ## for positive injected bias
                 index  = self.nBiasBins/self.stepsize+1+step
                 gifBin = self.nBiasBins+(1+step)*self.stepsize
@@ -591,14 +469,14 @@ class endpointClosureStudy():
                     pass
 
                 (xvals, yvals) = self.compareHistograms(xvals, yvals, index, biasBin, gifBin,
-                                                        plusHist, minusHist, pseudoExp,
+                                                        plusHist, minusHist,
                                                         zeroBias, negativeBias)
 
                 pass
             pass
         else:
             histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            histSuffix = "PlusBias000MCClosure%03d"%(pseudoExp)
+            histSuffix = ""
             plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
 
             histPrefix = "%s%s"%(self.histName,"MinusCurve")
@@ -626,14 +504,14 @@ class endpointClosureStudy():
             biasBin = 0
             gifBin  = self.nBiasBins
             (xvals, yvals) = self.compareHistograms(xvals, yvals, index, biasBin, gifBin,
-                                                    plusHist, minusHist, pseudoExp,
+                                                    plusHist, minusHist,
                                                     zeroBias, negativeBias)
             pass
 
         return (xvals,yvals)
 
     def compareHistograms(self, xvals, yvals, index, biasBin, gifBin,
-                          plusHist, minusHist, pseudoExp,
+                          plusHist, minusHist,
                           zeroBias=False, negativeBias=False,
                           debug=False):
 
@@ -827,21 +705,13 @@ class endpointClosureStudy():
         thelegend.Draw()
         r.gPad.Update()
 
-        if self.injBiasBin < 0:
-            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                    pseudoExp, self.rebins, self.injBiasBin,
-                                                                                    self.stepsize,self.pmstring))
-        elif self.injBiasBin > 0:
-            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                    pseudoExp, self.rebins, self.injBiasBin,
-                                                                                    self.stepsize, self.pmstring))
-        else:
-            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                   pseudoExp, self.rebins,self.injBiasBin,
-                                                                                   self.stepsize, self.pmstring))
+        gifcanvas.SaveAs("%s/%sbiasBinm%04d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                             self.rebins, self.stepsize,
+                                                             self.pmstring))
+
         return (xvals, yvals)
 
-    def makeGraphs(self, xvals, yvals, pseudoExp, debug=False):
+    def makeGraphs(self, xvals, yvals, debug=False):
         """
         Make the Chi2, reduced Chi2, and KS graphs
         """
@@ -852,9 +722,9 @@ class endpointClosureStudy():
         graphs["ks"]      = prettifyGraph(r.TGraph(xvals.size,xvals,yvals["KS"])  ,   self.graphInfo["KS"]  )
 
 
-        graphs["chi2ndf"].SetName("chi2ndf_%s%s_closureBin%03d"%(self.histName,self.etaphi,pseudoExp))
-        graphs["chi2"].SetName(   "chi2_%s%s_closureBin%03d"%(   self.histName,self.etaphi,pseudoExp))
-        graphs["ks"].SetName(     "ks_%s%s_closureBin%03d"%(     self.histName,self.etaphi,pseudoExp))
+        graphs["chi2ndf"].SetName("chi2ndf_%s%s"%(self.histName,self.etaphi))
+        graphs["chi2"].SetName(   "chi2_%s%s"%(   self.histName,self.etaphi))
+        graphs["ks"].SetName(     "ks_%s%s"%(     self.histName,self.etaphi))
 
         graphs["chi2ndf"].Write()
         graphs["chi2"].Write()
@@ -987,6 +857,9 @@ if __name__ == "__main__":
     parser.add_option("--etaphi", type="string", dest="etaphi",
                       metavar="etaphi", default="",
                       help="[OPTIONAL] Eta/Phi bin to use")
+    parser.add_option("--algo", type="string", dest="algo",
+                      metavar="algo", default="TuneP",
+                      help="[OPTIONAL] Tracking algorithm to use")
     parser.add_option("--pm", action="store_true", dest="pm",
                       metavar="pm",
                       help="[OPTIONAL] Scale plus and minus separately")
@@ -999,15 +872,6 @@ if __name__ == "__main__":
     parser.add_option("--log", action="store_true", dest="log",
                       metavar="log",
                       help="[OPTIONAL] Make curvature plots in log scale")
-    parser.add_option("--mcbias", type="int", dest="mcbias",
-                      metavar="mcbias", default=25,
-                      help="[OPTIONAL] Bias bin value to recover (default is 25)")
-    parser.add_option("--num_pseudo", type="int", dest="num_pseudo",
-                      metavar="num_pseudo", default=500,
-                      help="[OPTIONAL] Number of pseudoexperiments to run (default is 500, -1 for specific pseudo experiment)")
-    parser.add_option("--pseudo", type="int", dest="pseudo",
-                      metavar="pseudo", default=0,
-                      help="[OPTIONAL] Specific pseudoexperiment to take results from (default is 0)")
 
     (options, args) = parser.parse_args()
 
@@ -1018,32 +882,36 @@ if __name__ == "__main__":
 
     checkRequiredArguments(options, parser)
 
-    closuretest = endpointClosureStudy(infiledir=options.infiledir,
-                                       outfile=options.outfile,
-                                       histName=options.histbase,
-                                       etaphi=options.etaphi,
-                                       minpt=options.minpt,
-                                       maxbias=options.maxbias,
-                                       nPseudoExp=options.num_pseudo,
-                                       pseudoExp=options.pseudo,
-                                       injBiasBin=options.mcbias,
-                                       stepsize=options.stepsize,
-                                       nBiasBins=options.biasbins,
-                                       nTotalBins=options.totalbins,
-                                       rebins=options.rebins,
-                                       pmScaling=options.pm,
-                                       xroot=options.xroot,
-                                       asymdeco=options.asymdeco,
-                                       makeLog=options.log,
-                                       debug=options.debug)
+    study = endpointDataMCStudy(infiledir=options.infiledir,
+                                outfile=options.outfile,
+                                histName=options.histbase,
+                                etaphi=options.etaphi,
+                                minpt=options.minpt,
+                                maxbias=options.maxbias,
+                                stepsize=options.stepsize,
+                                nBiasBins=options.biasbins,
+                                nTotalBins=options.totalbins,
+                                rebins=options.rebins,
+                                algo=options.algo,
+                                pmScaling=options.pm,
+                                xroot=options.xroot,
+                                asymdeco=options.asymdeco,
+                                makeLog=options.log,
+                                debug=options.debug)
 
 
-    if (options.num_pseudo > 0):
-        closuretest.loop()
-    else:
-        closuretest.runPseudoExperiment(options.pseudo)
+    ### Create arrays to store the graph points, length = (2*nBiasBins)+1
+    xVals = np.zeros(2*options.biasbins/options.stepsize+1,np.dtype('float64'))
+
+    ### Need three Y-arrays, store them as a map
+    yVals = {}
+
+    for test in ["KS","Chi2","Chi2NDF"]:
+        yVals[test] = np.zeros(2*options.biasbins/options.stepsize+1,np.dtype('float64'))
         pass
-    closuretest.writeOut()
+
+    study.runStudy(xVals, yVals, options.debug)
+    study.writeOut()
 
     if options.debug:
         raw_input("press enter to exit")

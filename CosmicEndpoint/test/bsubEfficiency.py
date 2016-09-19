@@ -65,7 +65,7 @@ ls -tar
 
 cd %s
 export AFSJOBDIR=${PWD}
-eval `scramv1 runtime -sh`
+eval `scram runtime -sh`
 cp %s.py ${JOBDIR}/
 cp ../python/wsuPythonUtils.py ${JOBDIR}/
 cd ${JOBDIR}

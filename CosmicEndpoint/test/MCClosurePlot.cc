@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 
 #include <time.h>
+#include <chrono>
 
 #include "TLorentzVector.h"
 #include "TROOT.h"
@@ -32,41 +33,52 @@
 #include <math.h>
 #include <cmath>
 
+#include <TStopwatch.h>
+
 #include "WSUDiLeptons/CosmicEndpoint/test/binFunctions.h"
 
 #define const_N_CURVE_BINS 320
 #define const_MAX_CURVE_RANGE 0.0080
-#define const_N_PSEUDO 100
+#define const_N_PSEUDO 50
 #define const_N_CLOSURE_BINS 5
 #define const_closureBins (0 ,10, 25, 40, 50)
 #define const_pseudoThresh 0.1
+
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::milliseconds milliseconds;
+typedef std::chrono::seconds seconds;
 
 void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		   int etaBin_, int phiBin_,
 		   int trackVal_, double minPt_, double maxBias_, int nBiasBins_,
 		   double factor_=1.0, double lowpT_=-1.0, double highpT_=-1.0,
-		   double pseudoThresh_=0.0375,
+		   double pseudoThresh_=0.0375, int seed_=1,
 		   bool symmetric_=false, bool applyTrigger_=false, bool mcFlag_=false,
 		   bool debug_=false)
 
 {
+  Clock::time_point tstart = Clock::now();
+
   bool debug = debug_;
 
   if (debug) {
     std::cout<<"arg  1 (filelist) is:  "   << filelist   << std::endl;
-    std::cout<<"arg  2 (etaBin) is:  "     << etaBin_    << std::endl;
-    std::cout<<"arg  3 (phiBin) is:  "     << phiBin_    << std::endl;
-    std::cout<<"arg  4 (outFile) is:  "    << outFile    << std::endl;
+    std::cout<<"arg  2 (outFile) is:  "    << outFile    << std::endl;
+    std::cout<<"arg  3 (etaBin) is:  "     << etaBin_    << std::endl;
+    std::cout<<"arg  4 (phiBin) is:  "     << phiBin_    << std::endl;
     std::cout<<"arg  5 (trackVal_) is:  "  << trackVal_  << std::endl;
     std::cout<<"arg  6 (minPt_) is:  "     << minPt_     << std::endl;
     std::cout<<"arg  7 (maxBias_) is:  "   << maxBias_   << std::endl;
     std::cout<<"arg  8 (nBiasBins_) is:  " << nBiasBins_ << std::endl;
     std::cout<<"arg  9 (factor_) is:  "    << factor_    << std::endl;
-    std::cout<<"arg 10 (pseudoThresh_) is:  " << pseudoThresh_ << std::endl;
-    std::cout<<"arg 11 (symmetric_) is:  "    << symmetric_    << std::endl;
-    std::cout<<"arg 12 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
-    std::cout<<"arg 13 (mcFlag_) is:  "       << mcFlag_       << std::endl;
-    std::cout<<"arg 14 (debug_) is:  "        << debug_        << std::endl;
+    std::cout<<"arg 10 (lowpT_) is:  "     << lowpT_     << std::endl;
+    std::cout<<"arg 11 (highpT_) is:  "    << highpT_    << std::endl;
+    std::cout<<"arg 12 (pseudoThresh_) is:  " << pseudoThresh_ << std::endl;
+    std::cout<<"arg 13 (seed_) is:  "         << seed_         << std::endl;
+    std::cout<<"arg 14 (symmetric_) is:  "    << symmetric_    << std::endl;
+    std::cout<<"arg 15 (applyTrigger_) is:  " << applyTrigger_ << std::endl;
+    std::cout<<"arg 16 (mcFlag_) is:  "       << mcFlag_       << std::endl;
+    std::cout<<"arg 17 (debug_) is:  "        << debug_        << std::endl;
   }
 
   TFile *g;
@@ -114,22 +126,36 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     return;
   }
 
-  std::cout << "chose the track object"  << std::endl;
+  if (debug)
+    std::cout << "chose the track object"  << std::endl;
 
   std::stringstream outrootfile;
-  std::cout << "checking for OUTPUTDIR " << std::endl;
+  if (debug)
+    std::cout << "checking for OUTPUTDIR " << std::endl;
   const char* envvar = std::getenv("OUTPUTDIR");
+
+  // all histograms separated eta/phi
+  TString etaBins[2]    = {"EtaMinus","EtaPlus"};
+  TString phiBins[3]    = {"PhiMinus","PhiZero","PhiPlus"};
+
+  int etb = etaBin_;
+  int phb = phiBin_;
+  TString etaphilabel(etaBins[etb]+phiBins[phb]);
+
   if (envvar) {
     std::string outdir = std::string(envvar);
-    outrootfile << outdir << "/" << outFile << outname;
-    std::cout << "checked for found OUTPUTDIR "
-	      << outdir << std::endl;
+    outrootfile << outdir << "/" << outFile << outname
+		<< "_eta" << etb << "_phi" << phb
+		<< "_pseudo" << seed_;
+    std::cout << "OUTPUTDIR " << outdir << std::endl;
   }
   else {
-    outrootfile << outFile << outname;
+    outrootfile << outFile << outname
+		<< "_eta" << etb << "_phi" << phb
+		<< "_pseudo" << seed_;
   }
 
-  std::cout << "Output files "
+  std::cout << "Output file "
 	    << outrootfile.str() << std::endl;
 
   g = new TFile(TString(outrootfile.str()+".root"),"UPDATE");
@@ -139,7 +165,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   std::string name;
   std::stringstream inputfiles;
 
-  std::cout << "checking for AFSJOBDIR " << std::endl;
+  if (debug)
+    std::cout << "checking for AFSJOBDIR " << std::endl;
   const char* afsvar = std::getenv("AFSJOBDIR");
   if (afsvar) {
     std::string jobdir = std::string(afsvar);
@@ -180,10 +207,6 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   if (debug)
     std::cout << "setting up histograms" << std::endl;
 
-  // all histograms separated eta/phi
-  TString etaBins[2]    = {"EtaMinus","EtaPlus"};
-  TString phiBins[3]    = {"PhiMinus","PhiZero","PhiPlus"};
-
   // for histograms separated by charge
   TString chargeBins[2] = {"Minus","Plus"};
 
@@ -198,25 +221,28 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   // suggested for chi2 is 0.25/TeV to be around expected resolution, means rebinning 25 0.01 bins into one
   // should *never* have a bin that straddles 0, 0 should *always* be a bin boundary
 
-  static const int    N_CURVE_BINS    = 320;
-  static const double MAX_CURVE_RANGE = 0.0080;
+  const int    N_CURVE_BINS    = 320;
+  const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
-  static const int    N_PSEUDO = 100;
-  static const int    N_CLOSURE_BINS = 5;
-  static const int    CLOSURE_BIN0   =  0;
-  static const int    CLOSURE_BIN1   = 10;
-  static const int    CLOSURE_BIN2   = 25;
-  static const int    CLOSURE_BIN3   = 40;
-  static const int    CLOSURE_BIN4   = 50;
-  static const int    closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
-						     CLOSURE_BIN1,
-						     CLOSURE_BIN2,
-						     CLOSURE_BIN3,
-						     CLOSURE_BIN4 };      // injected bias bin to recover
+  const int N_PSEUDO       = 50;
+  const int N_CLOSURE_BINS = 5;
+  const int CLOSURE_BIN0   =  0;
+  const int CLOSURE_BIN1   = 10;
+  const int CLOSURE_BIN2   = 25;
+  const int CLOSURE_BIN3   = 40;
+  const int CLOSURE_BIN4   = 50;
+  const int closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
+					   CLOSURE_BIN1,
+					   CLOSURE_BIN2,
+					   CLOSURE_BIN3,
+					   CLOSURE_BIN4 };      // injected bias bin to recover
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
-  static const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
+  const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
+  const int    seed         = seed_;          // doing multiple pseudo experiments, need to ensure that we don't overlap
+
+  Clock::time_point t00 = Clock::now();
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
@@ -228,11 +254,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   TH1F *h_looseMuUpperCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
   TH1F *h_looseMuLowerCurveMinusBiasMCClosure[2][nBiasBins+1][N_PSEUDO];
 
-  TRandom3 closureRand(197351);
+  TRandom3 closureRand(197351*seed);
 
-  int etb = etaBin_;
-  int phb = phiBin_;
-  TString etaphilabel(etaBins[etb]+phiBins[phb]);
   g->cd();
   TDirectory* etaphidir = (TDirectory*)g->GetDirectory(etaphilabel);
   if (!etaphidir)
@@ -254,9 +277,16 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
       for (int rab = 0; rab < N_PSEUDO; ++rab) {
 	std::stringstream name2;
-	name2 << std::setw(3) << std::setfill('0') << rab;
+	name2 << std::setw(3) << std::setfill('0') << (N_PSEUDO*(seed-1))+rab;
 	std::stringstream title2;
-	title2 << "pseudoexperiment " << rab;
+	title2 << "pseudoexperiment " << (N_PSEUDO*(seed-1))+rab;
+
+	if (debug && i < 1)
+	  std::cout << "Booking histograms for seed "
+		    << seed << "(" << seed_ << "): "
+		    << (N_PSEUDO*(seed-1))+rab
+		    << " " << name2.str() << " " << title2.str() << std::endl;
+
 	bool fillPseudoData = false;
 	int clb = -1;
 	switch(i) {
@@ -281,7 +311,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	  fillPseudoData = true;
 	  break;
 	default:
-	  int clb = -1;
+	  clb = -1;
 	  fillPseudoData = false;
 	  break;
 	}
@@ -346,13 +376,25 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     }  // end loop over bias bins
   }  // end loop over charge bins
 
+  Clock::time_point t01 = Clock::now();
+  std::cout << "booking histograms took: "
+	    << (std::chrono::duration_cast<milliseconds>(t01 - t00)).count()
+	    << "ms" << std::endl;
+
   if (debug)
     std::cout << "saving etaphidir" << std::endl;
+
   etaphidir->Write();
+
+  Clock::time_point t02 = Clock::now();
+  std::cout << "writing directory took: "
+	    << (std::chrono::duration_cast<seconds>(t02 - t01)).count()
+	    << "s" << std::endl;
   g->cd();
   // g->Write();
 
-  std::cout << "Creating upper muMinus TTreeReaderValues" << std::endl;
+  if (debug)
+    std::cout << "Creating upper muMinus TTreeReaderValues" << std::endl;
   TTreeReaderValue<Int_t>    run(  trackReader, "muonRunNumber"  );
   TTreeReaderValue<Int_t>    lumi( trackReader, "muonLumiBlock"  );
   TTreeReaderValue<Int_t>    event(trackReader, "muonEventNumber");
@@ -384,7 +426,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Int_t> upTrackerLayersWithMeasurement(trackReader, "upperMuon_trackerLayersWithMeasurement");
 
 
-  std::cout << "Creating lower muMinus TTreeReaderValues" << std::endl;
+  if (debug)
+    std::cout << "Creating lower muMinus TTreeReaderValues" << std::endl;
   TTreeReaderValue<math::XYZTLorentzVector> lowTrackerMuonP4(trackReader,"lowerMuon_P4"      );
   TTreeReaderValue<math::XYZVector>         lowTrackerTrack( trackReader,"lowerMuon_trackVec");
   TTreeReaderValue<Double_t> lowTrackerPt(      trackReader, "lowerMuon_trackPt" );
@@ -405,37 +448,78 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Int_t>    lowTrackerMatchedMuonStations(  trackReader, "lowerMuon_numberOfMatchedStations"     );
   TTreeReaderValue<Int_t>    lowTrackerLayersWithMeasurement(trackReader, "lowerMuon_trackerLayersWithMeasurement");
 
-  std::cout << "Made it to Histogramming!" << std::endl;
+  if (debug)
+    std::cout << "Made it to Histogramming!" << std::endl;
   int j = 0;
+  int k = 0;
 
   //double maxDR = 0.15; // what is reasonable here? Aachen did dPhi < 0.1, dTheta (eta?) < 0.05
 
+  TStopwatch tsw;
+  //int tenthpcount(1);
+  int onepcount(1);
+  int tenpcount(1);
+  Long64_t nentries = myChain->GetEntries();
+
+  Clock::time_point loopStart = Clock::now();
+
   while (trackReader.Next()) {
+
+    //Timing information
+    if ( k==0) {
+      tsw.Start();
+      std::cout << "." << std::flush;
+    }
+
+    if ((k*10)/nentries == tenpcount ) {
+      tsw.Stop();
+      Double_t time = tsw.RealTime();
+      tsw.Start(kFALSE);
+      Double_t finTime(0.);
+      Double_t frac = (k*1.0)/(nentries*1.0);
+      if (frac>0) finTime = time / frac - time;
+      Double_t finMin = finTime / 60.;
+      std::cout << std::setprecision(3) << std::fixed << tenpcount*10 << "% done.  "
+		<< "t = " << std::setw(7) << time
+		<< " projected finish =" << std::setw(7) << finTime << " s ("
+		<< std::setprecision(1)
+		<< finMin << " min).   "
+		<< std::endl;
+      tenpcount++;
+    } else if ( (k*100)/nentries == onepcount ) {
+      std::cout << ".";
+      std::cout << std::flush;
+      onepcount++;
+    }
 
     Double_t *randvals = new Double_t[N_PSEUDO];
     closureRand.RndmArray(N_PSEUDO,randvals);
-    if (j < 2)
-      std::cout << "random values: ";
+    if (debug && k < 1)
+      std::cout << "k = " << k << " random values: ";
     for (int ri = 0; ri < N_PSEUDO; ++ri) {
       h_randvals->Fill(ri,randvals[ri]);
-      if (j < 2)
+      if (debug && k < 1)
 	std::cout << " " << ri << ":" << randvals[ri];
     }
-    if (j < 2)
+    if (debug && k < 1)
       std::cout << std::endl;
 
-    if (debug && j < 2)
+    if (debug && k < 1)
       std::cout << "Made it into the first loop" << std::endl;
     g->cd();
 
     // apply the trigger, i.e., don't process if the trigger didn't fire
-    if (applyTrigger_ && !(*fakeL1SingleMu))
+    if (applyTrigger_ && !(*fakeL1SingleMu)) {
+      ++k;  // increment here to count processed events
       continue;
+    }
 
     // make combination of samples easy
     if (*nSimTracks > 0) {
-      if ((simTrackpT[0] >= highpT_) || (simTrackpT[0] < lowpT_))
+      if ((simTrackpT[0] >= highpT_) || (simTrackpT[0] < lowpT_)) {
+	++k;  // increment here to count processed events
 	continue;
+      }
     }
 
     // make sure we're not reading from the skipped events
@@ -532,7 +616,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	int phibin    = getPhiBin(upTrackerTrack->phi());
 	int chargebin = getChargeBin(*upTrackerCharge);
 
-	if ((j % 100) == 0)
+	if (debug && (j % 100) == 0)
 	  std::cout << "upper leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << upTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerMuonP4->eta()
@@ -550,11 +634,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		    << std::endl;
 
 	if (etabin == etaBin_ && phibin == phiBin_) {
-	  if (debug)
+	  if (debug && j < 1)
 	    std::cout << "upper leg passed eta and phi bin cuts" << std::endl;
 
 	  if (up_superpointing && up_etabar) {
-	    if (debug)
+	    if (debug && j < 1)
 	      std::cout << "upper leg passed superpointing cuts" << std::endl;
 
 	    // if a variable doesn't appear in the High-pT muon selection, then apply all the cuts
@@ -568,37 +652,37 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		int clb = -1;
 		switch(i) {
 		case  (CLOSURE_BIN0) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN1) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN2) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN3) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN4) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
 		default:
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "no pseudo data for bin " << i << std::endl;
 		  clb = -1;
 		  fillPseudoData = false;
@@ -608,18 +692,22 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
-		      if (debug)
+		      if (debug && j < 1)
 			std::cout << "filling pseudo data " << ri << ": "
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
-			h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			// h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-			// h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
-			h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuUpperCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuUpperCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuUpperCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -627,20 +715,19 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    if (debug)
+		    if (debug && j < 1)
 		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
-		    // h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    // h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
-		    h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
-		    h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
+		    // properly account for cases where injecting the bias migrates the muon from
+		    // positive to negative, and vice versa
+		    h_looseMuUpperCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
+		    h_looseMuUpperCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    // h_looseMuUpperCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    // h_looseMuUpperCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
-
-		if (debug && j < 2)
-		  std::cout << "Made it through the upper bias loop " << i << std::endl;
-	      }
+	      }  // end for (int i = 0; i < nBiasBins+1; ++i) {
 	    } // end if (up_n1pt)
 	  } // end check on up_superpointing
 	}  // end check on correct eta/phi bin
@@ -716,7 +803,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	phibin    = getPhiBin(lowTrackerTrack->phi());
 	chargebin = getChargeBin(*lowTrackerCharge);
 
-	if ((j % 100) == 0)
+	if (debug && (j % 100) == 0)
 	  std::cout << "lower leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->eta()
@@ -734,11 +821,11 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		    << std::endl;
 
 	if (etabin == etaBin_ && phibin == phiBin_) {
-	  if (debug)
+	  if (debug && j < 1)
 	    std::cout << "lower leg passed eta and phi bin cuts" << std::endl;
 
 	  if (low_superpointing && low_etabar) {
-	    if (debug)
+	    if (debug && j < 1)
 	      std::cout << "lower leg passed superpointing cuts" << std::endl;
 
 	    // if a variable doesn't appear in the High-pT muon selection, then apply all the cuts
@@ -752,37 +839,37 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		int clb = -1;
 		switch(i) {
 		case  (CLOSURE_BIN0) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 0;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN1) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 1;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN2) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 2;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN3) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 3;
 		  fillPseudoData = true;
 		  break;
 		case  (CLOSURE_BIN4) :
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "pseudo data for closure bin " << i << std::endl;
 		  clb = 4;
 		  fillPseudoData = true;
 		  break;
 		default:
-		  if (debug)
+		  if (debug && j < 1)
 		    std::cout << "no pseudo data for bin " << i << std::endl;
 		  clb = -1;
 		  fillPseudoData = false;
@@ -792,18 +879,22 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 		if (fillPseudoData) {
 		  for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		    if (!(randvals[ri] > pseudoThresh)) {
-		      if (debug)
+		      if (debug && j < 1)
 			std::cout << "filling pseudo data " << ri << ": "
 				  << "!(" << randvals[ri] << " > " << pseudoThresh << ")"
 				  << !(randvals[ri] > pseudoThresh) << std::endl;
 		      if (clb == 0) {
-			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
-			h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][clb][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][clb][ri]->Fill(posBias);
 		      } else {
-			// h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
-			// h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
-			h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
+			// properly account for cases where injecting the bias migrates the muon from
+			// positive to negative, and vice versa
+			h_looseMuLowerCurvePseudoData[getChargeBin(posBias)][(2*clb)-1][ri]->Fill(posBias);
+			h_looseMuLowerCurvePseudoData[getChargeBin(negBias)][(2*clb)][ri]->Fill(negBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][(2*clb)-1][ri]->Fill(posBias);
+			// h_looseMuLowerCurvePseudoData[chargebin][(2*clb)][ri]->Fill(negBias);
 		      }
 		    }
 		  }
@@ -811,48 +902,71 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 		for (int ri = 0; ri < N_PSEUDO; ++ri) {
 		  if (randvals[ri] > pseudoThresh) {
-		    if (debug)
+		    if (debug && j < 1)
 		      std::cout << "filling mc closure data " << ri << ": "
 				<< "(" << randvals[ri] << " > " << pseudoThresh << ")"
 				<< (randvals[ri] > pseudoThresh) << std::endl;
-		    // h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
-		    // h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
-		    h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
-		    h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
+		    // properly account for cases where injecting the bias migrates the muon from
+		    // positive to negative, and vice versa
+		    h_looseMuLowerCurvePlusBiasMCClosure[getChargeBin(posBias)][i][ri]->Fill(posBias);
+		    h_looseMuLowerCurveMinusBiasMCClosure[getChargeBin(negBias)][i][ri]->Fill(negBias);
+		    // h_looseMuLowerCurvePlusBiasMCClosure[chargebin][i][ri]->Fill(posBias);
+		    // h_looseMuLowerCurveMinusBiasMCClosure[chargebin][i][ri]->Fill(negBias);
 		  }
 		}
-
-		if (debug && j < 2)
-		  std::cout << "Made it through the lower bias loop " << i << std::endl;
-	      }
+	      }  // end for (int i = 0; i < nBiasBins+1; ++i) {
 	    } // end if (low_n1pt)
 	  } // end check on low_superpointing
 	}  // end check on eta/phi bin
 	//} // end if (sqrt(lowTrackerTrack->perp2()) > minPt_)
       } // end if (sqrt(upTrackerTrack->perp2()) > minPt_ || sqrt(lowTrackerTrack->perp2()) > minPt_)
 
-      ++j;
-      if (debug && j < 2)
+      ++j;  // increment here to count processed events with non-empty muon collections
+      if (debug && j < 1)
 	std::cout << "Made it through " << j << " sets of fills" << std::endl;
     } // closing if (*upTrackerChi2 > -1)
 
+    ++k;  // increment here to count processed events
+
     delete randvals;
+
+    if (debug && k > 1000)
+      break;
   } // end while loop
+
+  Clock::time_point loopFinish = Clock::now();
+
+  std::cout << "100% done, "
+	    << "looping over TTree took: "
+	    << (std::chrono::duration_cast<seconds>(loopFinish - loopStart)).count()
+	    << "s" << std::endl;
 
   if (debug)
     std::cout << std::hex << g << std::dec << std::endl;
 
-  time_t rawtime;
-  struct tm * timeinfo;
+  Clock::time_point t0 = Clock::now();
 
-  time(&rawtime);
-  std::cout << "writing out histograms: " << asctime(localtime(&rawtime)) << std::endl;
   g->Write();
-  time(&rawtime);
-  std::cout << "closing file: " << asctime(localtime(&rawtime)) << std::endl;
+  Clock::time_point t1 = Clock::now();
+
+  std::cout << "writing file took: "
+	    << (std::chrono::duration_cast<seconds>(t1 - t0)).count()
+	    << "s" << std::endl;
   g->Close();
-  time(&rawtime);
-  std::cout << "done: " << asctime(localtime(&rawtime)) << std::endl;
+
+  Clock::time_point t2 = Clock::now();
+
+  std::cout << "closing file took: "
+	    << (std::chrono::duration_cast<milliseconds>(t2 - t1)).count()
+	    << "ms" << std::endl;
+
+  std::cout << "file I/O took: "
+	    << (std::chrono::duration_cast<seconds>(t2 - t0)).count()
+	    << "s" << std::endl;
+
+  std::cout << "total duration: "
+	    << (std::chrono::duration_cast<seconds>(t2 - tstart)).count()
+	    << "s" << std::endl;
 
   return;
 }

@@ -9,7 +9,7 @@ def makeNicePlot(hist,params,debug=False):
         "stats": options to pass to SetOptStat
         "coords": x[x1,x2] and y[y1,y2] coordinates of the stats box
     """
-    
+
     if debug:
         print hist
         print params
@@ -35,3 +35,12 @@ def makeNicePlot(hist,params,debug=False):
         hstat.SetY2NDC(params["coords"]["y"][1])
     return hist
 
+def styleHistogram(hist,params,debug=False):
+
+    hist.SetMarkerColor(params["marker"]["color"])
+    hist.SetMarkerStyle(params["marker"]["style"])
+    hist.SetLineColor(params["line"]["color"])
+    hist.SetLineStyle(params["line"]["style"])
+    hist.SetLineWidth(params["line"]["width"])
+
+    return hist
