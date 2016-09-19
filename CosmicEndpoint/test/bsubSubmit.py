@@ -72,13 +72,13 @@ cmd = "cp /tmp/x509up_u%s  %s"%(userkey,proxyPath)
 print cmd
 os.system(cmd)
 if options.asymmetric:
-    bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
+    bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
                   False, options.trigger, options.mc, options.closure, debug)
 else:
-    bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
+    bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
                   options.infiles, proxyPath, options.njobs,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
