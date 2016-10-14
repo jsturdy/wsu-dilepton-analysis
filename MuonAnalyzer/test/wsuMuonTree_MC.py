@@ -1,14 +1,23 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("MuonAnalysis")
+
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("MuonAnalysis",eras.Run2_25ns,eras.Run2_2016)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    wantSummary      = cms.untracked.bool(True),
+    allowUnscheduled = cms.untracked.bool(True)
+    )
 
 # load conditions from the global tag, what to use here?
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## default = ?
+
+#from L1Trigger.Configuration.L1TRawToDigi_cff import *
+process.load('L1Trigger.Configuration.L1TRawToDigi_cff')
 
 l1path = 'L1_SingleMuOpen'
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
@@ -24,10 +33,13 @@ process.source = cms.Source("PoolSource",
         #mcfilespt100startup
         mcfilespt100asym
         #dyfiles
+        ),
+    secondaryFileNames = cms.untracked.vstring(
+        mcfilespt100asymraw
         )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
 process.load("WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi")
@@ -78,9 +90,26 @@ process.TFileService = cms.Service("TFileService",
 
 process.muonSPFilter.src = cms.InputTag("zprimeMuons")
 
+process.rerunl1t = cms.Path(
+    process.L1TRawToDigi
+    )
+# # EDM Output definition
+# process.rerunL1TOutput = cms.OutputModule("PoolOutputModule",
+#     dataset = cms.untracked.PSet(
+#         dataTier = cms.untracked.string('RAW-RECO'),
+#         filterName = cms.untracked.string('rerunl1t')
+#     ),
+#     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('rerunl1t')),
+#     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+#     fileName = cms.untracked.string('rerunL1T_output.root'),
+#     outputCommands = cms.untracked.vstring('keep *')
+# )
+
 process.muonanalysis = cms.Path(
+    process.L1TRawToDigi
     #process.trigFilter
-    process.singleMuFilter
+    +process.singleMuFilter
+    +process.singleMuFilterStage2
     +process.betterMuons
     +process.betterSPMuons
     +process.lowerMuons
@@ -100,10 +129,13 @@ process.muonanalysis = cms.Path(
     )
 
 # generate EDM output
-process.COSMICoutput_step = cms.EndPath(process.COSMICoutput)
+process.COSMICoutput_step   = cms.EndPath(process.COSMICoutput)
+#process.rerunL1TOutput_step = cms.EndPath(process.rerunL1TOutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(
+#    process.rerunl1t
     process.muonanalysis
-#    ,process.COSMICoutput_step
+    #,process.rerunL1TOutput_step
+    ,process.COSMICoutput_step
 )

@@ -17,20 +17,22 @@ import FWCore.ParameterSet.Config as cms
 ###3 = nothing works, check everything
 ###############################################################
 
-muonTree = cms.EDAnalyzer('MuonTree',
+muonTree = cms.EDAnalyzer("MuonTree",
     muonSrc     = cms.InputTag("muons1Leg"),
     upperLegSrc = cms.InputTag("upperMuons"),
     lowerLegSrc = cms.InputTag("lowerMuons"),
     algoType    = cms.int32(1),
 
-    globalTrackSrc  = cms.InputTag("globalSPMuonTracks"),
-    cosmicTrackSrc  = cms.InputTag("cosmicSPMuonTracks"),
-    trackerTrackSrc = cms.InputTag("trackerSPMuonTracks"),
-    simTrackSrc     = cms.InputTag("g4SimHits"),
-    l1MuonSrc       = cms.InputTag("l1extraParticles","","RECO"),
-    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    globalTrackSrc    = cms.InputTag("globalSPMuonTracks"),
+    cosmicTrackSrc    = cms.InputTag("cosmicSPMuonTracks"),
+    trackerTrackSrc   = cms.InputTag("trackerSPMuonTracks"),
+    simTrackSrc       = cms.InputTag("g4SimHits"),
+    l1MuonSrc         = cms.InputTag("l1extraParticles","","RECO"),
+    # BXVector<l1t::Muon>                   "gmtStage2Digis"            "Muon"           "MuonAnalysis"
+    l1MuonSrcNew      = cms.InputTag("gmtStage2Digis","Muon"),
+    trigResultsSrc    = cms.InputTag("TriggerResults","","HLT"),
     fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
-    hltTrigCut      = cms.string('L1SingleMuOpen'),
+    hltTrigCut        = cms.string("L1SingleMuOpen"),
  
 
     isGen       = cms.bool(False),
