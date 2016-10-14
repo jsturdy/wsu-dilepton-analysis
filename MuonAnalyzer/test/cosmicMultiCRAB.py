@@ -97,9 +97,9 @@ def main():
         certFile = options.lumiJSON
         inputDatasetMap = {
             "MC": [
-                ['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
-                ['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
-                ['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+                #['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
+                #['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+                #['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
                 ],
             "DATA": [
                 ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
@@ -112,6 +112,9 @@ def main():
                 ['/Cosmics/Run2016D-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
                 ['/Cosmics/Run2016E-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
                 ['/Cosmics/Run2016F-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                ['/Cosmics/Run2016G-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
                 ]
             }
 
