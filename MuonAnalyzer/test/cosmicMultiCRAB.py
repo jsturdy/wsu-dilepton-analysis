@@ -87,7 +87,7 @@ def main():
         config.Data.outputDatasetTag = None
 
         ## MODIFY THIS TO POINT TO THE DESIRED OUTPUT LOCATION
-        config.Data.outLFNDirBase = '/store/user/sturdy/MuonEfficiency'
+        config.Data.outLFNDirBase = '/store/user/sturdy/MuonTrees'
 
         config.Site.storageSite = 'T3_US_FNALLPC'
         #--------------------------------------------------------
@@ -96,11 +96,11 @@ def main():
         # pass in datasets as a dict {datasetname,mc/data}
         certFile = options.lumiJSON
         inputDatasetMap = {
-            "MC": [
-                #['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
-                #['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
-                #['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
-                ],
+            # "MC": [
+            #     ['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
+            #     ['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+            #     ['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+            #     ],
             "DATA": [
                 ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
                 ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
@@ -115,6 +115,7 @@ def main():
                 ['/Cosmics/Run2016G-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
                 ['/Cosmics/Run2016H-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
                 ['/Cosmics/Run2016H-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v3/RAW-RECO',certFile],
                 ]
             }
 
@@ -124,7 +125,7 @@ def main():
             if key == 'DATA':
                 inputDatasets = inputDatasetMap[key]
                 ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for data
-                config.JobType.psetName = 'wsuMuonTree_data.py'
+                config.JobType.psetName = 'wsuMuonTree_data_reHLT.py'
 
                 config.Data.splitting = 'LumiBased'
                 config.Data.unitsPerJob = 250
@@ -132,8 +133,9 @@ def main():
             elif key == 'MC':
                 inputDatasets = inputDatasetMap[key]
                 ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for MC
-                config.JobType.psetName = 'wsuMuonTree_MC.py'
+                config.JobType.psetName = 'wsuMuonTree_MC_reHLT.py'
 
+                config.Data.useParent = True
                 config.Data.splitting = 'FileBased'
                 config.Data.unitsPerJob = 5
                 pass

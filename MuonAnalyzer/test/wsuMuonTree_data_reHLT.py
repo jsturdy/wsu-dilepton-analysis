@@ -26,7 +26,7 @@ process.options = cms.untracked.PSet(
 # load conditions from the global tag, what to use here?
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '', '') ## from McM reHLT example
 
 
@@ -89,9 +89,9 @@ process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
         cosmics16bv1reco
         ),
-    # secondaryFileNames = cms.untracked.vstring(
-    #     cosmics16bv1raw
-    # )
+    secondaryFileNames = cms.untracked.vstring(
+        cosmics16bv1raw
+    )
 )
 
 process.source.inputCommands = cms.untracked.vstring(
@@ -103,10 +103,10 @@ process.source.inputCommands = cms.untracked.vstring(
     'drop L1GlobalTriggerReadoutRecord_gtDigis_*_RECO', 
     'drop *_cscSegments_*_RECO', 
     'drop *_dt4DSegments_*_RECO', 
-    'drop *_rpcRecHits_*_RECO'
-    #'drop FEDRawDataCollection_rawDataCollector_*_*',
-    #'drop *_cosmicDCTracks_*_*',
-    #'drop *_hltGtStage2ObjectMap_*_*',
+    'drop *_rpcRecHits_*_RECO',
+    'drop FEDRawDataCollection_rawDataCollector_*_*',
+    'drop *_cosmicDCTracks_*_*',
+    'drop *_hltGtStage2ObjectMap_*_*',
 )
 process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
