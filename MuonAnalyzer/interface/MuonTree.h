@@ -89,13 +89,13 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   reco::TrackRef GetTrackType(int algoType, reco::Muon const* muon);
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<reco::MuonCollection > muonToken_, upperLegToken_, lowerLegToken_;
+  edm::EDGetTokenT<reco::MuonCollection >  muonToken_, upperLegToken_, lowerLegToken_;
   edm::EDGetTokenT<reco::TrackCollection > globalTrackToken_, cosmicTrackToken_, trackerTrackToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1MuonToken_;
   edm::EDGetTokenT<l1t::MuonBxCollection>                 l1MuonTokenNew_;
-  edm::EDGetTokenT<edm::TriggerResults>   trigResultsToken_;
-  edm::EDGetTokenT<bool> fakeL1SingleMuToken_;
+  edm::EDGetTokenT<edm::TriggerResults>                   trigResultsToken_;
+  edm::EDGetTokenT<bool>                                  fakeL1SingleMuToken_;
 
   edm::InputTag muonSrc_, upperLegSrc_, lowerLegSrc_;
   edm::InputTag globalTrackSrc_, cosmicTrackSrc_, trackerTrackSrc_, simTrackSrc_;
