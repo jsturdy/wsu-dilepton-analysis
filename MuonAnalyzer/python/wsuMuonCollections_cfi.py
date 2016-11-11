@@ -42,7 +42,7 @@ zprimeUpperMuons = cms.EDFilter("MuonSelector",
     #cut = cms.string("((tunePMuonBestTrack.outerPosition.Y > 0) && (time.timeAtIpOutIn < 0)) || ((tunePMuonBestTrack.outerPosition.Y < 0) && (time.timeAtIpOutIn < 0))"),
 )
 
-globalMuons = cms.EDFilter("MuonSelector",
+globalMuonsLoc = cms.EDFilter("MuonSelector",
     src = cms.InputTag("betterMuons"),
     cut = cms.string("isGlobalMuon"),
 )
