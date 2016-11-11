@@ -14,7 +14,8 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimL1EmulatorRepack_FullMC_cff')
 #process.load('HLTrigger.Configuration.HLT_25ns10e33_v2_cff')
-process.load('HLTrigger.Configuration.HLT_GRun_cff')
+#process.load('HLTrigger.Configuration.HLT_GRun_cff')
+process.load('HLTrigger.Configuration.HLT_25ns15e33_v4_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -50,8 +51,8 @@ process.cosmicTrigger = cms.ESSource("PoolDBESSource",CondDBSetup,
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string("L1TUtmTriggerMenuRcd"),
-            tag = cms.string("L1Menu_Collisions2016_v4_xml")
-            #tag = cms.string("L1Menu_Collisions2016_v6r5_ugt_1board_xml")
+            #tag = cms.string("L1Menu_Collisions2016_v4_xml")
+            tag = cms.string("L1Menu_Collisions2016_v6r5_ugt_1board_xml")
             ),
         cms.PSet(
             record = cms.string("L1RPCBxOrConfigRcd"),
@@ -104,7 +105,7 @@ process.source.inputCommands = cms.untracked.vstring(
     'drop L1GlobalTriggerReadoutRecord_gtDigis_*_RECO', 
     'drop *_cscSegments_*_RECO', 
     'drop *_dt4DSegments_*_RECO', 
-    'drop *_rpcRecHits_*_RECO'
+    'drop *_rpcRecHits_*_RECO',
     #'drop FEDRawDataCollection_rawDataCollector_*_*',
     #'drop *_cosmicDCTracks_*_*',
     #'drop *_hltGtStage2ObjectMap_*_*',
@@ -151,7 +152,7 @@ process.analysisMuonsStage2 = muonTree.clone(
     cosmicTrackSrc  = cms.InputTag('cosmicMuonTracks'),
     trackerTrackSrc = cms.InputTag('trackerMuonTracks'),
     algoType        = cms.int32(5),
-    debug           = cms.int32(5),
+    debug           = cms.int32(1),
     trigResultsSrc  = cms.InputTag('TriggerResults','',''),
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
@@ -233,8 +234,8 @@ process.muonanalysis = cms.Path(
 
 # Schedule definition
 process.schedule = cms.Schedule(process.l1repack)
-process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.rerunl1t])
+process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.muonanalysis])
 #process.schedule.extend([process.COSMICoutput_step])
 
@@ -254,7 +255,7 @@ process = customizeHLTforFullSim(process)
 
 # End of customisation functions
 
-###-- Dump config ------------------------------------------------------------
-file = open('wsuMuonTree_MC_reHLT_full_cfg.py','w')
-file.write(str(process.dumpPython()))
-file.close()
+# ###-- Dump config ------------------------------------------------------------
+# file = open('wsuMuonTree_MC_reHLT_full_cfg.py','w')
+# file.write(str(process.dumpPython()))
+# file.close()

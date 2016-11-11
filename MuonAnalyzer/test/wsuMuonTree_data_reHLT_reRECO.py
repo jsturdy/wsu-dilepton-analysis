@@ -94,9 +94,9 @@ process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
         cosmics16bv1reco
         ),
-    # secondaryFileNames = cms.untracked.vstring(
-    #     cosmics16bv1raw
-    # )
+    secondaryFileNames = cms.untracked.vstring(
+        cosmics16bv1raw
+    )
 )
 
 process.source.inputCommands = cms.untracked.vstring(
@@ -108,7 +108,7 @@ process.source.inputCommands = cms.untracked.vstring(
     'drop L1GlobalTriggerReadoutRecord_gtDigis_*_RECO', 
     'drop *_cscSegments_*_RECO', 
     'drop *_dt4DSegments_*_RECO', 
-    'drop *_rpcRecHits_*_RECO'
+    'drop *_rpcRecHits_*_RECO',
     #'drop FEDRawDataCollection_rawDataCollector_*_*',
     'drop *_cosmicDCTracks_*_*',
     'drop *_hltGtStage2ObjectMap_*_*',
@@ -246,7 +246,7 @@ process = addMonitoring(process)
 
 # End of customisation functions
 
-####-- Dump config ------------------------------------------------------------
-#file = open('wsuMuonTree_data_reHLT_full_cfg.py','w')
-#file.write(str(process.dumpPython()))
-#file.close()
+# ###-- Dump config ------------------------------------------------------------
+# file = open('wsuMuonTree_data_reHLT_full_cfg.py','w')
+# file.write(str(process.dumpPython()))
+# file.close()
