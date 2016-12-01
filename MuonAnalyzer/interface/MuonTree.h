@@ -112,8 +112,8 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
 
   //reco::Muon::ArbitrationType type;
 
-  reco::Candidate::LorentzVector muonP4[10];
-  math::XYZVector muon_trackVec[10];
+  reco::Candidate::LorentzVector muonP4[25];
+  math::XYZVector muon_trackVec[25];
 
 
   int    nSimTracks, simtrack_type[25];

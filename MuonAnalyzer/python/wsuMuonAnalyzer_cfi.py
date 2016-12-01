@@ -23,7 +23,7 @@ muonAnalysis = cms.EDAnalyzer('MuonAnalyzer',
     probeLegSrc = cms.InputTag("lowerMuons"),
 
     simTrackSrc     = cms.InputTag("g4SimHits"),
-    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
     fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
  
