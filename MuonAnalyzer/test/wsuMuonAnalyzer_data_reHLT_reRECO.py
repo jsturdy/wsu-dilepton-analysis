@@ -1,9 +1,3 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: reco -s RAW2DIGI,RECO --era Run2_25ns,Run2_2016 --data --scenario cosmics --filein dbs:/Cosmics/Run2016G-CosmicSP-PromptReco-v1/RAW-RECO --fileout cosmic_data_reRECO.root --conditions 80X_dataRun2_2016SeptRepro_v4 --python_filename cosmic_data_reRECO.py --no_exec
-
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -35,57 +29,8 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
 
-# for reHLT need to update:
-## from 2016 data MuonTriggerKeys
-## RPC:LHC10_BOTTOM, but tag doesn't exist in DB
-## and 
-## uGMT:UGMT_bottomOnly, not sure where this should go?
-
-# L1TUtmTriggerMenuRcd   L1Menu_Collisions2016_v4_xml
-# L1RPCBxOrConfigRcd     L1RPCBxOrConfig_LHC9_BOTTOM_mc
-# L1RPCConeDefinitionRcd L1RPCConeDefinition_LHC9_BOTTOM_mc
-# L1RPCConfigRcd         L1RPCConfig_LHC9_BOTTOM_mc
-# L1RPCHsbConfigRcd      L1RPCHsbConfig_LHC9_BOTTOM_mc
-
-# from CondCore.DBCommon.CondDBSetup_cfi import *
-# process.cosmicTrigger = cms.ESSource('PoolDBESSource',CondDBSetup,
-#     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-#     toGet = cms.VPSet(
-#         cms.PSet(
-#             record = cms.string('L1TUtmTriggerMenuRcd'),
-#             #tag = cms.string('L1Menu_Collisions2016_v4_xml')
-#             tag = cms.string('L1Menu_Collisions2016_v6r5_ugt_1board_xml')
-#             ),
-#         cms.PSet(
-#             record = cms.string('L1RPCBxOrConfigRcd'),
-#             tag = cms.string('L1RPCBxOrConfig_LHC9_BOTTOM_mc')
-#             ),
-#         cms.PSet(
-#             record = cms.string('L1RPCConeDefinitionRcd'),
-#             tag = cms.string('L1RPCConeDefinition_LHC9_BOTTOM_mc')
-#             ),
-#         cms.PSet(
-#             record = cms.string('L1RPCConfigRcd'),
-#             tag = cms.string('L1RPCConfig_LHC9_BOTTOM_mc')
-#             ),
-#         cms.PSet(
-#             record = cms.string('L1RPCHsbConfigRcd'),
-#             tag = cms.string('L1RPCHsbConfig_LHC9_BOTTOM_mc')
-#             )
-
-#         )
-# )
-# process.es_prefer_cosmicTrigger = cms.ESPrefer('PoolDBESSource','cosmicTrigger')
-
 process.load('L1Trigger.Configuration.L1TRawToDigi_cff')
 process.load('L1Trigger.Configuration.L1Extra_cff')
-
-l1path = 'L1_SingleMuOpen'
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
-process.trigFilter = triggerResultsFilter.clone()
-process.trigFilter.triggerConditions = cms.vstring('HLT_L1SingleMuOpen*')
-process.trigFilter.l1tResults        = cms.InputTag('gtDigis','','')
-process.trigFilter.hltResults        = cms.InputTag('TriggerResults','','')
 
 from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 from WSUDiLeptons.MuonAnalyzer.cosmics2016bv1 import *
@@ -117,55 +62,85 @@ process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 
-process.load('WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi')
-process.load('WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi')
-process.COSMICoutput.fileName = cms.untracked.string('CosmicSP_80X_dataRun2_2016SeptRepro_v4.root')
-
-from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
-process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
-
-process.load('WSUDiLeptons.MuonAnalyzer.wsuFakeL1SingleMuFilter_cfi')
+process.load("WSUDiLeptons.MuonAnalyzer.wsuFakeL1SingleMuFilter_cfi")
 process.singleMuFilter.l1MuonSrc   = cms.InputTag('l1extraParticles','','')
 process.singleMuFilter.l1MuonSrc   = cms.InputTag('l1extraParticles')
 process.singleMuFilter.filterEvent = cms.bool(False)
 
-from WSUDiLeptons.MuonAnalyzer.wsuMuonTree_cfi import *
+process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
+process.COSMICoutput.fileName = cms.untracked.string('CosmicAnalysis_data_CosmicSP_80X_dataRun2_2016SeptRepro_v4.root')
 
-process.analysisMuons = muonTree.clone(
-    muonSrc         = cms.InputTag('betterSPMuons'),
-    upperLegSrc     = cms.InputTag('upperMuons'),
-    lowerLegSrc     = cms.InputTag('lowerMuons'),
-    globalTrackSrc  = cms.InputTag('globalMuonTracks'),
-    cosmicTrackSrc  = cms.InputTag('cosmicMuonTracks'),
-    trackerTrackSrc = cms.InputTag('trackerMuonTracks'),
-    algoType        = cms.int32(5),
-    debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
-    hltTrigCut      = cms.string('L1SingleMuOpen'),
-    #fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
-    isGen           = cms.bool(False)
+from WSUDiLeptons.MuonAnalyzer.wsuMuonAnalyzer_cfi import muonAnalysis
+
+process.analysisMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("betterMuons"),
+    tagLegSrc   = cms.InputTag("betterMuons"),
+    probeLegSrc = cms.InputTag("betterMuons"),
+    algoType    = cms.int32(1),
+    debug       = cms.int32(-1)
+)
+process.analysisGlobalMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalMuonsLoc"),
+    tagLegSrc   = cms.InputTag("globalMuonsLoc"),
+    probeLegSrc = cms.InputTag("globalMuonsLoc"),
+    algoType    = cms.int32(1),
+    debug       = cms.int32(1)
+)
+process.analysisSPMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("betterSPMuons"),
+    tagLegSrc   = cms.InputTag("betterSPMuons"),
+    probeLegSrc = cms.InputTag("betterSPMuons"),
+    algoType    = cms.int32(1),
+    debug       = cms.int32(2)
+)
+process.analysisGlobalSPMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(5),
+    debug       = cms.int32(2)
 )
 
-process.analysisSPMuons = muonTree.clone(
-    muonSrc         = cms.InputTag('zprimeMuons'),
-o    upperLegSrc     = cms.InputTag('zprimeUpperMuons'),
-    lowerLegSrc     = cms.InputTag('zprimeLowerMuons'),
-    globalTrackSrc  = cms.InputTag('globalSPMuonTracks'),
-    cosmicTrackSrc  = cms.InputTag('cosmicSPMuonTracks'),
-    trackerTrackSrc = cms.InputTag('trackerSPMuonTracks'),
-    algoType        = cms.int32(5),
-    debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
-    hltTrigCut      = cms.string('L1SingleMuOpen'),
-    #fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
-    isGen           = cms.bool(False)
+process.analysisTrackerMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(1),
+    debug       = cms.int32(-1)
+)
+process.analysisTPFMSMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(2),
+    debug       = cms.int32(-1)
+)
+process.analysisDYTMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(3),
+    debug       = cms.int32(-1)
+)
+process.analysisPickyMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(4),
+    debug       = cms.int32(-1)
 )
 
-process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CosmicMuonTree_data_80X.root')
+process.analysisTunePMuons = muonAnalysis.clone(
+    muonSrc     = cms.InputTag("globalSPMuons"),
+    tagLegSrc   = cms.InputTag("upperGlobalMuons"),
+    probeLegSrc = cms.InputTag("lowerGlobalMuons"),
+    algoType    = cms.int32(5),
+    debug       = cms.int32(1)
 )
 
-process.muonSPFilter.src = cms.InputTag('zprimeMuons')
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('CosmicMuonAnalysis_data_80X_dataRun2_2016SeptRepro_v4.root')
+)
 
 from HLTrigger.Configuration.CustomConfigs import ProcessName
 process = ProcessName(process)
@@ -198,23 +173,30 @@ process.rerunl1t = cms.Path(
 process.muonanalysis = cms.Path(
     process.singleMuFilter
     +process.singleMuFilterStage2
+    #process.reconstructionCosmics
     +process.betterMuons
+    +process.globalMuonsLoc
     +process.betterSPMuons
-    +process.lowerMuons
+    +process.globalSPMuons
     +process.upperMuons
-    +process.zprimeMuons
-    +process.zprimeLowerMuons
-    +process.zprimeUpperMuons
-    +process.cosmicMuonTracks
-    +process.globalMuonTracks
-    +process.trackerMuonTracks
-    +process.cosmicSPMuonTracks
-    +process.globalSPMuonTracks
-    +process.trackerSPMuonTracks
-    #+process.muonSPFilter
-    +process.analysisMuons
+    +process.lowerMuons
+    +process.upperGlobalMuons
+    +process.lowerGlobalMuons
+    +process.muonSPFilter
+    #+process.globalMuonSPFilter
+    #+process.analysisMuons
+    #+process.analysisGlobalMuons
     +process.analysisSPMuons
+    +process.analysisGlobalSPMuons
+    +process.analysisTrackerMuons
+    +process.analysisTPFMSMuons
+    +process.analysisDYTMuons
+    +process.analysisPickyMuons
+    +process.analysisTunePMuons
     )
+
+# generate EDM output
+process.COSMICoutput_step = cms.EndPath(process.COSMICoutput)
 
 # Path and EndPath definitions
 process.raw2digi_step       = cms.Path(process.RawToDigi)

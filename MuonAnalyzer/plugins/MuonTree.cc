@@ -507,7 +507,13 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
     int muIdx = 0;
     for (auto mu = muonColl->begin(); mu != muonColl->end(); ++ mu) {
+      if (nMuons > 24) {
+	nMuons = 25;
+	continue; // skip if there happen to be more than 25 muons
+      }
+
       //reco::TrackRef ref = wsu::dileptons::MuonHelpers::GetTrackType(algoType_, &(*mu));
+
       reco::TrackRef ref = GetTrackType(algoType_, &(*mu));
 
       muon_tpin[muIdx]   = mu->time().timeAtIpInOut;
