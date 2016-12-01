@@ -856,7 +856,6 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
 reco::TrackRef MuonTree::GetTrackType(int algoType, reco::Muon const* muon)
 {
-
   if (debug_ > 3)
     std::cout << "Started finding track type!" << std::endl;
 

@@ -38,12 +38,18 @@ parser.add_option("-b", "--nbiasbins", type="int", dest="nbiasbins",
                   metavar="nbiasbins", default=200,
                   help="[OPTIONAL] Number of steps to vary the injected bias by (default = 200)")
 
+parser.add_option("--runperiod", type="string", dest="runperiod",
+                  metavar="runperiod", default="2015",
+                  help="[OPTIONAL] Running period (default is 2015)")
 parser.add_option("--trigger", action="store_true", dest="trigger",
                   metavar="trigger", default=False,
                   help="[OPTIONAL] Apply or not the fake L1SingleMu selection")
 parser.add_option("--mc", action="store_true", dest="mc",
                   metavar="mc", default=False,
                   help="[OPTIONAL] Whether or not running on MC")
+parser.add_option("--closure", action="store_true", dest="closure",
+                  metavar="closure", default=False,
+                  help="[OPTIONAL] Whether or not to generate the closure study histograms")
 parser.add_option("--simlow", type="float", dest="simlow",
                   metavar="simlow", default=-1.,
                   help="[OPTIONAL] Minimum pT cut to apply to the sim tracks (only for MC)")
@@ -69,14 +75,14 @@ cmd = "cp /tmp/x509up_u%s  %s"%(userkey,proxyPath)
 print cmd
 os.system(cmd)
 if options.asymmetric:
-    bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
-                  options.infiles, proxyPath, options.njobs,
+    bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
+                  options.infiles, proxyPath, options.njobs,options.runperiod,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
-                  False, options.trigger, options.mc, debug)
+                  False, options.trigger, options.mc, options.closure, debug)
 else:
-    bSubSplitJobs("%s-%s"%(options.title,options.infiles[:-4]),options.tool, "histograms",
-                  options.infiles, proxyPath, options.njobs,
+    bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
+                  options.infiles, proxyPath, options.njobs,options.runperiod,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
-                  True, options.trigger, options.mc, debug)
+                  True, options.trigger, options.mc, options.closure, debug)

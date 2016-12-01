@@ -40,8 +40,8 @@ def splitJobsForBsub(inputFile,numberOfJobs,maxBias,minPt,nBiasBins,symasym):
 		return fid
 
 def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJobs,
-		  maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
-		  symmetric,trigger,isMC,debug):
+		  runPeriod,maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
+		  symmetric,trigger,isMC,doClosure,debug):
 	symasym = "asym"
 	if symmetric:
 		symasym = "sym"
@@ -69,39 +69,42 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		#f.write("  gROOT->ProcessLine(\" .L %s/%s.so\");\n"%(os.getcwd()))
 		inputFileList = samplesListsDir + "/splitLists_b%.2f_pt%2.0f_n%d/"%(1000*maxBias,minPt,nBiasBins) + splitListFile
 		f.write("  gROOT->ProcessLine(\" .L %s.so\");\n"%(toolName))
-		if (toolName=="Plot" and isMC):
+		if (toolName=="Plot" and isMC and doClosure):
 			f.write("  gROOT->ProcessLine(\" .L MCClosurePlot.so\");\n")
+			pass
 		##the first execution seems to clear the proxy error
-		
-		f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-												symasym,outputFile,i,
-												1,
-												minPt,maxBias,nBiasBins,
-												1000.,simlow,simhigh,
-												symmetric,trigger,isMC))
+		f.write("  %s(\"%s\", \"%s_%s_%d_\", %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d);\n"%(toolName,inputFileList,
+														symasym,outputFile,i,
+														1,
+														minPt,maxBias,nBiasBins,
+														1000.,simlow,simhigh,
+														symmetric,trigger,isMC,debug))
 		for tk in range(5):
 			if debug and tk < 4:
 				continue
-			f.write("  %s(\"%s\",\"%s_%s_%d_\",%d, %f, %f, %d, %f, %f, %f, %d, %d, %d);\n"%(toolName,inputFileList,
-													symasym,outputFile,i,
-													tk+1,
-													minPt,maxBias,nBiasBins,
-													1000.,simlow,simhigh,
-													symmetric,trigger,isMC))
-			if (toolName=="Plot" and isMC and tk==4):
+			f.write("  %s(\"%s\", \"%s_%s_%d_\", %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d);\n"%(toolName,inputFileList,
+															symasym,outputFile,i,
+															tk+1,
+															minPt,maxBias,nBiasBins,
+															1000.,simlow,simhigh,
+															symmetric,trigger,isMC,debug))
+			if (toolName=="Plot" and isMC and doClosure and tk==4):
 				if debug:
 					f.write("  for (int etb = 0; etb < 1; ++etb)\n")
-					f.write("    for (int phb = 0; phb < 1; ++phb)\n")
+					f.write("    for (int phb = 0; phb < 1; ++phb) {\n")
 				else:
 					f.write("  for (int etb = 0; etb < 2; ++etb)\n")
-					f.write("    for (int phb = 0; phb < 2; ++phb)\n")
+					f.write("    for (int phb = 0; phb < 2; ++phb) {\n")
 					pass
-				f.write("      MCClosurePlot(\"%s\",\"%s_%s_%d_\", etb, phb, %d, %f, %f, %d, %f, %f, %f, %f, %d, %d, %d);\n"%(inputFileList,
-																	      symasym,outputFile,i,
-																	      tk+1,
-																	      minPt,maxBias,nBiasBins/4,
-																	      1000.,simlow,simhigh,pseudoThresh,
-																	      symmetric,trigger,isMC))
+				for seed in range(25):
+					f.write("      MCClosurePlot(\"%s\", \"%s_%s_%d_\", etb, phb, %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %.5f, %d, %d, %d, %d, %d);\n"%(inputFileList,
+																					   symasym,outputFile,i,
+																					   tk+1,
+																					   minPt,maxBias,nBiasBins/4,
+																					   1000.,simlow,simhigh,pseudoThresh,seed+1,
+																					   symmetric,trigger,isMC,debug))
+					pass
+				f.write("    }\n")
 				pass ## end if (toolName=="Plot")
 			pass ## end for tk in range(5)
 		f.write("}\n")
@@ -109,10 +112,13 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		pyCommand = "%s"%(rootScriptName)
 		makeBsubShellScript(pyCommand,toolName,rootScriptDir,"%s/splitLists_b%.2f_pt%2.0f_n%d/%s"%(samplesListsDir,1000*maxBias,
 													   minPt,nBiasBins,splitListFile),
-				    pyScriptName,i,proxyPath,maxBias,minPt,nBiasBins,symasym,debug)
-		
+				    pyScriptName,i,proxyPath,runPeriod,maxBias,minPt,nBiasBins,symasym,outputFile,debug)
+		pass
+	pass
+
+
 def makeBsubShellScript(pyCommand,toolName,rootScriptDir,splitListName,pyScriptName,index,proxyPath,
-			maxBias,minPt,nBiasBins,symasym,debug):
+			runPeriod,maxBias,minPt,nBiasBins,symasym,outputFile,debug):
 	subfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.sh"%( os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	logfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.log"%(os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	f = open(subfile,"w")
@@ -135,7 +141,7 @@ ls -tar
 
 cd %s
 export AFSJOBDIR=${PWD}
-eval `scramv1 runtime -sh`
+eval `scram runtime -sh`
 cp binFunctions.h ${JOBDIR}/
 cp MCClosurePlot* ${JOBDIR}/
 cp %s* ${JOBDIR}/
@@ -144,29 +150,41 @@ cd ${JOBDIR}
 ls -tar
 root -b -q -x %s
 tree
-echo "rsync \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/"
-rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -aAXch --progress ${OUTPUTDIR} %s:/tmp/${USER}/
+hadd  ${OUTPUTDIR}/%s_%s_%d_closure_TuneP.root ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
+rm ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
+
+export EOSOUTDIR=/eos/cms/store/user/${USER}/CosmicEndpoint/%s/output_%s_b%.2f_pt%2.0f_n%d_%s
+eos mkdir -p ${EOSOUTDIR}
+xrdcp -d 0 -f -r ${OUTPUTDIR}/*.root root://eoscms.cern.ch/${EOSOUTDIR}/
+
+#echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahu --progress ${OUTPUTDIR} ${JOBDIR}/myeos/output_%s_b%.2f_pt%2.0f_n%d_%s/ --exclude=\"*.png\" --exclude=\"*.txt\""
+#rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahu --progress ${OUTPUTDIR} ${JOBDIR}/myeos/output_%s_b%.2f_pt%2.0f_n%d_%s/ --exclude=\"*.png\" --exclude=\"*.txt\"
+
+echo "rsync -e \\"ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\" -ahu --progress ${OUTPUTDIR} %s:/tmp/${USER}/" --exclude=\"*.png\" --exclude=\"*.root\"
+rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -ahu --progress ${OUTPUTDIR} %s:/tmp/${USER}/ --exclude=\"*.png\" --exclude=\"*.root\"
 """%(proxyPath,
-     #logfile,logfile,
-     pyScriptName,
-     1000*maxBias,minPt,nBiasBins,symasym,
-     #logfile,logfile,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      os.getcwd(),
      toolName,
-     rootScriptDir,pyCommand,#logfile,
-     pyCommand,#logfile,
+     rootScriptDir,pyCommand,
+     pyCommand,
+     symasym,outputFile,index,symasym,outputFile,index,
+     symasym,outputFile,index,
+     runPeriod,pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
+     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      socket.gethostname(),
      socket.gethostname()))
 	f.close()
 	os.chmod(subfile,0777)
 	if not debug:
-		cmd = "bsub -q 8nh -W 240 %s"%(subfile)
+		cmd = "bsub -q 1nd -W 620 %s"%(subfile)
 		print cmd
 		os.system(cmd)
 	else:
-		cmd = "bsub -q test -W 240 %s"%(subfile)
+		cmd = "bsub -q test -W 620 %s"%(subfile)
 		print cmd
-		
+
 def clearSplitLists(maxBias,minPt,nBiasBins,symasym,title):
 	samplesListsDir="samplesLists_data"
 	splitListsDir=samplesListsDir+"/splitLists_b%.2f_pt%2.0f_n%d/"%(1000*maxBias,minPt,nBiasBins)
