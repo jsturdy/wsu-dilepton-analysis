@@ -225,18 +225,21 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   const double MAX_CURVE_RANGE = 0.0080;
 
   ///// histograms for the MC closure study
+  // maybe better to say value to recover, rather than bin? would be more stable against changes in binning
   const int N_PSEUDO       = 50;
-  const int N_CLOSURE_BINS = 5;
+  const int N_CLOSURE_BINS =  5;
   const int CLOSURE_BIN0   =  0;
   const int CLOSURE_BIN1   = 10;
   const int CLOSURE_BIN2   = 25;
   const int CLOSURE_BIN3   = 40;
   const int CLOSURE_BIN4   = 50;
-  const int closureBins[N_CLOSURE_BINS] = {CLOSURE_BIN0,
-					   CLOSURE_BIN1,
-					   CLOSURE_BIN2,
-					   CLOSURE_BIN3,
-					   CLOSURE_BIN4 };      // injected bias bin to recover
+  const int closureBins[N_CLOSURE_BINS] = {
+    CLOSURE_BIN0,
+    CLOSURE_BIN1,
+    CLOSURE_BIN2,
+    CLOSURE_BIN3,
+    CLOSURE_BIN4
+  };      // injected bias bin to recover
 
   // in each sample there are roughly 8000 raw MC events, and 600 data events with the same selection
   const double pseudoThresh = pseudoThresh_;  // fraction of events to treat as data, half the rate we see in data per sample
@@ -246,6 +249,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   TH2D *h_randvals;
   h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
+  // how many of the pseudo-experiments are using the event
+  h_randdist = new TH1D("randdist","randdist",N_PSEUDO,-0.5,N_PSEUDO-0.5);
 
   TH1F *h_looseMuUpperCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
   TH1F *h_looseMuLowerCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
@@ -289,6 +294,9 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
 	bool fillPseudoData = false;
 	int clb = -1;
+	// double biasValue = (i)*(factor_*maxBias/nBiasBins);
+	// then convert to an int of the proper range
+	// better, find the bin corresponding to the desired injected bias values
 	switch(i) {
 	case  (CLOSURE_BIN0) :
 	  clb = 0;
@@ -492,17 +500,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
       onepcount++;
     }
 
-    Double_t *randvals = new Double_t[N_PSEUDO];
-    closureRand.RndmArray(N_PSEUDO,randvals);
-    if (debug && k < 1)
-      std::cout << "k = " << k << " random values: ";
-    for (int ri = 0; ri < N_PSEUDO; ++ri) {
-      h_randvals->Fill(ri,randvals[ri]);
-      if (debug && k < 1)
-	std::cout << " " << ri << ":" << randvals[ri];
-    }
-    if (debug && k < 1)
-      std::cout << std::endl;
+    // moved random init from here
 
     if (debug && k < 1)
       std::cout << "Made it into the first loop" << std::endl;
@@ -521,6 +519,29 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 	continue;
       }
     }
+
+    // any reason to *not* put the random initialization here?
+    // only sample randomly from the events we'll process?
+    // or sample randomly all events, and let us cut out what we cut out?
+    Double_t *randvals = new Double_t[N_PSEUDO];
+    closureRand.RndmArray(N_PSEUDO,randvals);
+
+    int pseudoCount = 0;
+
+    if (debug && k < 1)
+      std::cout << "k = " << k << " random values: ";
+    for (int ri = 0; ri < N_PSEUDO; ++ri) {
+      h_randvals->Fill(ri,randvals[ri]);
+      if (!(randvals[ri] > pseudoThresh))
+	++pseudoCount;
+      if (debug && k < 1)
+	std::cout << " " << ri << ":" << randvals[ri];
+    }
+
+    h_randdist->Fill(pseudoCount);
+
+    if (debug && k < 1)
+      std::cout << std::endl;
 
     // make sure we're not reading from the skipped events
     if (*upTrackerChi2 > -1) {
