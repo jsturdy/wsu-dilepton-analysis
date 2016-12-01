@@ -40,7 +40,7 @@ def splitJobsForBsub(inputFile,numberOfJobs,maxBias,minPt,nBiasBins,symasym):
 		return fid
 
 def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJobs,
-		  maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
+		  runPeriod,maxBias,minPt,nBiasBins,simlow,simhigh,pseudoThresh,
 		  symmetric,trigger,isMC,doClosure,debug):
 	symasym = "asym"
 	if symmetric:
@@ -96,7 +96,7 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 					f.write("  for (int etb = 0; etb < 2; ++etb)\n")
 					f.write("    for (int phb = 0; phb < 2; ++phb) {\n")
 					pass
-				for seed in range(10):
+				for seed in range(25):
 					f.write("      MCClosurePlot(\"%s\", \"%s_%s_%d_\", etb, phb, %d, %.2f, %.5f, %d, %.2f, %.2f, %.2f, %.5f, %d, %d, %d, %d, %d);\n"%(inputFileList,
 																					   symasym,outputFile,i,
 																					   tk+1,
@@ -112,13 +112,13 @@ def bSubSplitJobs(pyScriptName,toolName,outputFile,inputFile,proxyPath,numberOfJ
 		pyCommand = "%s"%(rootScriptName)
 		makeBsubShellScript(pyCommand,toolName,rootScriptDir,"%s/splitLists_b%.2f_pt%2.0f_n%d/%s"%(samplesListsDir,1000*maxBias,
 													   minPt,nBiasBins,splitListFile),
-				    pyScriptName,i,proxyPath,maxBias,minPt,nBiasBins,symasym,outputFile,debug)
+				    pyScriptName,i,proxyPath,runPeriod,maxBias,minPt,nBiasBins,symasym,outputFile,debug)
 		pass
 	pass
 
 
 def makeBsubShellScript(pyCommand,toolName,rootScriptDir,splitListName,pyScriptName,index,proxyPath,
-			maxBias,minPt,nBiasBins,symasym,outputFile,debug):
+			runPeriod,maxBias,minPt,nBiasBins,symasym,outputFile,debug):
 	subfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.sh"%( os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	logfile = "%s/bsubs_b%.2f_pt%2.0f_n%d/bsub-%s-%s-%s.log"%(os.getcwd(),1000*maxBias,minPt,nBiasBins,pyScriptName,symasym,index)
 	f = open(subfile,"w")
@@ -153,7 +153,7 @@ tree
 hadd  ${OUTPUTDIR}/%s_%s_%d_closure_TuneP.root ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
 rm ${OUTPUTDIR}/%s_%s_%d_*_eta?_phi?_pseudo*.root
 
-export EOSOUTDIR=/eos/cms/store/user/${USER}/CosmicEndpoint/2015/Closure/output_%s_b%.2f_pt%2.0f_n%d_%s
+export EOSOUTDIR=/eos/cms/store/user/${USER}/CosmicEndpoint/%s/output_%s_b%.2f_pt%2.0f_n%d_%s
 eos mkdir -p ${EOSOUTDIR}
 xrdcp -d 0 -f -r ${OUTPUTDIR}/*.root root://eoscms.cern.ch/${EOSOUTDIR}/
 
@@ -170,7 +170,7 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
      pyCommand,
      symasym,outputFile,index,symasym,outputFile,index,
      symasym,outputFile,index,
-     pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
+     runPeriod,pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      pyScriptName,1000*maxBias,minPt,nBiasBins,symasym,
      socket.gethostname(),
@@ -178,11 +178,11 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
 	f.close()
 	os.chmod(subfile,0777)
 	if not debug:
-		cmd = "bsub -q 8nh -W 240 %s"%(subfile)
+		cmd = "bsub -q 1nd -W 620 %s"%(subfile)
 		print cmd
 		os.system(cmd)
 	else:
-		cmd = "bsub -q test -W 240 %s"%(subfile)
+		cmd = "bsub -q test -W 620 %s"%(subfile)
 		print cmd
 
 def clearSplitLists(maxBias,minPt,nBiasBins,symasym,title):
