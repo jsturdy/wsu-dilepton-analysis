@@ -80,8 +80,20 @@ r.gErrorIgnoreLevel = r.kFatal
 infilename = "june30-shawn.tunep.pt200.uw.root"
 #infilename = "june30-shawn.tracker.pt100.uw.root"
 #infilename = "june30-shawn.tracker.pt200.uw.root"
+filenames = [
+  "sep21.asym.s5.pt200.b40.lower",
+  "sep21.startup.s5.pt200.b40.lower",
+  "sep26.s5.pt200.b40.lower",
+  "sep26.s5.pt200.b40.upper",
+  "sep26.s5.pt200.b20.lower",
+  "sep26.s5.pt150.b40.lower",
+  "sep26.s5.pt150.b20.lower",
 
-infile = r.TFile(infilename,"read")
+  # "sep21.full.lower",
+  # "sep21.full.upper",
+  # "sep21.full.lower-pm",
+  # "sep21.full.upper-pm",
+]
 
 etaphibins = {
     "1All"             : "|#eta| < 0.9 && |#phi| < #pi",
@@ -107,32 +119,51 @@ etaphiexclusivebins = {
     "EtaMinusPhiPlus" :[1,3],
     }
 
-outcan = r.TCanvas("outcan","",1440,900)
-outcan.Divide(3,3)
+outdirbase = "~/public/html/Cosmics/2016/EndpointStudy/results"
 
-resultsHist = r.TH2D("resultsHist", "#Delta#kappa_{b} map: #eta vs. #phi",
-                     2, -0.9, 0.9,
-                     3, -math.pi, math.pi)
+for filename in filenames:
+  infile = r.TFile("%s.root"%(filename),"read")
+  print filename
+  print infile
 
-for i,etaphi in enumerate(sorted(etaphibins.keys())):
-    outcan.cd(i+1)
-    
+  #outcan = r.TCanvas("outcan","",1440,900)
+  #outcan.Divide(3,3)
+
+  os.system("mkdir -p %s/%s"%(outdirbase,filename))
+  outdir = "%s/%s"%(outdirbase,filename)
+  resultsHist = r.TH2D("resultsHist", "#Delta#kappa_{b} map: #eta vs. #phi",
+                       2, -0.9, 0.9,
+                       3, -math.pi, math.pi)
+
+  for i,etaphi in enumerate(sorted(etaphibins.keys())):
+    outcan = r.TCanvas("outcan","",1440,900)
+    #outcan.cd(i+1)
+
     graphname  = "chi2_looseMuLower%s"%(etaphi[1:])
-    prefitname = "preFitPoly_looseMuLower%s"%(etaphi[1:])
+    ksgraphname  = "ks_looseMuLower%s"%(etaphi[1:])
+    # prefitname = "preFitPoly_looseMuLower%s"%(etaphi[1:])
     fitname    = "fitPoly_looseMuLower%s"%(etaphi[1:])
-    graph  = infile.Get(graphname)
-    prefit = infile.Get(prefitname)
+    if filename.find("upper") > 0:
+      graphname  = "chi2_looseMuUpper%s"%(etaphi[1:])
+      ksgraphname  = "ks_looseMuUpper%s"%(etaphi[1:])
+      # prefitname = "preFitPoly_looseMuUpper%s"%(etaphi[1:])
+      fitname    = "fitPoly_looseMuUpper%s"%(etaphi[1:])
+      pass
+    graph   = infile.Get(graphname)
+    ksgraph = infile.Get(ksgraphname)
+    # prefit = infile.Get(prefitname)
     fit    = infile.Get(fitname)
 
     print graphname
     print graph
     graph.SetTitle("#chi^{2} vs. #Delta#kappa_{b}: %s"%(etaphibins[etaphi]))
     graph.SetMarkerStyle(r.kFullDiamond)
-    graph.SetMarkerSize(0.5)
+    graph.SetMarkerSize(1.5)
     graph.Draw("ap")
+    #ksgraph.Draw("p")
     graph.GetYaxis().SetTitle("#chi^{2}")
     graph.GetXaxis().SetTitle("#Delta#kappa_{b} [c/TeV]")
-    prefit.Draw("same")
+    # prefit.Draw("same")
     fit.SetLineColor(r.kGreen)
     fit.Draw("same")
 
@@ -141,20 +172,24 @@ for i,etaphi in enumerate(sorted(etaphibins.keys())):
     thelegend.SetFillColor(0)
     thelegend.SetFillStyle(3000)
 
-    value   = prefit.GetMinimum(-0.8,0.8)
-    minbias = prefit.GetMinimumX(-0.8,0.8)
-    lowerr  = prefit.GetX(value+1.0, -0.8,   minbias)
-    uperr   = prefit.GetX(value+1.0, minbias, 0.8)
-    thelegend.AddEntry(prefit,"pre-fit: #kappa_{b} = %2.4g^{+%2.4g}_{-%2.4g}"%( minbias,
-                                                                                uperr-minbias,
-                                                                                minbias-lowerr))
+    thelegend.AddEntry(graph,"#chi^{2} values","lp")
+    #thelegend.AddEntry(ksgraph,"Kolmogorv-Smirnoff values","lp")
+    # value   = prefit.GetMinimum(-0.8,0.8)
+    # minbias = prefit.GetMinimumX(-0.8,0.8)
+    # lowerr  = prefit.GetX(value+1.0, -0.8,   minbias)
+    # uperr   = prefit.GetX(value+1.0, minbias, 0.8)
+    # thelegend.AddEntry(prefit,"pre-fit: #kappa_{b} = %2.4g^{+%2.4g}_{-%2.4g}"%( minbias,
+    #                                                                             uperr-minbias,
+    #                                                                             minbias-lowerr),"lp")
     value   = fit.GetMinimum(-0.8,0.8)
     minbias = fit.GetMinimumX(-0.8,0.8)
     lowerr  = fit.GetX(value+1.0, -0.8,   minbias)
     uperr   = fit.GetX(value+1.0, minbias, 0.8)
+    fit.SetLineColor(r.kRed)
+    fit.SetLineWidth(3)
     thelegend.AddEntry(fit,   "post-fit: #kappa_{b} = %2.4g^{+%2.4g}_{-%2.4g}"%(minbias,
                                                                                 uperr-minbias,
-                                                                                minbias-lowerr))
+                                                                                minbias-lowerr),"lp")
     thelegend.Draw()
 
     graph.GetYaxis().SetRangeUser(value*0.8,value+25)
@@ -165,29 +200,35 @@ for i,etaphi in enumerate(sorted(etaphibins.keys())):
         resultsHist.SetBinError(  etaphiexclusivebins[etaphi][0],etaphiexclusivebins[etaphi][1],uperr-minbias)
         pass
 
+    outcan.SaveAs("%s/%s_results_%s.png"%(outdir,filename,etaphi[1:]))
+    outcan.SaveAs("%s/%s_results_%s.pdf"%(outdir,filename,etaphi[1:]))
+    outcan.SaveAs("%s/%s_results_%s.eps"%(outdir,filename,etaphi[1:]))
+    outcan.SaveAs("%s/%s_results_%s.C"%(  outdir,filename,etaphi[1:]))
+    outcan.SaveAs("%s/%s_results_%s.png"%(outdir,filename,etaphi[1:]))
     pass
 
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_tunep_pt200.png")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_tunep_pt200.pdf")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_tunep_pt200.eps")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_tunep_pt200.C"  )
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_tunep_pt200.png")
-#raw_input("press enter to exit")
-outcan.cd()
-resultsHist.Draw("colztexte")
-resultsHist.SetStats(r.kFALSE)
-resultsHist.GetXaxis().SetBinLabel(1,"-0.9 < #eta < 0")
-resultsHist.GetXaxis().SetBinLabel(2,"0 < #eta < 0.9")
-resultsHist.GetYaxis().SetBinLabel(1,"-#pi < #phi < -#pi/3")
-resultsHist.GetYaxis().SetBinLabel(2,"-#pi/3 < #phi < #pi/3")
-resultsHist.GetYaxis().SetBinLabel(3,"-#pi/3 < #phi < #pi")
-r.gPad.Update()
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_2d_map_tunep_pt200.png")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_2d_map_tunep_pt200.pdf")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_2d_map_tunep_pt200.eps")
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_2d_map_tunep_pt200.C"  )
-outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_2d_map_tunep_pt200.png")
-#raw_input("press enter to exit")
+  # outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_%s.png"%(filename))
+  # outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_%s.pdf"%(filename))
+  # outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_%s.eps"%(filename))
+  # outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_%s.C"%(filename)  )
+  # outcan.SaveAs("~/public/html/Cosmics/2016/EndpointClosureStudy/results_%s.png"%(filename))
+  # raw_input("press enter to exit")
+  outcan.cd()
+  resultsHist.Draw("colztexte")
+  resultsHist.SetStats(r.kFALSE)
+  resultsHist.GetXaxis().SetBinLabel(1,"-0.9 < #eta < 0")
+  resultsHist.GetXaxis().SetBinLabel(2,"0 < #eta < 0.9")
+  resultsHist.GetYaxis().SetBinLabel(1,"-#pi < #phi < -#pi/3")
+  resultsHist.GetYaxis().SetBinLabel(2,"-#pi/3 < #phi < #pi/3")
+  resultsHist.GetYaxis().SetBinLabel(3,"-#pi/3 < #phi < #pi")
+  r.gPad.Update()
+  outcan.SaveAs("%s/results_2d_map_%s.png"%(outdir,filename))
+  outcan.SaveAs("%s/results_2d_map_%s.pdf"%(outdir,filename))
+  outcan.SaveAs("%s/results_2d_map_%s.eps"%(outdir,filename))
+  outcan.SaveAs("%s/results_2d_map_%s.C"%(  outdir,filename))
+  outcan.SaveAs("%s/results_2d_map_%s.png"%(outdir,filename))
+  # raw_input("press enter to exit")
+  pass
 
 pr.disable()
 #s = StringIO.StringIO()
