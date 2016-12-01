@@ -38,6 +38,9 @@ parser.add_option("-b", "--nbiasbins", type="int", dest="nbiasbins",
                   metavar="nbiasbins", default=200,
                   help="[OPTIONAL] Number of steps to vary the injected bias by (default = 200)")
 
+parser.add_option("--runperiod", type="string", dest="runperiod",
+                  metavar="runperiod", default="2015",
+                  help="[OPTIONAL] Running period (default is 2015)")
 parser.add_option("--trigger", action="store_true", dest="trigger",
                   metavar="trigger", default=False,
                   help="[OPTIONAL] Apply or not the fake L1SingleMu selection")
@@ -73,13 +76,13 @@ print cmd
 os.system(cmd)
 if options.asymmetric:
     bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
-                  options.infiles, proxyPath, options.njobs,
+                  options.infiles, proxyPath, options.njobs,options.runperiod,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
                   False, options.trigger, options.mc, options.closure, debug)
 else:
     bSubSplitJobs("%s-%s"%(options.infiles[:-4],options.title),options.tool, "histograms",
-                  options.infiles, proxyPath, options.njobs,
+                  options.infiles, proxyPath, options.njobs,options.runperiod,
                   options.maxbias, options.minpt, options.nbiasbins,
                   options.simlow, options.simhigh,options.pseudoThresh,
                   True, options.trigger, options.mc, options.closure, debug)

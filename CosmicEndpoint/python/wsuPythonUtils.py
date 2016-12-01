@@ -51,6 +51,51 @@ def flipHist(hist, debug=False):
 
     return hist
 
+etaphiexclusivebins = [
+    "EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
+    "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
+    ]
+
+etaphiinclusivebins = {
+    "All":     etaphiexclusivebins,
+    "EtaPlus": etaphiexclusivebins[0:2],
+    "EtaMinus":etaphiexclusivebins[3:5],
+    # "PhiPlus":etaphiexclusivebins[2:3]+etaphiexclusivebins[5:6],
+    "PhiZero" :etaphiexclusivebins[1:2]+etaphiexclusivebins[4:5],
+    "PhiMinus":etaphiexclusivebins[0:1]+etaphiexclusivebins[3:4],
+    }
+
+etaphibins = {
+    "All"             :etaphiexclusivebins[0:2]+etaphiexclusivebins[3:5],
+    "EtaPlus"         :etaphiexclusivebins[0:2], #fix for removal of phi plus
+    "EtaMinus"        :etaphiexclusivebins[3:5],
+    # "PhiPlus"         :etaphiexclusivebins[2:3]+etaphiexclusivebins[5:6],
+    "PhiZero"         :etaphiexclusivebins[1:2]+etaphiexclusivebins[4:5],
+    "PhiMinus"        :etaphiexclusivebins[0:1]+etaphiexclusivebins[3:4],
+    "EtaPlusPhiMinus" :etaphiexclusivebins[0:1],
+    "EtaPlusPhiZero"  :etaphiexclusivebins[1:2],
+    #"EtaPlusPhiPlus"  :etaphiexclusivebins[2:3],
+    "EtaMinusPhiMinus":etaphiexclusivebins[3:4],
+    "EtaMinusPhiZero" :etaphiexclusivebins[4:5],
+    #"EtaMinusPhiPlus" :etaphiexclusivebins[5:6]
+    }
+
+def getHistogram(sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=False):
+    outHist = None
+    for etaphibin in etaphibins[etaphi]:
+        if debug:
+            print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
+            pass
+        
+        tmpHist = sampleFile.Get("%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("%s_%s"%(etaphibin,cloneName))
+        if outHist:
+            outHist.Add(tmpHist)
+        else:
+            outHist = tmpHist.Clone(cloneName)
+            pass
+        pass
+    return outHist
+
 def setMinPT(hist, nbins, minPt, symmetric=True, debug=False):
     """Takes an input histogram and sets the bin content to
     0 if q/pT is outside the range

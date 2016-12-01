@@ -57,12 +57,12 @@ class endpointClosureStudy():
         self.makeLog  = makeLog
         self.debug    = debug
 
-        p100InFileName = "%s/startup_peak_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
-        p500InFileName = "%s/startup_peak_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+        p100InFileName = "%s/startup_peak_p100_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+        p500InFileName = "%s/startup_peak_p500_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
 
         if self.asymdeco:
-            p100InFileName = "%s/asym_deco_p100_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
-            p500InFileName = "%s/asym_deco_p500_v5_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+            p100InFileName = "%s/asym_deco_p100_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
+            p500InFileName = "%s/asym_deco_p500_b0.80_pt75_n%d_sym/CosmicHistOut_TuneP.root"%(infiledir,4*nBiasBins)
             pass
 
         if self.xroot:
@@ -95,7 +95,19 @@ class endpointClosureStudy():
         # - p100, p500: scale p100 by (1028051./58898.)
         self.p100top500ScaleFactor = 1028051./58898.
 
-        self.outfile   = r.TFile(outfile,"recreate")
+        self.outfile = r.TFile(outfile,"update")
+        self.outdir  = None
+        if self.injBiasBin < 0:
+            self.outdir  = self.outfile.mkdir("rec_m%d"%(abs(self.injBiasBin)))
+        elif self.injBiasBin > 0:
+            self.outdir  = self.outfile.mkdir("rec_p%d"%(abs(self.injBiasBin)))
+        else:
+            self.outdir  = self.outfile.mkdir("rec_b%d"%(abs(self.injBiasBin)))
+            pass
+
+        print self.outdir
+        print self.outfile
+
         r.TH1.SetDefaultSumw2()
 
         histparams = {
@@ -160,30 +172,34 @@ class endpointClosureStudy():
                                 200, -5.0, 5.0)
         self.chi2pull5 = styleHistogram(self.chi2pull5,histparams)
 
-        self.etaphiexclusivebins = ["EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
-                                    "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
-                                    ]
-        self.etaphiinclusivebins = {"All":     self.etaphiexclusivebins,
-                                    "EtaPlus": self.etaphiexclusivebins[0:2],
-                                    "EtaMinus":self.etaphiexclusivebins[3:5],
-                                    # "PhiPlus":self.etaphiexclusivebins[2:3]+self.etaphiexclusivebins[5:6],
-                                    "PhiZero" :self.etaphiexclusivebins[1:2]+self.etaphiexclusivebins[4:5],
-                                    "PhiMinus":self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
-                                    }
+        self.etaphiexclusivebins = [
+            "EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
+            "EtaMinusPhiMinus","EtaMinusPhiZero","EtaMinusPhiPlus"
+            ]
 
-        self.etaphibins = {"All"             :self.etaphiexclusivebins[0:2]+self.etaphiexclusivebins[3:5],
-                           "EtaPlus"         :self.etaphiexclusivebins[0:2], #fix for removal of phi plus
-                           "EtaMinus"        :self.etaphiexclusivebins[3:5],
-                           # "PhiPlus"         :self.etaphiexclusivebins[2:3]+self.etaphiexclusivebins[5:6],
-                           "PhiZero"         :self.etaphiexclusivebins[1:2]+self.etaphiexclusivebins[4:5],
-                           "PhiMinus"        :self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
-                           "EtaPlusPhiMinus" :self.etaphiexclusivebins[0:1],
-                           "EtaPlusPhiZero"  :self.etaphiexclusivebins[1:2],
-                           "EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
-                           "EtaMinusPhiMinus":self.etaphiexclusivebins[3:4],
-                           "EtaMinusPhiZero" :self.etaphiexclusivebins[4:5],
-                           "EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
-                           }
+        self.etaphiinclusivebins = {
+            "All":     self.etaphiexclusivebins,
+            "EtaPlus": self.etaphiexclusivebins[0:2],
+            "EtaMinus":self.etaphiexclusivebins[3:5],
+            # "PhiPlus":self.etaphiexclusivebins[2:3]+self.etaphiexclusivebins[5:6],
+            "PhiZero" :self.etaphiexclusivebins[1:2]+self.etaphiexclusivebins[4:5],
+            "PhiMinus":self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
+            }
+
+        self.etaphibins = {
+            "All"             :self.etaphiexclusivebins[0:2]+self.etaphiexclusivebins[3:5],
+            "EtaPlus"         :self.etaphiexclusivebins[0:2], #fix for removal of phi plus
+            "EtaMinus"        :self.etaphiexclusivebins[3:5],
+            # "PhiPlus"         :self.etaphiexclusivebins[2:3]+self.etaphiexclusivebins[5:6],
+            "PhiZero"         :self.etaphiexclusivebins[1:2]+self.etaphiexclusivebins[4:5],
+            "PhiMinus"        :self.etaphiexclusivebins[0:1]+self.etaphiexclusivebins[3:4],
+            "EtaPlusPhiMinus" :self.etaphiexclusivebins[0:1],
+            "EtaPlusPhiZero"  :self.etaphiexclusivebins[1:2],
+            # "EtaPlusPhiPlus"  :self.etaphiexclusivebins[2:3],
+            "EtaMinusPhiMinus":self.etaphiexclusivebins[3:4],
+            "EtaMinusPhiZero" :self.etaphiexclusivebins[4:5],
+            # "EtaMinusPhiPlus" :self.etaphiexclusivebins[5:6]
+            }
 
         if self.etaphi not in self.etaphibins.keys():
             print "Invalid eta/phi option specified: %s.  Allowed options are:"%(self.etaphi)
@@ -207,7 +223,11 @@ class endpointClosureStudy():
         ## common for the looping, should probably reset at the end of the loop
         self.refmax         = None
         self.refinto        = None
+        self.refpinto       = None
+        self.refminto       = None
         self.refinta        = None
+        self.refpinta       = None
+        self.refminta       = None
         self.plusRefHist    = None
         self.minusRefHist   = None
         self.refHist        = None
@@ -226,7 +246,11 @@ class endpointClosureStudy():
     def reset(self):
         self.refmax         = None
         self.refinto        = None
+        self.refpinto       = None
+        self.refminto       = None
         self.refinta        = None
+        self.refpinta       = None
+        self.refminta       = None
         self.plusRefHist    = None
         self.minusRefHist   = None
         self.refHist        = None
@@ -242,8 +266,15 @@ class endpointClosureStudy():
         return
 
     def loop(self):
-        for pseudo in range(self.nPseudoExp):
-            runPseudoExperiment(pseudo)
+        #for pseudo in range(self.nPseudoExp):
+        start = self.pseudoExp*self.nPseudoExp
+        end   = start+self.nPseudoExp
+        print "running pseudoexperiments in range [%d,%d)"%(start,end)
+        for pseudo in range(start,end):
+            if pseudo > 499:
+                continue
+            print "running pseudoexperiment %d/%d"%(pseudo,self.nPseudoExp)
+            self.runPseudoExperiment(pseudo)
             pass
         return
 
@@ -263,6 +294,7 @@ class endpointClosureStudy():
 
     def writeOut(self):
         self.outfile.cd()
+        self.outdir.cd()
         self.chi2min.Write()
         self.chi2dist.Write()
         self.chi2width.Write()
@@ -271,6 +303,7 @@ class endpointClosureStudy():
         self.chi2pull3.Write()
         self.chi2pull4.Write()
         self.chi2pull5.Write()
+        self.outdir.Write()
         self.outfile.Close()
 
         return
@@ -393,7 +426,7 @@ class endpointClosureStudy():
         self.minusRefHist.Rebin(self.rebins)
 
         # integral after applying a pT cut
-        self.refinta = refHist.Integral()
+        self.refinta  = refHist.Integral()
         self.refpinta = plusRefHist.Integral()
         self.refminta = minusRefHist.Integral()
 
@@ -486,6 +519,7 @@ class endpointClosureStudy():
         fitresults = self.fitCurve(graphs["chi2"], 8, funcrange, fitrange, debug=self.debug)
 
         self.outfile.cd()
+        self.outdir.cd()
         fitresults["preFitPoly"].SetName("preFitPoly_%s%s_closureBin%03d"%(self.histName,self.etaphi,pseudoExp))
         fitresults["fitPoly"].SetName("fitPoly_%s%s_closureBin%03d"%(      self.histName,self.etaphi,pseudoExp))
         fitresults["preFitPoly"].Write()
@@ -708,7 +742,13 @@ class endpointClosureStudy():
             pass
 
         ## Add plus and minus histograms for the comparison histogram
-        compHist = plusHist.Clone("%s_compHist_MinusBias%03d"%(self.histName,biasBin))
+        compHist = None
+
+        if negativeBias:
+            compHist = plusHist.Clone("%s_compHist_MinusBias%03d"%(self.histName,biasBin))
+        else:
+            compHist = plusHist.Clone("%s_compHist_PlusBias%03d"%(self.histName,biasBin))
+            pass
         compHist.Add(minusHist)
 
         ### have to scale the combined histogram if the plus/minus histograms weren't scaled previously
@@ -751,8 +791,8 @@ class endpointClosureStudy():
 
         compHist.Draw()
         compHist.GetXaxis().SetTitle("#kappa [c/TeV]")
-        #compHist.SetMaximum(1.2*self.refmax)
-        compHist.SetMaximum(100)
+        compHist.GetXaxis().SetRangeUser(-1.2*(1000./self.minpt),1.2*(1000./self.minpt))
+        compHist.SetMaximum(1.2*self.refmax)
         compHist.SetMinimum(0.1)
         self.refHist.Draw("sames")
         if (self.makeLog):
@@ -828,17 +868,23 @@ class endpointClosureStudy():
         r.gPad.Update()
 
         if self.injBiasBin < 0:
-            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                    pseudoExp, self.rebins, self.injBiasBin,
-                                                                                    self.stepsize,self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                            pseudoExp, self.rebins, self.injBiasBin,
+                                                                                            self.stepsize,
+                                                                                            self.minpt,self.histName,
+                                                                                            self.pmstring))
         elif self.injBiasBin > 0:
-            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                    pseudoExp, self.rebins, self.injBiasBin,
-                                                                                    self.stepsize, self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                            pseudoExp, self.rebins, self.injBiasBin,
+                                                                                            self.stepsize,
+                                                                                            self.minpt,self.histName,
+                                                                                            self.pmstring))
         else:
-            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                   pseudoExp, self.rebins,self.injBiasBin,
-                                                                                   self.stepsize, self.pmstring))
+            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
+                                                                                           pseudoExp, self.rebins,self.injBiasBin,
+                                                                                           self.stepsize,
+                                                                                           self.minpt,self.histName,
+                                                                                           self.pmstring))
         return (xvals, yvals)
 
     def makeGraphs(self, xvals, yvals, pseudoExp, debug=False):
@@ -847,6 +893,7 @@ class endpointClosureStudy():
         """
         graphs = {}
         self.outfile.cd()
+        self.outdir.cd()
         graphs["chi2ndf"] = prettifyGraph(r.TGraph(xvals.size,xvals,yvals["Chi2NDF"]),self.graphInfo["Chi2NDF"])
         graphs["chi2"]    = prettifyGraph(r.TGraph(xvals.size,xvals,yvals["Chi2"]),   self.graphInfo["Chi2"])
         graphs["ks"]      = prettifyGraph(r.TGraph(xvals.size,xvals,yvals["KS"])  ,   self.graphInfo["KS"]  )
@@ -873,48 +920,48 @@ class endpointClosureStudy():
         import math
 
         self.outfile.cd()
+        self.outdir.cd()
 
-        preFitPoly = r.TF1("preFitPoly%d"%(nparams), "pol%d"%(nparams),
-                           fitrange[0],fitrange[1])
-                           # preFitMin-0.3,preFitMin+0.3)
+        preFitPoly = r.TF1("preFitPoly%d"%(nparams), "pol%d"%(nparams), fitrange[0],fitrange[1])
 
         r.SetOwnership(preFitPoly,False)
         preFitPoly.SetParameters(0,0)
-        chi2graph.Fit("preFitPoly%d"%(nparams), "QEMFRN", "",
+        chi2graph.Fit("preFitPoly%d"%(nparams), "EMFRN", "",
                       fitrange[0],fitrange[1])
         preFitPoly.SetLineColor(r.kRed)
         preFitPoly.SetLineStyle(2)
         preFitMinBias = preFitPoly.GetMinimumX(fitrange[0], fitrange[1])
-        preFitMinChi2 = preFitPoly.GetMinimum(fitrange[0], fitrange[1])
-        preFitLower = preFitPoly.GetX(preFitMinChi2+deltaChi2, fitrange[0],   preFitMinBias)
-        preFitUpper = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, fitrange[1])
-        preFitUncUp  = 5*(preFitUpper - preFitMinBias)
-        preFitUncLow = 5*(preFitMinBias - preFitLower)
+        preFitMinChi2 = preFitPoly.GetMinimum( fitrange[0], fitrange[1])
+        preFitLower   = preFitPoly.GetX(preFitMinChi2+deltaChi2, fitrange[0],   preFitMinBias)
+        preFitUpper   = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, fitrange[1])
+        preFitLower2  = preFitPoly.GetX(preFitMinChi2+25*deltaChi2, fitrange[0],   preFitMinBias)
+        preFitUpper2  = preFitPoly.GetX(preFitMinChi2+25*deltaChi2, preFitMinBias, fitrange[1])
+        preFitUncUp   = 5*(preFitUpper - preFitMinBias)
+        preFitUncLow  = 5*(preFitMinBias - preFitLower)
 
         #if debug:
-        print "preFitMinBias  preFitMinChi2  preFitLowVal  preFitHighVal  preFitLowErr  preFitHighErr"
-        print "%13.3f  %13.3f  %12.3f  %13.3f  %12.3f  %13.3f"%(preFitMinBias,preFitMinChi2,
-                                                                preFitLower,preFitUpper,
-                                                                preFitUncLow,preFitUncUp)
+        print "preFitMinBias  preFitMinChi2  preFitLowVal  preFitHighVal  preFitLowVal2  preFitHighVal2  preFitLowErr  preFitHighErr"
+        print "%13.3f  %13.3f  %12.3f  %13.3f  %12.3f  %13.3f  %12.3f  %13.3f"%(preFitMinBias,preFitMinChi2,
+                                                                                preFitLower,preFitUpper,
+                                                                                preFitLower2,preFitUpper2,
+                                                                                preFitUncLow,preFitUncUp)
         #pass
 
-        fitPoly = r.TF1("fitPoly", "pol2",
-                        preFitMinBias-preFitUncLow,
-                        preFitMinBias+preFitUncUp)
-                        #funcrange[0],funcrange[1])
+        fitRange = [preFitMinBias-preFitUncLow,preFitMinBias+preFitUncUp]
+        fitRange = [preFitLower2, preFitUpper2]
+        fitPoly = r.TF1("fitPoly", "pol2", fitRange[0], fitRange[1])
+
         r.SetOwnership(fitPoly,False)
         fitPoly.SetParameters(0,0)
-        chi2graph.Fit("fitPoly", "QEMFRN", "",
-                      preFitMinBias-preFitUncLow,
-                      preFitMinBias+preFitUncUp)
-                      #fitrange[0],fitrange[1])
+        chi2graph.Fit("fitPoly", "EMFRN", "", fitRange[0], fitRange[1])
+
         fitPoly.SetLineColor(r.kViolet)
         fitPoly.SetLineStyle(5)
         results = {}
-        results["minBias"] = fitPoly.GetMinimumX(preFitMinBias-preFitUncLow, preFitMinBias+preFitUncUp)
-        results["minChi2"] = fitPoly.GetMinimum( preFitMinBias-preFitUncLow, preFitMinBias+preFitUncUp)
-        results["lower"]   = fitPoly.GetX(results["minChi2"]+deltaChi2, preFitMinBias-preFitUncLow, results["minBias"])
-        results["upper"]   = fitPoly.GetX(results["minChi2"]+deltaChi2, results["minBias"],         preFitMinBias+preFitUncUp)
+        results["minBias"] = fitPoly.GetMinimumX(fitRange[0], fitRange[1])
+        results["minChi2"] = fitPoly.GetMinimum( fitRange[0], fitRange[1])
+        results["lower"]   = fitPoly.GetX(results["minChi2"]+deltaChi2, fitRange[0], results["minBias"])
+        results["upper"]   = fitPoly.GetX(results["minChi2"]+deltaChi2, results["minBias"],fitRange[1])
         results["preFitPoly"] = preFitPoly
         results["fitPoly"]    = fitPoly
 
@@ -1043,6 +1090,7 @@ if __name__ == "__main__":
     else:
         closuretest.runPseudoExperiment(options.pseudo)
         pass
+
     closuretest.writeOut()
 
     if options.debug:
