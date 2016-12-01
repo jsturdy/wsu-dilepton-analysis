@@ -42,7 +42,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '74X_CRAFTR_V1', '')
 process.GlobalTag.toGet = cms.VPSet(
   cms.PSet(record = cms.string("HBHENegativeEFilterRcd"),
            tag = cms.string("HBHENegativeEFilter_V00_data"),
-           connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
+           connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
           )
 )
 
@@ -99,7 +99,7 @@ process.analysisNoRPC = muonAnalysis.clone(
 
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonAnalysis_2015_no-reRECO.root')
+    fileName = cms.string('CosmicMuonAnalysis_2015_reRECO.root')
 )
 
 # fix: remove some L1 modules (useless here)

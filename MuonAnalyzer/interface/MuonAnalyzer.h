@@ -18,9 +18,17 @@
 #include <DataFormats/MuonReco/interface/MuonCocktails.h>
 #include <DataFormats/MuonReco/interface/MuonFwd.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/src/Muon.cc"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+
+//sim track information
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
+// Trigger information
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
 // TFile Service
 #include <FWCore/ServiceRegistry/interface/Service.h>
@@ -30,12 +38,8 @@
 #include <TH2.h>
 #include <TH1.h>
 #include "TROOT.h"
-#include "TFile.h"
 #include "TLorentzVector.h"
-#include "TBrowser.h"
 #include "TMath.h"
-#include "TRandom.h"
-#include "TCanvas.h"
 
 
 //
@@ -64,6 +68,11 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   int algoType_;
   int debug_;
 
+  double maxDR_;
+  double maxDPhi_;
+  double maxDEta_;
+  double minPt_;
+
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -78,21 +87,39 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   //}
   
   // ----------member data ---------------------------
-  edm::InputTag muonSrc_;
+  edm::EDGetTokenT<reco::MuonCollection > muonToken_, tagLegToken_, probeLegToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  edm::EDGetTokenT<edm::TriggerResults>   trigResultsToken_;
+  edm::EDGetTokenT<bool> fakeL1SingleMuToken_;
+
+  edm::InputTag muonSrc_, tagLegSrc_, probeLegSrc_;
+  edm::InputTag simTrackSrc_, trigResultsSrc_, fakeL1SingleMuSrc_;
   edm::Service<TFileService> fs;
+
+  std::string hltTrigCut_;
+  bool isGen_;
+  
   TTree *cosmicTree;
 
-  int event, run, lumi;
-
+  int event, run, lumi, nMuons, nTags, nProbes, foundMatch;
+  double matchDR, matchDEta, matchDPhi;
+  
   reco::Muon::ArbitrationType type;
  
+  int    nSimTracks, simtrack_type[5];
+  double simtrack_pt[5], simtrack_eta[5], simtrack_phi[5], simtrack_charge[5];
+
+  int    l1SingleMu, fakeL1SingleMu;
+
   reco::Candidate::LorentzVector lowerMuon_P4;
   math::XYZVector lowerMuon_trackVec;
   double lowerMuon_chi2, lowerMuon_dxy, lowerMuon_dz, lowerMuon_pT;
   double lowerMuon_ptError, lowerMuon_dxyError, lowerMuon_dzError;
   double lowerMuon_trackPt;
-  int lowerMuon_ndof, lowerMuon_charge;
-  int lowerMuon_pixelHits,
+  int lowerMuon_ndof, lowerMuon_charge,
+    lowerMuon_isGlobal, lowerMuon_isTracker, lowerMuon_isStandAlone;
+  int lowerMuon_firstPixel,
+    lowerMuon_pixelHits,
     lowerMuon_trackerHits,
     lowerMuon_muonStationHits,
     lowerMuon_numberOfValidHits,
@@ -105,8 +132,10 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   double upperMuon_chi2, upperMuon_dz, upperMuon_dxy, upperMuon_pT;
   double upperMuon_ptError, upperMuon_dxyError, upperMuon_dzError;
   double upperMuon_trackPt;
-  int upperMuon_ndof, upperMuon_charge;
-  int upperMuon_pixelHits,
+  int upperMuon_ndof, upperMuon_charge,
+    upperMuon_isGlobal, upperMuon_isTracker, upperMuon_isStandAlone;
+  int  upperMuon_firstPixel,
+    upperMuon_pixelHits,
     upperMuon_trackerHits,
     upperMuon_muonStationHits,
     upperMuon_numberOfValidHits,

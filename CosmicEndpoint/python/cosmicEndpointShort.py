@@ -210,27 +210,32 @@ class cosmicEndpointShort() :
             # call obs.SetContent(array)
             obsValsX = np.zeros(obs.GetNbinsX(),np.dtype('float64'))
             obsValsY = np.zeros(obs.GetNbinsX(),np.dtype('float64'))
+            obsErrsY = np.zeros(obs.GetNbinsX(),np.dtype('float64'))
             for b in range(obs.GetNbinsX()):
                 obsValsX[b] = b+1
                 obsValsY[b] = obs.GetBinContent(b+1)
+                obsErrsY[b] = obs.GetBinError(b+1)
                 
             obsValsYRev = np.fliplr([obsValsY])[0]
+            obsErrsYRev = np.fliplr([obsErrsY])[0]
             # obs.SetContent(obsValsYRev) ## doesn't work for some reason, oh well, hack it
             for b in range(obs.GetNbinsX()):
                 obs.SetBinContent(b+1,obsValsYRev[b])
+                obs.SetBinError(b+1,obsErrsYRev[b])
 
         #print obs, ref
 
-        mode = 4
-        self.calculateChi2(obs,ref,0,False,False)
-        self.calculateChi2(obs,ref,1,False,False)
-        self.calculateChi2(obs,ref,2,False,False)
-        self.calculateChi2(obs,ref,3,False,False)
-        self.calculateChi2(obs,ref,4,False,False)
-        # should perhaps return chi2/ndof?
-        xVals["chi2"][nBiasBins] = 0.
-        curvatureChi2 = self.calculateChi2(obs,ref,mode)
-        yVals["chi2"][nBiasBins] = curvatureChi2[1]
+        #not now#mode = 4
+        #not now#self.calculateChi2(obs,ref,0,False,False)
+        #not now#self.calculateChi2(obs,ref,1,False,False)
+        #not now#self.calculateChi2(obs,ref,2,False,False)
+        #not now#self.calculateChi2(obs,ref,3,False,False)
+        #not now#self.calculateChi2(obs,ref,4,False,False)
+        #not now## should perhaps return chi2/ndof?
+        #not now#xVals["chi2"][nBiasBins] = 0.
+        #not now#curvatureChi2 = self.calculateChi2(obs,ref,mode)
+        #not now#print "curvatureChi2",curvatureChi2
+        #not now#yVals["chi2"][nBiasBins] = curvatureChi2[1]
 
         # these are seeming to not work...
         xVals["KS"][nBiasBins] = 0.
@@ -239,7 +244,7 @@ class cosmicEndpointShort() :
         xVals["AD"][nBiasBins] = 0.
         yVals["AD"][nBiasBins] = obs.AndersonDarlingTest(ref,"D")
 
-        chi2opts = "PUUNORMCHI2/NDF"
+        chi2opts = "P,UU,NORM,CHI2/NDF"
         xVals["Chi2"][nBiasBins] = 0.
         resids = np.zeros(self.nTotalBins,np.dtype('float64')) # pointer argument, one per bin, not quite working
         #yVals["Chi2"][nBiasBins] = obs.Chi2Test(ref,"PCHI2/NDF",resids)
@@ -266,7 +271,7 @@ class cosmicEndpointShort() :
         chi2Val  = r.Double(0.) # necessary for pass-by-reference in python
         chi2ndf  = r.Long(0)    # necessary for pass-by-reference in python
         igood    = r.Long(0)    # necessary for pass-by-reference in python
-        histopts = "UUNORM" # unweighted/weighted, normalized
+        histopts = "UU,NORM" # unweighted/unweighted, normalized
         #histopts = "UUNORM" # unweighted/weighted, normalized
         
         #dummy = obs.Chi2Test(ref,"PCHI2/NDF")       # default options, return chi2/ndf, print summary
@@ -429,20 +434,28 @@ class cosmicEndpointShort() :
                 obs_negBiasValsX = np.zeros(obs_negBias.GetNbinsX(),np.dtype('float64'))
                 obs_posBiasValsY = np.zeros(obs_posBias.GetNbinsX(),np.dtype('float64'))
                 obs_negBiasValsY = np.zeros(obs_negBias.GetNbinsX(),np.dtype('float64'))
+                obs_posBiasErrsY = np.zeros(obs_posBias.GetNbinsX(),np.dtype('float64'))
+                obs_negBiasErrsY = np.zeros(obs_negBias.GetNbinsX(),np.dtype('float64'))
             
                 for b in range(obs_posBias.GetNbinsX()):
                     obs_posBiasValsX[b] = b+1
                     obs_negBiasValsX[b] = b+1
                     obs_posBiasValsY[b] = obs_posBias.GetBinContent(b+1)
                     obs_negBiasValsY[b] = obs_negBias.GetBinContent(b+1)
+                    obs_posBiasErrsY[b] = obs_posBias.GetBinError(b+1)
+                    obs_negBiasErrsY[b] = obs_negBias.GetBinError(b+1)
 
                 obs_posBiasValsYRev = np.fliplr([obs_posBiasValsY])[0]
                 obs_negBiasValsYRev = np.fliplr([obs_negBiasValsY])[0]
+                obs_posBiasErrsYRev = np.fliplr([obs_posBiasErrsY])[0]
+                obs_negBiasErrsYRev = np.fliplr([obs_negBiasErrsY])[0]
                 # obs_posBias.SetContent(obs_posBiasValsYRev)
                 # obs_negBias.SetContent(obs_negBiasValsYRev)
                 for b in range(obs_posBias.GetNbinsX()):
                     obs_posBias.SetBinContent(b+1,obs_posBiasValsYRev[b])
                     obs_negBias.SetBinContent(b+1,obs_negBiasValsYRev[b])
+                    obs_posBias.SetBinError(b+1,obs_posBiasErrsYRev[b])
+                    obs_negBias.SetBinError(b+1,obs_negBiasErrsYRev[b])
                 
             if (i%100 == 0):
                 self.outdirs["obs_%s"%(obsName)][trackName].cd()
@@ -477,9 +490,9 @@ class cosmicEndpointShort() :
                 #self.outdirs["obs_%s"%(obsName)][trackName].Write()
             
             biasVal = (i+1)*(factor*maxBias/nBiasBins)
-            xVals["chi2"][nBiasBins+1+i] = biasVal
-            positiveBias = self.calculateChi2(obs_posBias,ref_posBias,mode)
-            yVals["chi2"][nBiasBins+1+i] = positiveBias[1]
+            #not now#xVals["chi2"][nBiasBins+1+i] = biasVal
+            #not now#positiveBias = self.calculateChi2(obs_posBias,ref_posBias,mode)
+            #not now#yVals["chi2"][nBiasBins+1+i] = positiveBias[1]
             #if getResiduals:
             #    residualCan = r.TCanvas("%s_%s_bin%03d_residual"%(histBaseName,trackName,i+1),
             #                            "%s_%s_bin%03d_residual"%(histBaseName,trackName,i+1),
@@ -529,9 +542,9 @@ class cosmicEndpointShort() :
 
             
             ## negative injected bias
-            xVals["chi2"][nBiasBins-(i+1)] = -1.*biasVal
-            negativeBias = self.calculateChi2(obs_negBias,ref_negBias,mode)
-            yVals["chi2"][nBiasBins-(i+1)] = negativeBias[1]
+            #not nowxVals["chi2"][nBiasBins-(i+1)] = -1.*biasVal
+            #not nownegativeBias = self.calculateChi2(obs_negBias,ref_negBias,mode)
+            #not nowyVals["chi2"][nBiasBins-(i+1)] = negativeBias[1]
             #if getResiduals:
             #    negativeBias[0].SetLineColor(r.kBlue)
             #    negativeBias[0].SetLineWidth(2)
@@ -738,6 +751,7 @@ class cosmicEndpointShort() :
                                                    hist.GetXaxis().GetBinWidth(  thebin))
             for binlow in range(0,thebin+1):
                 hist.SetBinContent(binlow,0)
+                hist.SetBinError(binlow,0)
 
         thebin = hist.FindBin(1./minPt)
         while not (hist.GetXaxis().GetBinUpEdge(thebin) > 1./minPt):
@@ -755,6 +769,7 @@ class cosmicEndpointShort() :
         print "nbins+2 content %d"%(hist.GetBinContent(nbins+2))
         for binhigh in range(thebin,nbins+2):
             hist.SetBinContent(binhigh,0)
+            hist.SetBinError(binhigh,0)
         print "nbins+1 content %d"%(hist.GetBinContent(nbins+1))
         print "nbins+2 content %d"%(hist.GetBinContent(nbins+2))
 
