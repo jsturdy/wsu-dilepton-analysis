@@ -29,6 +29,8 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 
 // TFile Service
 #include <FWCore/ServiceRegistry/interface/Service.h>
@@ -87,16 +89,17 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   reco::TrackRef GetTrackType(int algoType, reco::Muon const* muon);
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<reco::MuonCollection > muonToken_, upperLegToken_, lowerLegToken_;
+  edm::EDGetTokenT<reco::MuonCollection >  muonToken_, upperLegToken_, lowerLegToken_;
   edm::EDGetTokenT<reco::TrackCollection > globalTrackToken_, cosmicTrackToken_, trackerTrackToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1MuonToken_;
-  edm::EDGetTokenT<edm::TriggerResults>   trigResultsToken_;
-  edm::EDGetTokenT<bool> fakeL1SingleMuToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection>                 l1MuonTokenNew_;
+  edm::EDGetTokenT<edm::TriggerResults>                   trigResultsToken_;
+  edm::EDGetTokenT<bool>                                  fakeL1SingleMuToken_;
 
   edm::InputTag muonSrc_, upperLegSrc_, lowerLegSrc_;
   edm::InputTag globalTrackSrc_, cosmicTrackSrc_, trackerTrackSrc_, simTrackSrc_;
-  edm::InputTag l1MuonSrc_, trigResultsSrc_, fakeL1SingleMuSrc_;
+  edm::InputTag l1MuonSrc_, l1MuonSrcNew_, trigResultsSrc_, fakeL1SingleMuSrc_;
 
   std::string hltTrigCut_;
   edm::Service<TFileService> fs;
@@ -116,9 +119,13 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   int    nSimTracks, simtrack_type[25];
   double simtrack_pt[25], simtrack_eta[25], simtrack_phi[25], simtrack_charge[25];
 
-  int    nL1Muons, l1SingleMu, fakeL1SingleMu, l1muon_isFwd[25], l1muon_isRPC[25],
-    l1muon_quality[25], l1muon_detector[25], l1muon_bx[25];
-  double l1muon_pt[25], l1muon_eta[25], l1muon_phi[25], l1muon_charge[25];
+  int    nL1Muons, nL1MuonsNew, l1SingleMu, fakeL1SingleMu;
+  int    l1muon_charge[25], l1muon_isFwd[25], l1muon_isRPC[25], l1muon_quality[25], l1muon_detector[25], l1muon_bx[25],
+    l1muon_mip[25], l1muon_rank[25], l1muon_iso[25], l1muon_idxdtcsc[25], l1muon_idxrpc[25],
+    l1muonnew_charge[25], l1muonnew_isFwd[25], l1muonnew_isRPC[25], l1muonnew_quality[25], l1muonnew_detector[25], l1muonnew_bx[25],
+    l1muonnew_mip[25], l1muonnew_rank[25], l1muonnew_iso[25], l1muonnew_idxdtcsc[25], l1muonnew_idxrpc[25];
+  double l1muon_pt[25], l1muon_eta[25], l1muon_phi[25],
+    l1muonnew_pt[25], l1muonnew_eta[25], l1muonnew_phi[25];
 
   double muon_innerY[25], muon_outerY[25], muon_tpin[25], muon_tpout[25];
   double muon_global_chi2[25],muon_inner_chi2[25],muon_outer_chi2[25];

@@ -40,6 +40,7 @@ MuonTree::MuonTree(const edm::ParameterSet& pset)
     simTrackSrc_ = pset.getParameter<edm::InputTag>("simTrackSrc");
 
   l1MuonSrc_           = pset.getParameter<edm::InputTag>("l1MuonSrc");
+  l1MuonSrcNew_        = pset.getParameter<edm::InputTag>("l1MuonSrcNew");
   trigResultsSrc_      = pset.getParameter<edm::InputTag>("trigResultsSrc");
   fakeL1SingleMuSrc_   = pset.getParameter<edm::InputTag>("fakeL1SingleMuSrc");
   hltTrigCut_          = pset.getParameter<std::string>("hltTrigCut");
@@ -65,8 +66,13 @@ MuonTree::MuonTree(const edm::ParameterSet& pset)
     simTrackToken_ = consumes<edm::SimTrackContainer>(simTrackSrc_);
 
   l1MuonToken_         = consumes<std::vector<l1extra::L1MuonParticle> >(l1MuonSrc_);
+  l1MuonTokenNew_      = consumes<l1t::MuonBxCollection>(l1MuonSrcNew_);
   trigResultsToken_    = consumes<edm::TriggerResults>(trigResultsSrc_);
   fakeL1SingleMuToken_ = consumes<bool>(fakeL1SingleMuSrc_);
+
+  event = -1;
+  run   = -1;
+  lumi  = -1;
 }
 
 
@@ -106,7 +112,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     ev.getByToken(simTrackToken_, simTrackColl);
 
   edm::Handle<std::vector<l1extra::L1MuonParticle> > l1MuonColl;
-  ev.getByToken(l1MuonToken_,      l1MuonColl);
+  edm::Handle<l1t::MuonBxCollection>                 l1MuonCollNew;
+  ev.getByToken(l1MuonToken_,    l1MuonColl);
+  ev.getByToken(l1MuonTokenNew_, l1MuonCollNew);
 
   edm::Handle<edm::TriggerResults> triggerResults;
   ev.getByToken(trigResultsToken_, triggerResults);
@@ -116,25 +124,6 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
   edm::Handle<reco::TrackCollection> tracks[3] = {globalTrackColl, cosmicTrackColl, trackerTrackColl};
 
-  event = (ev.id()).event();
-  run   = (ev.id()).run();
-  lumi  = ev.luminosityBlock();
-
-
-  //type = reco::Muon::SegmentAndTrackArbitration;
-
-  nMuons     = muonColl->size();
-  nUpperLegs = upperLegColl->size();
-  nLowerLegs = lowerLegColl->size();
-
-  nGlobalTracks  = globalTrackColl->size();
-  nCosmicTracks  = cosmicTrackColl->size();
-  nTrackerTracks = trackerTrackColl->size();
-
-  nSimTracks = -1;
-
-  nL1Muons = l1MuonColl->size();
-
   for (int idx = 0; idx < 25; ++idx) {
     // initialize muon sim track variables
     simtrack_type[idx]   = 0;
@@ -143,16 +132,43 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     simtrack_phi[idx]    = -10.;
     simtrack_charge[idx] = -10;
 
-    // initialize l1 muon variables
-    l1muon_isFwd[idx]    = -1;
-    l1muon_isRPC[idx]    = -1;
-    l1muon_quality[idx]  = -1;
-    l1muon_detector[idx] = -1;
-    l1muon_bx[idx]       = -1;
+    // initialize l1 muon variables (l1extra collection)
     l1muon_pt[idx]       = -10.;
     l1muon_eta[idx]      = -10.;
     l1muon_phi[idx]      = -10.;
     l1muon_charge[idx]   = -10;
+
+    l1muon_isFwd[idx]  =  -1;
+    l1muon_isRPC[idx]  =  -1;
+
+    l1muon_bx[idx]       =  -1;
+    l1muon_quality[idx]  =  -1;
+    l1muon_detector[idx] =  -1;
+
+    l1muon_iso[idx]      =  -1;
+    l1muon_mip[idx]      =  -1;
+    l1muon_rank[idx]     =  -1;
+    l1muon_idxdtcsc[idx] =  -1;
+    l1muon_idxrpc[idx]   =  -1;
+
+    // initialize l1 muon variables (gmtStage2Digi collection)
+    l1muonnew_pt[idx]       = -10.;
+    l1muonnew_eta[idx]      = -10.;
+    l1muonnew_phi[idx]      = -10.;
+    l1muonnew_charge[idx]   = -10;
+
+    l1muonnew_isFwd[idx]  =  -1;
+    l1muonnew_isRPC[idx]  =  -1;
+
+    l1muonnew_bx[idx]       =  -1;
+    l1muonnew_quality[idx]  =  -1;
+    l1muonnew_detector[idx] =  -1;
+
+    l1muonnew_iso[idx]      =  -1;
+    l1muonnew_mip[idx]      =  -1;
+    l1muonnew_rank[idx]     =  -1;
+    l1muonnew_idxdtcsc[idx] =  -1;
+    l1muonnew_idxrpc[idx]   =  -1;
 
     // initialize muon variables
     muon_isGlobal[    idx] = -1;
@@ -247,6 +263,154 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     }
   }
 
+  ////////////////// Generic event information /////////////////////////
+  event = (ev.id()).event();
+  run   = (ev.id()).run();
+  lumi  = ev.luminosityBlock();
+
+  //type = reco::Muon::SegmentAndTrackArbitration;
+
+  nMuons     = muonColl->size();
+  nUpperLegs = upperLegColl->size();
+  nLowerLegs = lowerLegColl->size();
+
+  nGlobalTracks  = globalTrackColl->size();
+  nCosmicTracks  = cosmicTrackColl->size();
+  nTrackerTracks = trackerTrackColl->size();
+
+  ////////////////// edm::SimTrack information /////////////////////////
+  nSimTracks = 0;
+  if (isGen_)
+    if (simTrackColl->size() > 0) {
+      nSimTracks = 0;
+      int simIdx = 0;
+      for (auto simtrack = simTrackColl->begin(); simtrack != simTrackColl->end(); ++simtrack) {
+	if (fabs(simtrack->type()) == 13) {  // only consider simtracks from muons
+	  if (debug_ > 2)
+	    std::cout << std::setw(5) << *simtrack << std::endl;
+	  if (nSimTracks > 24) {
+	    nSimTracks = 25;
+	    continue; // skip if there happen to be more than 25 sim Tracks
+	  }
+
+	  simtrack_charge[simIdx] = simtrack->charge();
+	  simtrack_type[simIdx]   = simtrack->type();
+	  simtrack_pt[simIdx]  = simtrack->trackerSurfaceMomentum().pt();
+	  simtrack_eta[simIdx] = simtrack->trackerSurfaceMomentum().eta();
+	  simtrack_phi[simIdx] = simtrack->trackerSurfaceMomentum().phi();
+	  ++simIdx;
+	  ++nSimTracks;
+	}
+      }
+    }
+
+  ////////////////// L1Muon information /////////////////////////
+  nL1MuonsNew = 0;
+  if (l1MuonCollNew.isValid()) {
+    for (int ibx = l1MuonCollNew->getFirstBX(); ibx <= l1MuonCollNew->getLastBX(); ++ibx) {
+      // if (trigger_bx_only && (ibx != 0))
+      if (ibx != 0)
+	continue;
+      int l1muIdx = 0;
+      nL1MuonsNew = l1MuonCollNew->size(ibx);
+      // nL1MuonsNew = 0;
+      for (auto l1mu = l1MuonCollNew->begin(ibx); l1mu != l1MuonCollNew->end(ibx); ++l1mu) {
+	std::cout << "bx:  " << ibx << "  et:  "  << l1mu->et()
+		  << "  eta:  "  << l1mu->eta()
+		  << "  phi:  "  << l1mu->phi() << std::endl;
+	if (l1mu->et() == 0)
+	  continue; // if you don't care about L1T candidates with zero ET.
+	if (nL1MuonsNew > 24) {
+	  nL1MuonsNew = 25;
+	  continue; // skip if there happen to be more than 25 L1 muons
+	}
+	l1muonnew_pt[l1muIdx]     = l1mu->pt();
+	l1muonnew_eta[l1muIdx]    = l1mu->eta();
+	l1muonnew_phi[l1muIdx]    = l1mu->phi();
+	l1muonnew_charge[l1muIdx] = l1mu->charge();
+
+	l1muonnew_isFwd[l1muIdx]    = l1mu->hwRank();
+	l1muonnew_isRPC[l1muIdx]    = l1mu->hwRank();
+
+	l1muonnew_bx[l1muIdx]       = ibx;
+	l1muonnew_quality[l1muIdx]  = l1mu->hwQual();
+	l1muonnew_detector[l1muIdx] = l1mu->hwRank();
+
+	l1muonnew_iso[l1muIdx]      = l1mu->hwIso();
+	l1muonnew_mip[l1muIdx]      = l1mu->hwRank();
+	l1muonnew_rank[l1muIdx]     = l1mu->hwRank();
+	l1muonnew_idxdtcsc[l1muIdx] = l1mu->hwRank();
+	l1muonnew_idxrpc[l1muIdx]   = l1mu->hwRank();
+
+	++l1muIdx;
+      }
+    }
+  } else {
+    edm::LogWarning("MissingProduct") << "L1Upgrade muon bx collection not found." << std::endl;
+  }
+
+  ///// legacy L1 muon information ///
+  nL1Muons = l1MuonColl->size();
+  if (l1MuonColl->size() > 0) {
+    int l1muIdx = 0;
+    if (debug_ > 0)
+      std::cout << "Found " << nL1Muons << " L1MuonParticles: (pt/eta/phi/charge)" << std::endl;
+    for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu) {
+      if (debug_ > 0) {
+	std::cout << l1mu->gmtMuonCand() << " - "
+		  << l1mu->pt()     << "/"
+		  << l1mu->eta()    << "/"
+		  << l1mu->phi()    << "/"
+		  << l1mu->charge()
+		  << std::endl;
+
+      }
+      // if there happen to be more than 25 L1 muons, let's only keep the first 25
+      if (l1muIdx > 24) {
+	nL1Muons = 25;
+	continue;
+      }
+      l1muon_pt[l1muIdx]     = l1mu->pt();
+      l1muon_eta[l1muIdx]    = l1mu->eta();
+      l1muon_phi[l1muIdx]    = l1mu->phi();
+      l1muon_charge[l1muIdx] = l1mu->charge();
+
+      l1muon_isFwd[l1muIdx]  = l1mu->gmtMuonCand().isFwd();
+      l1muon_isRPC[l1muIdx]  = l1mu->gmtMuonCand().isRPC();
+
+      l1muon_bx[l1muIdx]       = l1mu->gmtMuonCand().bx();
+      l1muon_quality[l1muIdx]  = l1mu->gmtMuonCand().quality();
+      l1muon_detector[l1muIdx] = l1mu->gmtMuonCand().detector();
+
+      l1muon_iso[l1muIdx]      = l1mu->isIsolated();
+      l1muon_mip[l1muIdx]      = l1mu->isMip();
+      l1muon_rank[l1muIdx]     = l1mu->gmtMuonCand().rank();
+      l1muon_idxdtcsc[l1muIdx] = l1mu->gmtMuonCand().getDTCSCIndex();
+      l1muon_idxrpc[l1muIdx]   = l1mu->gmtMuonCand().getRPCIndex();
+
+      ++l1muIdx;
+    }  // end loop over l1MuonColl
+  }  // end check on l1MuonColl size
+
+  l1SingleMu = 0;
+  const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
+  for (unsigned int trig = 0; trig < trigNames.size(); ++trig) {
+    //for (auto trig = triggerNames.begin(); trig != triggerNames.end(); ++trig) {
+    if (triggerResults->accept(trig)) {
+      std::string pathName = trigNames.triggerName(trig);
+      if (debug_ > 3)
+	std::cout << "Trigger path " << pathName << " fired" << std::endl;
+
+      if (pathName.find(hltTrigCut_) != std::string::npos) {
+	if (debug_ > 2)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMu = 1;
+      }
+    }
+  }
+
+  fakeL1SingleMu = *fakeL1SingleMuH;
+
   ////////////////// reco::Muon information /////////////////////////
   // skip processing empty collection
   if ( muonColl->size() > 0 || globalTrackColl->size() > 0 || cosmicTrackColl->size() > 0 || trackerTrackColl->size() > 0)
@@ -259,7 +423,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		<< "nCosmicTracks "   << nCosmicTracks  << std::endl
 		<< "nTrackerTracks "  << nTrackerTracks << std::endl
 		<< "nSimTracks "      << nSimTracks     << std::endl
-		<< "nL1Muons "        << nL1Muons       << std::endl;
+		<< "nL1Muons "        << nL1Muons       << std::endl
+		<< "nL1MuonsNew "     << nL1MuonsNew    << std::endl;
     }
 
   //// reco::Muon information ////
@@ -677,81 +842,6 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       std::cout << std::endl;
   }// end loop over the different track collections
 
-  ////////////////// edm::SimTrack information /////////////////////////
-  if (isGen_)
-    if (simTrackColl->size() > 0) {
-      nSimTracks = 0;
-      int simIdx = 0;
-      for (auto simtrack = simTrackColl->begin(); simtrack != simTrackColl->end(); ++simtrack) {
-	if (fabs(simtrack->type()) == 13) {  // only consider simtracks from muons
-	  if (debug_ > 2)
-	    std::cout << std::setw(5) << *simtrack << std::endl;
-
-	  simtrack_charge[simIdx] = simtrack->charge();
-	  simtrack_type[simIdx]   = simtrack->type();
-	  simtrack_pt[simIdx]  = simtrack->trackerSurfaceMomentum().pt();
-	  simtrack_eta[simIdx] = simtrack->trackerSurfaceMomentum().eta();
-	  simtrack_phi[simIdx] = simtrack->trackerSurfaceMomentum().phi();
-	  ++simIdx;
-	  ++nSimTracks;
-	}
-      }
-    }
-
-  ////////////////// L1Muon information /////////////////////////
-  if ( l1MuonColl->size() > 0) {
-    int l1muIdx = 0;
-    if (debug_ > 0)
-      std::cout << "Found " << nL1Muons << " L1MuonParticles: (pt/eta/phi/charge)" << std::endl;
-    for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu) {
-      if (debug_ > 0) {
-	std::cout << l1mu->gmtMuonCand() << " - "
-		  << l1mu->pt()     << "/"
-		  << l1mu->eta()    << "/"
-		  << l1mu->phi()    << "/"
-		  << l1mu->charge()
-		  << std::endl;
-
-      }
-      // if there happen to be more than 25 L1 muons, let's only keep the first 25
-      if (l1muIdx > 24) {
-	nL1Muons = 25;
-	continue;
-      }
-      l1muon_isFwd[l1muIdx]  = l1mu->gmtMuonCand().isFwd();
-      l1muon_isRPC[l1muIdx]  = l1mu->gmtMuonCand().isRPC();
-
-      l1muon_quality[l1muIdx]  = l1mu->gmtMuonCand().quality();
-      l1muon_detector[l1muIdx] = l1mu->gmtMuonCand().detector();
-      l1muon_bx[l1muIdx]       = l1mu->gmtMuonCand().bx();
-
-      l1muon_pt[l1muIdx]     = l1mu->pt();
-      l1muon_eta[l1muIdx]    = l1mu->eta();
-      l1muon_phi[l1muIdx]    = l1mu->phi();
-      l1muon_charge[l1muIdx] = l1mu->charge();
-      ++l1muIdx;
-    }  // end loop over l1MuonColl
-  }  // end check on l1MuonColl size
-
-  l1SingleMu = 0;
-  const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
-  for (unsigned int trig = 0; trig < trigNames.size(); ++trig) {
-    //for (auto trig = triggerNames.begin(); trig != triggerNames.end(); ++trig) {
-    if (triggerResults->accept(trig)) {
-      std::string pathName = trigNames.triggerName(trig);
-      if (debug_ > 3)
-	std::cout << "Trigger path " << pathName << " fired" << std::endl;
-
-      if (pathName.find(hltTrigCut_) != std::string::npos) {
-	if (debug_ > 2)
-	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
-	l1SingleMu = 1;
-      }
-    }
-  }
-
-  fakeL1SingleMu = *fakeL1SingleMuH;
-
   if (debug_ > 3)
     std::cout << "Filling the tree" << std::endl;
   muonTree->Fill();
@@ -794,8 +884,9 @@ void MuonTree::beginJob()
   muonTree->Branch("nCosmicTracks",  &nCosmicTracks,  "nCosmicTracks/I" );
   muonTree->Branch("nTrackerTracks", &nTrackerTracks, "nTrackerTracks/I");
 
-  muonTree->Branch("nSimTracks", &nSimTracks, "nSimTracks/I");
-  muonTree->Branch("nL1Muons",   &nL1Muons,   "nL1Muons/I");
+  muonTree->Branch("nSimTracks", &nSimTracks,  "nSimTracks/I");
+  muonTree->Branch("nL1Muons",   &nL1Muons,    "nL1Muons/I");
+  muonTree->Branch("nL1MuonsNew",&nL1MuonsNew, "nL1MuonsNew/I");
 
   muonTree->Branch("event", &event, "event/I");
   muonTree->Branch("run",   &run,   "run/I"  );
@@ -813,7 +904,7 @@ void MuonTree::beginJob()
   // trigger information
   muonTree->Branch("l1SingleMu",     &l1SingleMu,     "l1SingleMu/I");
   muonTree->Branch("fakeL1SingleMu", &fakeL1SingleMu, "fakeL1SingleMu/I");
-  // variables per L1Muon ([nL1Muons] indexed)
+  // variables per L1Muon ([nL1Muons] indexed, (l1extra collection))
   muonTree->Branch("l1MuonpT",       l1muon_pt,       "l1MuonpT[nL1Muons]/D" );
   muonTree->Branch("l1MuonEta",      l1muon_eta,      "l1MuonEta[nL1Muons]/D");
   muonTree->Branch("l1MuonPhi",      l1muon_phi,      "l1MuonPhi[nL1Muons]/D");
@@ -822,8 +913,28 @@ void MuonTree::beginJob()
   muonTree->Branch("l1MuonIsRPC",    l1muon_isRPC,    "l1MuonIsRPC[nL1Muons]/I" );
   muonTree->Branch("l1MuonQuality",  l1muon_quality,  "l1MuonQuality[nL1Muons]/I" );
   muonTree->Branch("l1MuonDetector", l1muon_detector, "l1MuonDetector[nL1Muons]/I");
-  muonTree->Branch("l1MuonBX",       l1muon_bx,       "l1MuonBX[nL1Muons]/I"      );
+  muonTree->Branch("l1MuonBX",       l1muon_bx,       "l1MuonBX[nL1Muons]/I");
+  muonTree->Branch("l1MuonIso",      l1muon_iso,      "l1MuonIso[nL1Muons]/I");
+  muonTree->Branch("l1MuonMIP",      l1muon_mip,      "l1MuonMIP[nL1Muons]/I");
+  muonTree->Branch("l1MuonRank",     l1muon_rank,     "l1MuonRank[nL1Muons]/I");
+  muonTree->Branch("l1MuonIdxDTCSC", l1muon_idxdtcsc, "l1MuonIdxDTCSC[nL1Muons]/I");
+  muonTree->Branch("l1MuonIdxRPC",   l1muon_idxrpc,   "l1MuonIdxRPC[nL1Muons]/I");
 
+  // variables per L1Muonnew ([nL1Muonnews] indexed, (l1extra collection))
+  muonTree->Branch("l1MuonNewpT",       l1muonnew_pt,       "l1MuonNewpT[nL1MuonsNew]/D" );
+  muonTree->Branch("l1MuonNewEta",      l1muonnew_eta,      "l1MuonNewEta[nL1MuonsNew]/D");
+  muonTree->Branch("l1MuonNewPhi",      l1muonnew_phi,      "l1MuonNewPhi[nL1MuonsNew]/D");
+  muonTree->Branch("l1MuonNewCharge",   l1muonnew_charge,   "l1MuonNewCharge[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewIsFwd",    l1muonnew_isFwd,    "l1MuonNewIsFwd[nL1MuonsNew]/I" );
+  muonTree->Branch("l1MuonNewIsRPC",    l1muonnew_isRPC,    "l1MuonNewIsRPC[nL1MuonsNew]/I" );
+  muonTree->Branch("l1MuonNewQuality",  l1muonnew_quality,  "l1MuonNewQuality[nL1MuonsNew]/I" );
+  muonTree->Branch("l1MuonNewDetector", l1muonnew_detector, "l1MuonNewDetector[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewBX",       l1muonnew_bx,       "l1MuonNewBX[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewIso",      l1muonnew_iso,      "l1MuonNewIso[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewMIP",      l1muonnew_mip,      "l1MuonNewMIP[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewRank",     l1muonnew_rank,     "l1MuonNewRank[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewIdxDTCSC", l1muonnew_idxdtcsc, "l1MuonNewIdxDTCSC[nL1MuonsNew]/I");
+  muonTree->Branch("l1MuonNewIdxRPC",   l1muonnew_idxrpc,   "l1MuonNewIdxRPC[nL1MuonsNew]/I");
   // variables per muon ([nMuons] indexed)
   muonTree->Branch("globalpT",  muon_pT,  "globalpT[nMuons]/D" );
   muonTree->Branch("globalEta", muon_Eta, "globalEta[nMuons]/D");
@@ -987,9 +1098,8 @@ void MuonTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
 // ------------ method called when ending the processing of a luminosity block  ------------
 void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  if (debug_ > 0) {
-    std::cout << "End luminosity block " << lumi
-	      << std::endl;
+  if (debug_ > 1) {
+    std::cout << "End luminosity block " << lumi << std::endl;
 
     std::cout << "nMuonsPt50   " << nMuonsPt50   << " " << std::hex << &nMuonsPt50   << std::dec << std::endl;
     std::cout << "nMuonsPt100  " << nMuonsPt100  << " " << std::hex << &nMuonsPt100  << std::dec << std::endl;

@@ -32,6 +32,9 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 //
@@ -57,13 +60,14 @@ class FakeL1SingleMuFilter : public edm::stream::EDFilter<> {
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1MuonToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection>                 l1MuonTokenNew_;
       
   edm::InputTag l1MuonSrc_;
       
   std::string l1SingleMuCuts_;
 
   int debug_;
-  bool filter_;
+  bool useNewStage2_, filter_;
   
   //StringCutObjectSelector<l1extra::L1MuonParticle> muonSelector_;
 };

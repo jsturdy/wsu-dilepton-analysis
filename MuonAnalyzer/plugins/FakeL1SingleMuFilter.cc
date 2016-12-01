@@ -2,13 +2,13 @@
 //
 // Package:    WSUDiLeptons/FakeL1SingleMuFilter
 // Class:      FakeL1SingleMuFilter
-// 
+//
 /**\class FakeL1SingleMuFilter FakeL1SingleMuFilter.cc WSUDiLeptons/FakeL1SingleMuFilter/plugins/FakeL1SingleMuFilter.cc
 
  Description: Using l1extra::L1MuonParticles, emulate the decision of the L1SingleMuOpen trigger
 
  Implementation:
-     The configuration parameters are defined in  the module configuration file wsuFakeL1SingleMuFilter_cfi.py 
+     The configuration parameters are defined in  the module configuration file wsuFakeL1SingleMuFilter_cfi.py
      l1MuonSrc_      : l1MuonSrc       = cms.InputTag("l1extraParticles","","RECO") # l1extra::L1MuonParticle collection name
      l1SingleMuCuts_ : l1SingleMuCuts  = cms.string('-2.88 < phi < -0.26 && gmtMuonCand.isFwd==0') #cut to apply on the particles
      debug_          : debug           = cms.int32(0)   # debug level
@@ -25,13 +25,20 @@
 
 FakeL1SingleMuFilter::FakeL1SingleMuFilter(const edm::ParameterSet& pset)
 {
-  l1MuonSrc_      = pset.getParameter<edm::InputTag>("l1MuonSrc");
-  l1MuonToken_    = consumes<std::vector<l1extra::L1MuonParticle> >(l1MuonSrc_);
   l1SingleMuCuts_ = pset.getParameter<std::string>("l1SingleMuCuts");
 
-  debug_  = pset.getParameter<int>("debug");
-  filter_ = pset.getParameter<bool>("filterEvent");
+  debug_ = pset.getParameter<int>("debug");
 
+  useNewStage2_ = pset.getParameter<bool>("newStage2");
+  filter_       = pset.getParameter<bool>("filterEvent");
+
+  if (useNewStage2_) {
+    l1MuonSrc_      = pset.getParameter<edm::InputTag>("l1MuonSrc");
+    l1MuonTokenNew_ = consumes<l1t::MuonBxCollection>(l1MuonSrc_);
+  } else {
+    l1MuonSrc_   = pset.getParameter<edm::InputTag>("l1MuonSrc");
+    l1MuonToken_ = consumes<std::vector<l1extra::L1MuonParticle> >(l1MuonSrc_);
+  }
   //now do what ever initialization is needed
   produces<bool>();
 }
@@ -39,7 +46,7 @@ FakeL1SingleMuFilter::FakeL1SingleMuFilter(const edm::ParameterSet& pset)
 
 FakeL1SingleMuFilter::~FakeL1SingleMuFilter()
 {
- 
+
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -51,29 +58,58 @@ FakeL1SingleMuFilter::~FakeL1SingleMuFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool
-FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
+bool FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
 {
-  edm::Handle<std::vector<l1extra::L1MuonParticle> > l1MuonColl;
-  ev.getByToken(l1MuonToken_,      l1MuonColl);      
-  
   bool result = false;
-  StringCutObjectSelector<l1extra::L1MuonParticle> select(l1SingleMuCuts_);
-  for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu)
-    if (select(*l1mu)) {
-      result = true;
-      std::auto_ptr<bool> pOut(new bool(result));
-      ev.put( pOut);
-      
-      if (filter_)
-	return result;
-      else
-	return true;
+
+  if (useNewStage2_) {
+    edm::Handle<l1t::MuonBxCollection> l1MuonColl;
+    ev.getByToken(l1MuonTokenNew_, l1MuonColl);
+
+    StringCutObjectSelector<l1t::Muon> select(l1SingleMuCuts_);
+    for (int ibx = l1MuonColl->getFirstBX(); ibx <= l1MuonColl->getLastBX(); ++ibx) {
+      if (ibx != 0)
+	continue;
+
+      for (auto l1mu = l1MuonColl->begin(ibx); l1mu != l1MuonColl->end(ibx); ++l1mu) {
+	if (select(*l1mu)) {
+	  result = true;
+	  std::auto_ptr<bool> pOut(new bool(result));
+	  ev.put( pOut);
+
+	  std::cout << "found new stage2 trigger result, returning " << result << std::endl;
+	  if (filter_)
+	    return result;
+	  else
+	    return true;
+	}
+      }
     }
-  
+  } else {
+    edm::Handle<std::vector<l1extra::L1MuonParticle> > l1MuonColl;
+    ev.getByToken(l1MuonToken_, l1MuonColl);
+
+    StringCutObjectSelector<l1extra::L1MuonParticle> select(l1SingleMuCuts_);
+    for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu)
+      if (select(*l1mu)) {
+	result = true;
+	std::auto_ptr<bool> pOut(new bool(result));
+	ev.put( pOut);
+
+	std::cout << "found legacy trigger result, returning " << result << std::endl;
+	if (filter_)
+	  return result;
+	else
+	  return true;
+      }
+  }
+
+  // only get here if no L1 muons passing selection are found, so set flag to/return false
+
   std::auto_ptr<bool> pOut(new bool(result));
   ev.put( pOut);
-  
+
+  std::cout << "found no trigger result, returning " << result << std::endl;
   if (filter_)
     return result;
   else
@@ -81,51 +117,44 @@ FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-FakeL1SingleMuFilter::beginStream(edm::StreamID)
+void FakeL1SingleMuFilter::beginStream(edm::StreamID)
 {
 }
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-FakeL1SingleMuFilter::endStream() {
+void FakeL1SingleMuFilter::endStream() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
-void
-FakeL1SingleMuFilter::beginRun(edm::Run const&, edm::EventSetup const&)
-{ 
+void FakeL1SingleMuFilter::beginRun(edm::Run const&, edm::EventSetup const&)
+{
 }
 */
- 
+
 // ------------ method called when ending the processing of a run  ------------
 /*
-void
-FakeL1SingleMuFilter::endRun(edm::Run const&, edm::EventSetup const&)
+void FakeL1SingleMuFilter::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
-void
-FakeL1SingleMuFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+void FakeL1SingleMuFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
-void
-FakeL1SingleMuFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+void FakeL1SingleMuFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-FakeL1SingleMuFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void FakeL1SingleMuFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
