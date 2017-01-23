@@ -9,6 +9,10 @@ from endpointStudyClass import endpointStudy
 class endpointDataMCStudy(endpointStudy):
     """
     Run the cosmic endpoint analysis using the data/MC method
+    Compares the data curvature distribution to that in the MC
+    normalizing MC to data as chosen by the pmScaling option
+    - scale mu+ and mu- separately
+    - scale the combined mu+/mu- distributions
     """
 
     from wsuPythonUtils import setMinPT,prettifyGraph

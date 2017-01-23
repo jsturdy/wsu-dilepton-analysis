@@ -64,6 +64,12 @@ class endpointStudy(object):
         self.infiledir   = infiledir
         self.outfile     = outfile
         self.histName    = histName
+        self.muonleg     = "Lower"
+        if histName.find("ower") > 0:
+            self.muonleg     = "Lower"
+        elif histName.find("pper") > 0:
+            self.muonleg     = "Upper"
+            pass
         self.etaphi      = etaphi
         self.minpt       = minpt
         self.maxbias     = maxbias
@@ -74,10 +80,10 @@ class endpointStudy(object):
         self.rebins      = rebins
         self.algo        = algo
         self.runperiod   = runperiod
-        self.trackAlgos = ["TrackerOnly","TuneP","DYT","TPFMS","Picky"]
+        self.trackAlgos = ["TrackerOnly","TuneP","DYT","DYTT","TPFMS","Picky"]
         if self.algo not in self.trackAlgos:
             errmsg = "Invalid track algo specified: %s.  Allowed options are:\n"%(self.algo)
-            errmsg += self.trackAlgos
+            # errmsg += self.trackAlgos
             raise NameError(errmsg)
 
 
@@ -670,7 +676,8 @@ class endpointStudy(object):
         ksprob = self.refHist.KolmogorovTest(compHist,"")
 
         # this needs to be low bin, high bin
-        resHist = r.TH1D("ResHist", "", len(resids), -8.0,8.0)
+        # the range must match MAX_CURVE_RANGE in Plot.cc that was used for the trees
+        resHist = r.TH1D("ResHist", "", len(resids), -16.0,16.0)
         #r.SetOwnership(resHist,False)
         resHist.Sumw2()
         for i,res in enumerate(resids):
@@ -727,9 +734,10 @@ class endpointStudy(object):
         thelegend.Draw()
         r.gPad.Update()
 
-        gifcanvas.SaveAs("%s/%sbiasBinm%04d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                             self.rebins, self.stepsize,
-                                                             self.pmstring))
+        gifcanvas.SaveAs("%s/%s_%s_%sbiasBinm%04d_b%d_s%d_pt%d_%s.png"%(self.gifDir, self.algo, self.muonleg,
+                                                                        self.etaphi,gifBin,
+                                                                        self.rebins, self.stepsize, self.minpt,
+                                                                        self.pmstring))
 
         return (xvals, yvals)
 

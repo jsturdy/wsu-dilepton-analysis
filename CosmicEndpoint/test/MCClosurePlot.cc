@@ -247,10 +247,9 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
   Clock::time_point t00 = Clock::now();
 
-  TH2D *h_randvals;
-  h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
+  TH2D* h_randvals = new TH2D("randvals","randvals",N_PSEUDO,-0.5,N_PSEUDO-0.5,1000,0,1);
   // how many of the pseudo-experiments are using the event
-  h_randdist = new TH1D("randdist","randdist",N_PSEUDO,-0.5,N_PSEUDO-0.5);
+  TH1D* h_randdist = new TH1D("randdist","randdist",N_PSEUDO,-0.5,N_PSEUDO-0.5);
 
   TH1F *h_looseMuUpperCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
   TH1F *h_looseMuLowerCurvePseudoData[2][(N_CLOSURE_BINS*2)-1][N_PSEUDO];
