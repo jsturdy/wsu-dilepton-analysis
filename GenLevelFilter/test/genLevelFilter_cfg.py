@@ -77,8 +77,8 @@ print weight
 
 from WSUDiLeptons.GenLevelFilter.genLevelFilter_cfi import genLevelFilter
 process.genweightfilter = genLevelFilter.clone(
-    filterevent  = cms.bool(True),
-    filterPreFSR = cms.bool(True),
+    filterevent  = cms.bool(False),
+    filterPreFSR = cms.bool(False),
     debug        = cms.bool(False),
     minCut       = cms.double(lowerCut),
     sampleType   = cms.string(sample[0]),
@@ -86,14 +86,20 @@ process.genweightfilter = genLevelFilter.clone(
     xsWeight     = cms.double(weight),
 )
 
+from WSUDiLeptons.GenLevelFilter.genFilterReader_cfi import genFilterReader
+process.genweightreader = genFilterReader.clone(
+    mInvCutSource       = cms.InputTag("genweightfilter","passMassCut"),
+    preFSRmInvCutSource = cms.InputTag("genweightfilter","passPreFSRMassCut"),
+    weightSource        = cms.InputTag("genweightfilter","xsWeight"),
+)
+
 secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",
     fileNames          = cms.untracked.vstring(options.inputFiles),
     secondaryFileNames = secFiles
 )
-print process.source.filenames
-exit(1)
-process.filt  = cms.Path(process.genfilter+# other processes accepting this filter)
+
+process.filt  = cms.Path(process.genweightfilter+process.genweightreader)# other processes accepting this filter)
 
 # other paths
-process.schedule = cms.Schedule(process.filt, # other paths)
+process.schedule = cms.Schedule(process.filt) #, other paths)
