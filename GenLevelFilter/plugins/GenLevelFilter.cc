@@ -251,13 +251,13 @@ bool GenLevelFilter::filter(edm::Event& ev, const edm::EventSetup& es)
   }
 
    std::unique_ptr<bool> fOut0(new bool(m_selection_pre));
-   ev.put(std::move(fOut0));
+   ev.put(std::move(fOut0),"passPreFSRMassCut");
 
    std::unique_ptr<bool> fOut1(new bool(m_selection));
-   ev.put(std::move(fOut1));
+   ev.put(std::move(fOut1),"passMassCut");
 
    std::unique_ptr<double> wOut(new double(m_xsWeight));
-   ev.put(std::move(wOut));
+   ev.put(std::move(wOut),"xsWeight");
 
    if (m_filter) {
      if (m_filter_pre)
