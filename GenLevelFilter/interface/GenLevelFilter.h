@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,7 +45,7 @@
 // class declaration
 //
 
-class GenLevelFilter : public edm::stream::EDProducer<> {
+class GenLevelFilter : public edm::stream::EDFilter<> {
 public:
   explicit GenLevelFilter(const edm::ParameterSet&);
   ~GenLevelFilter();
@@ -54,7 +54,7 @@ public:
 
 private:
   virtual void beginStream(edm::StreamID) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endStream() override;
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;

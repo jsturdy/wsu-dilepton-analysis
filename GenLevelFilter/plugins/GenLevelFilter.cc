@@ -88,9 +88,9 @@ GenLevelFilter::GenLevelFilter(const edm::ParameterSet& pset):
             << "dimuon: "      << m_dimuon      << std::endl
             << "dielectron: "  << m_dielectron  << std::endl;
 
-  edm::produces<bool>("passPreFSRMassCut");
-  edm::produces<bool>("passMassCut");
-  edm::produces<double>("xsWeight");
+  produces<bool>("passPreFSRMassCut");
+  produces<bool>("passMassCut");
+  produces<double>("xsWeight");
 }
 
 
@@ -161,14 +161,15 @@ bool GenLevelFilter::filter(edm::Event& ev, const edm::EventSetup& es)
       // if (m_debug)
       //   std::cout << "Found dielectron candidate m = " << mass << std::endl;
       if (m_dielectron) {
-        if (mass < m_minCut || mass >= m_maxCut)
+        if (mass < m_minCut || mass >= m_maxCut) {
           if (m_debug)
             std::cout << "Found dielectron candidate outside expected window m = " << mass << std::endl;
-        else
+        } else {
           m_selection = true;
+        }
       }
       m_invM_st1_el = mass;
-      if (debug)
+      if (m_debug)
         h_diElectronMass->Fill(mass);
     } else if (m_dielectron && m_debug) {
       std::cout << "Found fewer than 2 status 1 final electrons: "
@@ -187,14 +188,15 @@ bool GenLevelFilter::filter(edm::Event& ev, const edm::EventSetup& es)
     if (st1Muons.size() >= 2) {
       double mass = (st1Muons.at(0)->p4()+st1Muons.at(1)->p4()).M();
       if (m_dimuon) {
-        if (mass < m_minCut || mass >= m_maxCut)
+        if (mass < m_minCut || mass >= m_maxCut) {
           if (m_debug)
             std::cout << "Found dimuon candidate outside expected window m = " << mass << std::endl;
-        else
+        } else {
           m_selection = true;
+        }
       }
       m_invM_st1_mu = mass;
-      if (debug)
+      if (m_debug)
         h_diMuonMass->Fill(mass);
     } else if (m_dimuon && m_debug) {
       std::cout << "Found fewer than 2 status 1 final muons: "
@@ -213,14 +215,15 @@ bool GenLevelFilter::filter(edm::Event& ev, const edm::EventSetup& es)
     if (genElectrons.size() >= 2) {
       double mass = (genElectrons.at(0)->p4()+genElectrons.at(1)->p4()).M();
       if (m_dielectron) {
-        if (mass < m_minCut || mass >= m_maxCut)
+        if (mass < m_minCut || mass >= m_maxCut) {
           if (m_debug)
             std::cout << "Found dielectron candidate outside expected window m = " << mass << std::endl;
-        else
+        } else {
           m_selection_pre = true;
+        }
       }
       m_invM_any_el = mass;
-      if (debug)
+      if (m_debug)
         h_diElectronMassPre->Fill(mass);
     }
 
@@ -229,39 +232,41 @@ bool GenLevelFilter::filter(edm::Event& ev, const edm::EventSetup& es)
     if (genMuons.size() >= 2) {
       double mass = (genMuons.at(0)->p4()+genMuons.at(1)->p4()).M();
       if (m_dimuon) {
-        if (mass < m_minCut || mass >= m_maxCut)
+        if (mass < m_minCut || mass >= m_maxCut) {
           if (m_debug)
             std::cout << "Found dimuon candidate outside expected window m = " << mass << std::endl;
-        else
+        } else {
           m_selection_pre = true;
+        }
       }
       m_invM_any_mu = mass;
-      if (debug)
+      if (m_debug)
         h_diMuonMassPre->Fill(mass);
     }
 
-    if (debug)
+    if (m_debug)
       m_genInfoTree->Fill();
   } else {
     std::cout << "genParticles is not valid!" << std::endl;
   }
 
-   std::unique_ptr<bool> fOut0(new bool(*m_selection_pre));
+   std::unique_ptr<bool> fOut0(new bool(m_selection_pre));
    ev.put(std::move(fOut0));
 
-   std::unique_ptr<bool> fOut1(new bool(*m_selection));
+   std::unique_ptr<bool> fOut1(new bool(m_selection));
    ev.put(std::move(fOut1));
 
-   std::unique_ptr<double> wOut(new double(*m_xsWeight));
+   std::unique_ptr<double> wOut(new double(m_xsWeight));
    ev.put(std::move(wOut));
 
-   if (m_filter)
-    if (m_filter_pre)
-      return m_selection_pre;
-    else
-      return m_selection;
-  else
+   if (m_filter) {
+     if (m_filter_pre)
+       return m_selection_pre;
+     else
+       return m_selection;
+   } else {
     return true;
+   }
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
