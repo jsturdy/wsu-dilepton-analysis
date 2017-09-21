@@ -41,10 +41,15 @@ for i,b in enumerate(massBins):
         upperCut = massBins[i+1][1:]
         continue
 
-import cPickle as pickle
 weight = 1
+## for using the pickled sample information
+import cPickle as pickle
 with open("ci_xsec_data.pkl","rb") as pkl:
     sdict = pickle.load(pkl)
+## for using the json formatted sample information
+# import json
+# with open("ci_xsec_data.json","rb") as jsn:
+#     sdict = json.load(jsn)
     # pickle dict is:
     #  DY samples:
     #     d[sample]["M%d"%(mass)]
