@@ -1,3 +1,4 @@
+// user include files
 #include "WSUDiLeptons/GenLevelFilter/interface/GenLevelFilter.h"
 
 GenLevelFilter::GenLevelFilter(const edm::ParameterSet& pset):
@@ -37,6 +38,9 @@ GenLevelFilter::GenLevelFilter(const edm::ParameterSet& pset):
   m_genParticleToken = consumes<reco::GenParticleCollection, edm::InEvent>(m_genParticleSource);
 
   if (m_debug) {
+    //now do what ever initialization is needed
+    // usesResource("TFileService");
+
     edm::Service< TFileService > fs;
 
     h_diMuonMass        = fs->make<TH1D>("diMuonMass",        "M_{#mu^{+}#mu^{-}}^{inv}", 1000, 0., 5000.);
