@@ -3,24 +3,27 @@
 # Don't ignore subdirectories
 !*/
 # Don't ignore special files
+!*.gitignore
 !*.md
 !*.rst
 !LICENSE
 # Ignore RPM directories
 */rpm
 # Don't ignore source files, etc
-!*.gitignore
+!*.C
 !*.cc
 !*.h
 !*.py
 # Don't ignore build files
 !BuildFile.xml
-# ignore __init__.py files
+# Ignore __init__.py files
 __init__.py
 !*.js
 !*.jsp
 !*.css
+# Ignore junk files
 *.#*
+# Others to ignore
 CosmicEndpoint/test/CosmicPlot.cc
 CosmicEndpoint/test/checkjobs.py
 CosmicEndpoint/test/getLeaves.C
