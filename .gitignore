@@ -13,6 +13,8 @@
 !*.cc
 !*.h
 !*.py
+# Don't ignore build files
+!BuildFile.xml
 # ignore __init__.py files
 __init__.py
 !*.js
