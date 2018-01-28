@@ -121,42 +121,68 @@ filenames = [
   # "dec11.s5.pt150.b40.lower",
   # "dec11.s5.pt150.b20.lower",
   
-  "jan23_ptbins.TrackerOnly.s5.pt110.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt120.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt125.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt200.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt250.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt300.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt400.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt500.b40.lower",
-  "jan23_ptbins.TrackerOnly.s5.pt750.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt110.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt120.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt125.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt150.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt200.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt250.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt300.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt400.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt500.b40.lower",
+  # "aug29_ptbins.TrackerOnly.s20.pt750.b40.lower",
 
-  "jan23_ptbins.TuneP.s5.pt110.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt120.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt125.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt200.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt250.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt300.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt400.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt500.b40.lower",
-  "jan23_ptbins.TuneP.s5.pt750.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt110.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt120.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt125.b40.lower",
+  "aug29_ptbins.TuneP.s20.pt150.b40.lower",
+  "aug29_ptbins.TuneP.s20.pt200.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt250.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt300.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt400.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt500.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt750.b40.lower",
 
-  "jan23_ptbins.DYTT.s5.pt110.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt120.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt125.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt200.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt250.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt300.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt400.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt500.b40.lower",
-  "jan23_ptbins.DYTT.s5.pt750.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt110.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt120.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt125.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt150.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt200.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt250.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt300.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt400.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt500.b40.lower",
+  # "aug29_ptbins.DYTT.s20.pt750.b40.lower",
 
+  # "aug29_ptbins.Picky.s20.pt110.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt120.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt125.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt150.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt200.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt250.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt300.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt400.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt500.b40.lower",
+  # "aug29_ptbins.Picky.s20.pt750.b40.lower",
+
+  # "aug29_ptbins.TPFMS.s20.pt110.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt120.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt125.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt150.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt200.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt250.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt300.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt400.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt500.b40.lower",
+  # "aug29_ptbins.TPFMS.s20.pt750.b40.lower",
+
+  # "feb11.TuneP.s25.pt200.b40.lower",
 ]
 
 etaphibins = {
-    "1All"             :[ "|#eta| < 0.9 && |#phi| < #pi",              "$|\eta| < 0.9, |\phi| < \pi$",],
-    "3EtaPlus"         :[ "0 < #eta < 0.9 && |#phi| < #pi",            "$0 < \eta < 0.9, |\phi| < \pi$",],
-    "2EtaMinus"        :[ "-0.9 < #eta < 0 && |#phi| < #pi",           "$-0.9 < \eta < 0, |\phi| < \pi$",],
+    "1All"             :[ "|#eta|      < 0.9", "$|\eta| < 0.9$",],
+    "3EtaPlus"         :[ "0    < #eta < 0.9", "$0    < \eta < 0.9$",],
+    "2EtaMinus"        :[ "-0.9 < #eta < 0  ", "$-0.9 < \eta < 0$",],
     # # "PhiPlus"        :[ "|#eta| < 0.9 && #pi/3 < #phi < #pi",        "$|\eta| < 0.9, \pi/3 < \phi < \pi$",],
     # "7PhiZero"         :[ "|#eta| < 0.9 && -#pi/3 < #phi < #pi/3",     "$|\eta| < 0.9, -\pi/3 < \phi < \pi/3$",],
     # "4PhiMinus"        :[ "|#eta| < 0.9 && -#pi < #phi < -#pi/3",      "$|\eta| < 0.9, -\pi < \phi < -\pi/3$",],
@@ -178,8 +204,18 @@ etaphiexclusivebins = {
     }
 
 outdirbase = "~/public/html/Cosmics/2016/EndpointStudy/results"
+texfilename = "%s/all_results_table.tex"%(outdirbase)
+print os.path.expanduser(texfilename)
+outtexf = open(os.path.expanduser(texfilename),'w')
+# outtexf.write("""\\begin{tabular}{rcl|rl}
+outtexf.write("""\\begin{tabular}{lcr|rl}
+algo & $\mathrm{p}_{\mathrm{T}}$ bin & $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
+\\hline
+""")
+
 for filename in filenames:
-  infile = r.TFile("jan23.ptbins.endpoint/%s.root"%(filename),"read")
+  infile = r.TFile("aug29.ptbins.endpoint/%s.root"%(filename),"read")
+  # infile = r.TFile("%s.root"%(filename),"read")
   print filename
   print infile
 
@@ -208,8 +244,10 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
     prefitname   = "preFitPoly_looseMuLower%s"%(etaphi[1:])
     fitname      = "fitPoly_looseMuLower%s"%(etaphi[1:])
     legString = "lower-leg"
+    gifLeg    = "Lower"
     if filename.find("upper") > 0:
       legString = "upper-leg"
+      gifLeg    = "Upper"
       graphname    = "chi2_looseMuUpper%s"%(etaphi[1:])
       # ksgraphname  = "ks_looseMuUpper%s"%(etaphi[1:])
       prefitname   = "preFitPoly_looseMuUpper%s"%(etaphi[1:])
@@ -238,9 +276,15 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
     # ksgraph.Draw("ep")
     graph.GetYaxis().SetTitle("#chi^{2}")
     graph.GetXaxis().SetTitle("#Delta#kappa_{b} [c/TeV]")
+    prefit.SetLineStyle(5)
+    prefit.SetLineColor(r.kBlue)
     prefit.Draw("same")
+    fit.SetLineStyle(1)
     fit.SetLineColor(r.kRed)
     fit.Draw("same")
+    r.gStyle.SetOptStat(112210)
+    r.gPad.Update()
+
     # # r.gStyle.SetOptStat(112210)
     # r.gPad.Update()
     # st2 = r.gPad.GetPrimitive("stats")
@@ -307,8 +351,8 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
     fit.SetLineWidth(3)
     thelegend.AddEntry(graph,   "#chi^{2} vs. #kappa_{b}", "lep")
     # thelegend.AddEntry(ksgraph, "KS test statistic vs. #kappa_{b}",       "lep")
-    value   = prefit.GetMinimum(-0.8,0.8)
-    minbias = prefit.GetMinimumX(-0.8,0.8)
+    value   = prefit.GetMinimum(-0.5,0.5)
+    minbias = prefit.GetMinimumX(-0.5,0.5)
     lowerr  = prefit.GetX(value+1.0, -0.8,   minbias)
     uperr   = prefit.GetX(value+1.0, minbias, 0.8)
     chisq   = prefit.GetChisquare()
@@ -316,8 +360,8 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
     thelegend.AddEntry(prefit,  "pre-fit (pol8, #chi^{2}:%2.4g, prob:%2.4g)"%(chisq,prob),"lp")
     thelegend.AddEntry(None,  "#kappa_{b} = %2.4g^{+%2.4g}_{-%2.4g}"%(minbias,uperr-minbias,
                                                                       minbias-lowerr),"")
-    value   = fit.GetMinimum(-0.8,0.8)
-    minbias = fit.GetMinimumX(-0.8,0.8)
+    value   = fit.GetMinimum(-0.5,0.5)
+    minbias = fit.GetMinimumX(-0.5,0.5)
     lowerr  = fit.GetX(value+1.0, -0.8,   minbias)
     uperr   = fit.GetX(value+1.0, minbias, 0.8)
     chisq   = fit.GetChisquare()
@@ -339,7 +383,7 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
     # # ksgraph.Draw("ep")
     graph.GetYaxis().SetTitle("#chi^{2}")
     graph.GetXaxis().SetTitle("#Delta#kappa_{b} [c/TeV]")
-    prefit.SetLineStyle(5)
+    prefit.SetLineStyle(1)
     prefit.SetLineColor(r.kBlue)
     prefit.Draw("same")
     fit.SetLineStyle(1)
@@ -360,6 +404,8 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
 #"""%(etaphibins[etaphi][1],minbias,uperr-minbias,minbias-lowerr))
     outtex.write("""%s & %2.4f & $\\pm%2.4f$ \\\\
 """%(etaphibins[etaphi][1],minbias,uperr-minbias))
+    outtexf.write("""%s & $\mathrm{p}_{\mathrm{T}} > %d $ & %s & %2.4f & $\\pm%2.4f$ \\\\
+"""%(algo, ptVal, etaphibins[etaphi][1], minbias, uperr-minbias))
 
     if etaphi in etaphiexclusivebins.keys():
         resultsHist.SetBinContent(etaphiexclusivebins[etaphi][0],etaphiexclusivebins[etaphi][1],minbias)
@@ -386,6 +432,9 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
   outtex.write("""\\end{tabular}
 """)
   outtex.close()
+
+  outtexf.write("""\\hline
+""")
   outcan.cd()
   resultsHist.Draw("colztexte")
   resultsHist.SetStats(r.kFALSE)
@@ -401,8 +450,17 @@ $\eta/\phi$ bin & $\delta\kappa_{b}$ min & unc \\\\
   outcan.SaveAs("%s/results_2d_map_%s.C"%(  outdir,filename))
   outcan.SaveAs("%s/results_2d_map_%s.png"%(outdir,filename))
   # raw_input("press enter to exit")
+
+  # copy some GIFs to the output location
+  cmd = "rsync -aAXch --progress --partial --relative -L sampleGIFs/All/%s_%s_AllbiasBin*_b40_s20_pt200_normal*.png %s"%(algo,gifLeg,
+                                                                                                                         outdir)
+  os.system(cmd)
   pass
 
+outtexf.write("""\\hline
+\\end{tabular}
+""")
+outtexf.close()
 pr.disable()
 #s = StringIO.StringIO()
 #sortby = 'cumulative'
