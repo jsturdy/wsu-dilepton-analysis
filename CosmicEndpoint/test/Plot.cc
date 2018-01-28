@@ -170,7 +170,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
   std::ifstream file(inputfiles.str());
   std:: cout << "opening input file list "
-	     << inputfiles.str() << std::hex << "  " << file << std::dec << std::endl;
+	     << inputfiles.str()
+             // << std::hex << "  " << file << std::dec
+	     << std::endl;
 
   while (std::getline(file,name)) {
     std::stringstream newString;
