@@ -590,8 +590,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       // take hit pattern from global track
       if (mu->globalTrack().isNonnull()) {
 	muon_hasGlobal[muIdx] = 1;
-	muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-				   mu->globalTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+	muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+				   mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
 	muon_pixHits[    muIdx] = mu->globalTrack()->hitPattern().numberOfValidPixelHits();
 	muon_tkHits[     muIdx] = mu->globalTrack()->hitPattern().numberOfValidTrackerHits();
 	muon_tkLayWMeas[ muIdx] = mu->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -600,8 +600,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	muon_nVMuHits[   muIdx] = mu->globalTrack()->hitPattern().numberOfValidMuonHits();
       } else {  // otherwise take hit pattern from inner/outer track separately
 	if (mu->innerTrack().isNonnull()) {
-	  muon_firstPixel[ muIdx] = (mu->innerTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-				     mu->innerTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+	  muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+                                     mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
 	  muon_pixHits[    muIdx] = mu->innerTrack()->hitPattern().numberOfValidPixelHits();
 	  muon_tkHits[     muIdx] = mu->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	  muon_tkLayWMeas[ muIdx] = mu->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -637,8 +637,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  track_innerY[    2+tref+1][muIdx] = ref->innerPosition().Y();
 	  track_outerY[    2+tref+1][muIdx] = ref->outerPosition().Y();
 
-	  track_firstPixel[ 2+tref+1][muIdx] = (ref->hitPattern().hasValidHitInFirstPixelBarrel() ||
-						ref->hitPattern().hasValidHitInFirstPixelEndcap());
+	  track_firstPixel[ 2+tref+1][muIdx] = (ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+						ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
 	  track_pixHits[    2+tref+1][muIdx] = ref->hitPattern().numberOfValidPixelHits();
 	  track_tkHits[     2+tref+1][muIdx] = ref->hitPattern().numberOfValidTrackerHits();
 	  track_tkLayWMeas[ 2+tref+1][muIdx] = ref->hitPattern().trackerLayersWithMeasurement();
@@ -768,8 +768,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       track_innerY[    tk][tkIdx] = trk->innerPosition().Y();
       track_outerY[    tk][tkIdx] = trk->outerPosition().Y();
 
-      track_firstPixel[ tk][tkIdx] = (trk->hitPattern().hasValidHitInFirstPixelBarrel() ||
-				      trk->hitPattern().hasValidHitInFirstPixelEndcap());
+      track_firstPixel[ tk][tkIdx] = (trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+				      trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
       track_pixHits[    tk][tkIdx] = trk->hitPattern().numberOfValidPixelHits();
       track_tkHits[     tk][tkIdx] = trk->hitPattern().numberOfValidTrackerHits();
       track_tkLayWMeas[ tk][tkIdx] = trk->hitPattern().trackerLayersWithMeasurement();

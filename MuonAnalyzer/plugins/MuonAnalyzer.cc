@@ -7,7 +7,7 @@
 //
 // Package:    WSUDiLeptons/MuonAnalyzer
 // Class:      MuonAnalyzer
-// 
+//
 /**\class MuonAnalyzer MuonAnalyzer.cc WSUDiLeptons/MuonAnalyzer/plugins/MuonAnalyzer.cc
 
    Description: [one line class summary]
@@ -54,7 +54,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pset)
 
   if (isGen_) {
     simTrackToken_ = consumes<edm::SimTrackContainer>(simTrackSrc_);
-  } 
+  }
 
   trigResultsToken_    = consumes<edm::TriggerResults>(trigResultsSrc_);
   fakeL1SingleMuToken_ = consumes<bool>(fakeL1SingleMuSrc_);
@@ -72,7 +72,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pset)
 
 MuonAnalyzer::~MuonAnalyzer()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -94,7 +94,7 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken(muonToken_, muonColl);
   ev.getByToken(tagLegToken_, tagLegColl);
   ev.getByToken(probeLegToken_, probeLegColl);
-  
+
   edm::Handle<edm::SimTrackContainer > simTrackColl;
   if (isGen_)
     ev.getByToken(simTrackToken_, simTrackColl);
@@ -103,18 +103,18 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken(trigResultsToken_, triggerResults);
 
   edm::Handle<bool>                   fakeL1SingleMuH;
-  ev.getByToken(fakeL1SingleMuToken_, fakeL1SingleMuH);      
+  ev.getByToken(fakeL1SingleMuToken_, fakeL1SingleMuH);
 
   // skip processing empty collection
   if ( muonColl->size() < 1)
     return;
 
-  event = (ev.id()).event();  
+  event = (ev.id()).event();
   run   = (ev.id()).run();
   lumi  = ev.luminosityBlock();
-  
+
   type = reco::Muon::SegmentAndTrackArbitration;
-  
+
   nMuons  = muonColl->size();
   nTags   = tagLegColl->size();
   nProbes = probeLegColl->size();
@@ -138,20 +138,20 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
   upperMuon_P4.SetXYZT(0,0,0,-1); lowerMuon_P4.SetXYZT(0,0,0,-1);
   upperMuon_pT = -1;              lowerMuon_pT = -1;
-  
+
   upperMuon_trackVec.SetXYZ(0,0,0); lowerMuon_trackVec.SetXYZ(0,0,0);
   upperMuon_trackPt = -1;           lowerMuon_trackPt = -1;
   upperMuon_ptError = -1;           lowerMuon_ptError = -1;
-  
+
   upperMuon_charge = -10; lowerMuon_charge = -10;
   upperMuon_chi2   = -1;  lowerMuon_chi2   = -1;
   upperMuon_ndof   = -1;  lowerMuon_ndof   = -1;
-  
+
   upperMuon_dxy      = -1000; lowerMuon_dxy      = -1000;
   upperMuon_dz       = -1000; lowerMuon_dz       = -1000;
   upperMuon_dxyError = -1;    lowerMuon_dxyError = -1;
   upperMuon_dzError  = -1;    lowerMuon_dzError  = -1;
-  
+
   upperMuon_firstPixel                   = -1; lowerMuon_firstPixel                   = -1;
   upperMuon_pixelHits                    = -1; lowerMuon_pixelHits                    = -1;
   upperMuon_trackerHits                  = -1; lowerMuon_trackerHits                  = -1;
@@ -206,17 +206,17 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		<< ") " << muon->tunePMuonBestTrack()->innerPosition().Y()
 		<< std::endl;
   }
-  std::cout.flush();  
+  std::cout.flush();
 
   // reject events without tags or probes
   if ( tagLegColl->size() < 1 && probeLegColl->size() < 1)
     return;
-  
+
   // what sort of matching should be done?
   // require opposite halves
   // require the deta/dphi cuts
   // look for match with highest pT muon/first in collection?
-  // 
+  //
   //int goodPairs[2] = [-1,-1];
   // this will treat each time through the collection as a new matching
   double deta = maxDEta_;
@@ -232,7 +232,7 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   // if we have probes but no tags then what?
   reco::MuonCollection::const_iterator muon  = tagLegColl->size() > 0 ? tagLegColl->begin() : probeLegColl->begin();
   reco::MuonCollection::const_iterator muend = tagLegColl->size() > 0 ? tagLegColl->end()   : probeLegColl->end();
-  
+
   std::shared_ptr<reco::Muon> bestMatch = findBestMatch(muon, tagLegColl->size() > 0 ? *probeLegColl:*tagLegColl, deta, dphi, dr);
   // keep the upper/lower legs as an std::pair<tag leg, probe leg>
   std::pair<std::shared_ptr<reco::Muon>, std::shared_ptr<reco::Muon> > bestPair;
@@ -257,13 +257,13 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     if (muon == muend)
 
       std::cout << "muon iterator is at the end of the collection" << std::endl;
-  
+
   if (muon->pt() < minPt_) {
     if (debug_ > 2)
       std::cout << "selected muon pT too low, returning" << muon->pt() << std::endl;
     return;
   }
-  
+
   // for the generic study, what to do when more than one muon and no match?
   // have to ensure that we get a pair
   if (!bestMatch) {
@@ -322,16 +322,16 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
       continue;
     }
     if (debug_ > 3) {
-      std::cout << "globalMuon pt [GeV]: " << leg->get()->pt() << 
-	"  eta : " << leg->get()->eta() << 
-	"  phi : " << leg->get()->phi() << 
+      std::cout << "globalMuon pt [GeV]: " << leg->get()->pt() <<
+	"  eta : " << leg->get()->eta() <<
+	"  phi : " << leg->get()->phi() <<
 	std::endl;
-      
+
       if (leg->get()->combinedMuon().isNonnull()) {
 	reco::TrackRef ref = leg->get()->combinedMuon();
 	std::cout << "combinedMuon number of hits: " << ref->numberOfValidHits() << std::endl;
       }
-      
+
       if (leg->get()->standAloneMuon().isNonnull()) {
 	reco::TrackRef ref = leg->get()->standAloneMuon();
 	if (ref->innerOk())
@@ -345,24 +345,24 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     std::cout.flush();
     if (debug_ > 2)
       std::cout << "creating track ref variable" << std::endl;
-    
+
     reco::TrackRef ref;
-    
+
     if (debug_ > 2)
       std::cout << "Calling GetTrackType(" << algoType_ << "," << leg->get() << ")" << std::endl;
-    
+
     //ref = wsu::dileptons::MuonHelpers::GetTrackType(algoType_, leg->get());
     ref = GetTrackType(algoType_, leg->get());
-    
+
     if (debug_ > 2)
       std::cout << "Found track type for leg " << muIdx << ". If NonNull fill." << std::endl;
-    
+
     if (ref.isNonnull())
       TrackFill(ref, leg->get(), type);
-    
+
     if (debug_ > 2)
       std::cout << "Filled histograms!" << std::endl ;
-    
+
     if (debug_ > 3) {
       if (leg->get()->track().isNonnull()) {
 	reco::TrackRef ref = leg->get()->track();
@@ -385,8 +385,8 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
       for (auto simtrack = simTrackColl->begin(); simtrack != simTrackColl->end(); ++simtrack) {
 	if (fabs(simtrack->type()) == 13) { // only consider simtracks from muons
 	  if (debug_ > 2)
-	    std::cout << std::setw(5) << *simtrack << std::endl; 
-	  
+	    std::cout << std::setw(5) << *simtrack << std::endl;
+
 	  simtrack_charge[simIdx] = simtrack->charge();
 	  simtrack_type[simIdx]   = simtrack->type();
 	  simtrack_pt[simIdx]  = simtrack->trackerSurfaceMomentum().pt();
@@ -398,7 +398,7 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
       }
     }
   }
-  
+
   // trigger information
   l1SingleMu = 0;
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
@@ -408,7 +408,7 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
       std::string pathName = trigNames.triggerName(trig);
       if (debug_ > 2)
 	std::cout << "Trigger path " << pathName << " fired" << std::endl;
-      
+
       if (pathName.find(hltTrigCut_) != std::string::npos) {
 	if (debug_ > 0)
 	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
@@ -416,11 +416,11 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
       }
     }
   }
-  
+
   fakeL1SingleMu = *fakeL1SingleMuH;
   cosmicTree->Fill();
 }
-  
+
 
 std::shared_ptr<reco::Muon> MuonAnalyzer::findBestMatch(reco::MuonCollection::const_iterator& mu1,
 							reco::MuonCollection const& muons,
@@ -512,7 +512,7 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
 
   //if (muon->tunePMuonBestTrack()->innerPosition().Y() > 0) {
   //if (fabs(muon->tunePMuonBestTrack()->innerPosition().Y()) > fabs(muon->tunePMuonBestTrack()->outerPosition().Y())) {
-  if ((muon->outerTrack().isNonnull() && muon->outerTrack()->outerPosition().Y() > 0 ) || 
+  if ((muon->outerTrack().isNonnull() && muon->outerTrack()->outerPosition().Y() > 0 ) ||
       (!(muon->outerTrack().isNonnull()) && (fabs(muon->innerTrack()->innerPosition().Y()) > fabs(muon->innerTrack()->outerPosition().Y())))) {
     if (debug_ > 2)
       std::cout << "upper muon, check on tracker" << std::endl;
@@ -538,9 +538,9 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     upperMuon_dzError  = ref->dzError();
     upperMuon_trackPt  = ref->pt();
     upperMuon_trackVec = ref->momentum();
-    
+
     if (debug_ > 3)
-      std::cout << "upper muon, tracker/global/standalone " 
+      std::cout << "upper muon, tracker/global/standalone "
 		<< upperMuon_isGlobal << "/"
 		<< upperMuon_isTracker << "/"
 		<< upperMuon_isStandAlone
@@ -549,8 +549,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     if (upperMuon_isGlobal) {
       if (debug_ > 2)
 	std::cout << "upper muon, global track hit pattern variables" << std::endl;
-      upperMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-						muon->globalTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+      upperMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
       upperMuon_pixelHits                    = muon->globalTrack()->hitPattern().numberOfValidPixelHits();
       upperMuon_trackerHits                  = muon->globalTrack()->hitPattern().numberOfValidTrackerHits();
       upperMuon_trackerLayersWithMeasurement = muon->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -561,8 +561,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       if (upperMuon_isTracker) {
 	if (debug_ > 2)
 	  std::cout << "upper muon, inner track hit pattern variables" << std::endl;
-	upperMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-						  muon->innerTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+	upperMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
 	upperMuon_pixelHits                    = muon->innerTrack()->hitPattern().numberOfValidPixelHits();
 	upperMuon_trackerHits                  = muon->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	upperMuon_trackerLayersWithMeasurement = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -644,10 +644,10 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       std::cout << std::endl;
     }
   }
-  
+
   //else if (muon->tunePMuonBestTrack()->innerPosition().Y() < 0) {
   //else if (fabs(muon->tunePMuonBestTrack()->innerPosition().Y()) < fabs(muon->tunePMuonBestTrack()->outerPosition().Y())) {
-  else if ((muon->outerTrack().isNonnull() && muon->outerTrack()->outerPosition().Y() < 0 ) || 
+  else if ((muon->outerTrack().isNonnull() && muon->outerTrack()->outerPosition().Y() < 0 ) ||
 	   (!(muon->outerTrack().isNonnull()) && (fabs(muon->innerTrack()->innerPosition().Y()) < fabs(muon->innerTrack()->outerPosition().Y())))) {
     if (debug_ > 2)
       std::cout << "lower muon, check on tracker" << std::endl;
@@ -673,9 +673,9 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     lowerMuon_dzError  = ref->dzError();
     lowerMuon_trackPt  = ref->pt();
     lowerMuon_trackVec = ref->momentum();
-    
+
     if (debug_ > 3)
-      std::cout << "lower muon, tracker/global/standalone " 
+      std::cout << "lower muon, tracker/global/standalone "
 		<< lowerMuon_isGlobal  << "/"
 		<< lowerMuon_isTracker << "/"
 		<< lowerMuon_isStandAlone
@@ -684,8 +684,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     if (lowerMuon_isGlobal) {
       if (debug_ > 2)
 	std::cout << "lower muon, inner track hit pattern variables" << std::endl;
-      lowerMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-						muon->globalTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+      lowerMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
       lowerMuon_pixelHits                    = muon->globalTrack()->hitPattern().numberOfValidPixelHits();
       lowerMuon_trackerHits                  = muon->globalTrack()->hitPattern().numberOfValidTrackerHits();
       lowerMuon_trackerLayersWithMeasurement = muon->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -696,8 +696,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       if (lowerMuon_isTracker) {
 	if (debug_ > 2)
 	  std::cout << "lower muon, inner track hit pattern variables" << std::endl;
-	lowerMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInFirstPixelBarrel() ||
-						  muon->innerTrack()->hitPattern().hasValidHitInFirstPixelEndcap());
+	lowerMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
+						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
 	lowerMuon_pixelHits                    = muon->innerTrack()->hitPattern().numberOfValidPixelHits();
 	lowerMuon_trackerHits                  = muon->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	lowerMuon_trackerLayersWithMeasurement = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -786,7 +786,7 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       std::cout << std::endl;
       std::cout << "Lower number of matched muon stations is: " << muon->numberOfMatchedStations(arbType);
       std::cout << std::endl;
-    } 
+    }
   }
   if (debug_ > 2)
     std::cout << "Histograms Filled!" << std::endl;
@@ -794,19 +794,19 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
 
 reco::TrackRef MuonAnalyzer::GetTrackType(int algoType, reco::Muon const* muon)
 {
-  
+
   if (debug_ > 2)
     std::cout << "Started finding track type!" << std::endl;
 
   reco::TrackRef ref;
-  
+
   if      (algoType == 1) ref = muon->track();
   else if (algoType == 2) ref = muon->tpfmsTrack();
   else if (algoType == 3) ref = muon->dytTrack();
   else if (algoType == 4) ref = muon->pickyTrack();
   else if (algoType == 5) ref = muon->tunePMuonBestTrack();
   else                    ref = muon->track();
-  
+
   if (debug_ > 2)
     std::cout << "Returning track ref " << ref.isNonnull() << std::endl;
 
@@ -818,7 +818,7 @@ reco::TrackRef MuonAnalyzer::GetTrackType(int algoType, reco::Muon const* muon)
 void MuonAnalyzer::beginJob()
 {
   edm::Service< TFileService > fs;
-  
+
   cosmicTree = fs->make<TTree>( "MuonTree", "TTree variables" );
 
   cosmicTree->Branch("nMuons",  &nMuons,  10000, 1);
@@ -871,7 +871,7 @@ void MuonAnalyzer::beginJob()
   cosmicTree->Branch("upperMuon_numberOfValidMuonHits",        &upperMuon_numberOfValidMuonHits,        10000, 1);
   cosmicTree->Branch("upperMuon_numberOfMatchedStations",      &upperMuon_numberOfMatchedStations,      10000, 1);
   cosmicTree->Branch("upperMuon_trackerLayersWithMeasurement", &upperMuon_trackerLayersWithMeasurement, 10000, 1);
-  
+
   /////////Muon in lower half of CMS
   cosmicTree->Branch("lowerMuon_pT", &lowerMuon_pT, 10000, 1);
   cosmicTree->Branch("lowerMuon_P4", &lowerMuon_P4, 10000, 1);
@@ -904,7 +904,7 @@ void MuonAnalyzer::beginJob()
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MuonAnalyzer::endJob() 
+void MuonAnalyzer::endJob()
 {
 }
 
