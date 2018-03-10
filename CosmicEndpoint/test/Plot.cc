@@ -170,7 +170,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
   std::ifstream file(inputfiles.str());
   std:: cout << "opening input file list "
-	     << inputfiles.str() << std::hex << "  " << file << std::dec << std::endl;
+	     << inputfiles.str()
+             // << std::hex << "  " << file << std::dec
+	     << std::endl;
 
   while (std::getline(file,name)) {
     std::stringstream newString;
@@ -373,7 +375,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 						3, -1.5,   1.5);
 	h_upperCurve[chb][etb][phb]  = new TH1D("upper"+chargeBins[chb]+"Curve"+etaphilabel,
 						"upper"+chargeBins[chb]+"Curve"+etaphilabel,
-						symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+						symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                MAX_CURVE_RANGE*factor_);
 
 	h_upperDxy[chb][etb][phb]             = new TH1D("upper"+chargeBins[chb]+"Dxy"+etaphilabel,
 							 "upper"+chargeBins[chb]+"Dxy"+etaphilabel,
@@ -613,7 +617,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 						       3, -1.5,   1.5);
 	h_looseMuUpperCurve[chb][etb][phb]  = new TH1D("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel,
 						       "looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel,
-						       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+						       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                       symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                       MAX_CURVE_RANGE*factor_);
 
 	h_looseMuUpperDxy[chb][etb][phb]             = new TH1D("looseMuUpper"+chargeBins[chb]+"Dxy"+etaphilabel,
 								"looseMuUpper"+chargeBins[chb]+"Dxy"+etaphilabel,
@@ -686,7 +692,9 @@ void Plot(std::string const& filelist, std::string const& outFile,
 						       3, -1.5,   1.5);
 	h_looseMuLowerCurve[chb][etb][phb]  = new TH1D("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel,
 						       "looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel,
-						       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+						       symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                       symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                       MAX_CURVE_RANGE*factor_);
 
 	h_looseMuLowerDxy[chb][etb][phb]             = new TH1D("looseMuLower"+chargeBins[chb]+"Dxy"+etaphilabel,
 								"looseMuLower"+chargeBins[chb]+"Dxy"+etaphilabel,
@@ -752,20 +760,28 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	  title << "#Delta#kappa = +" << (i+1)*(factor_*maxBias/nBiasBins);
 	  h_looseMuUpperCurvePlusBias[chb][etb][phb][i] = new TH1D(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()),
 								   TString(title.str()),
-								   symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+								   symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                                   symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                                   MAX_CURVE_RANGE*factor_);
 	  h_looseMuLowerCurvePlusBias[chb][etb][phb][i] = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"PlusBias"+name.str()),
 								   TString(title.str()),
-								   symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+								   symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                                   symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                                   MAX_CURVE_RANGE*factor_);
 
 	  title.str("");
 	  title.clear();
 	  title << "#Delta#kappa = -" << (i+1)*(factor_*maxBias/nBiasBins);
 	  h_looseMuUpperCurveMinusBias[chb][etb][phb][i] = new TH1D(TString("looseMuUpper"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()),
 								    TString(title.str()),
-								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                                    symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                                    MAX_CURVE_RANGE*factor_);
 	  h_looseMuLowerCurveMinusBias[chb][etb][phb][i] = new TH1D(TString("looseMuLower"+chargeBins[chb]+"Curve"+etaphilabel+"MinusBias"+name.str()),
 								    TString(title.str()),
-								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS, symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0., MAX_CURVE_RANGE*factor_);
+								    symmetric_ ? 2*N_CURVE_BINS : N_CURVE_BINS,
+                                                                    symmetric_ ? -MAX_CURVE_RANGE*factor_ : 0.,
+                                                                    MAX_CURVE_RANGE*factor_);
 	}  // end loop over bias bins
       }  // end loop over charge bins
 
@@ -801,6 +817,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Double_t> upTrackerDzError( trackReader, "upperMuon_dzError" );
   TTreeReaderValue<Double_t> upTrackerPtError( trackReader, "upperMuon_ptError" );
 
+  TTreeReaderValue<Int_t> upTrackerFirstPixel(           trackReader, "upperMuon_firstPixel"                  );
   TTreeReaderValue<Int_t> upTrackerPhits(                trackReader, "upperMuon_pixelHits"                   );
   TTreeReaderValue<Int_t> upTrackerThits(                trackReader, "upperMuon_trackerHits"                 );
   TTreeReaderValue<Int_t> upTrackerMhits(                trackReader, "upperMuon_muonStationHits"             );
@@ -824,6 +841,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
   TTreeReaderValue<Double_t> lowTrackerDzError( trackReader, "lowerMuon_dzError" );
   TTreeReaderValue<Double_t> lowTrackerPtError( trackReader, "lowerMuon_ptError" );
 
+  TTreeReaderValue<Int_t>    lowTrackerFirstPixel(           trackReader, "lowerMuon_firstPixel"                  );
   TTreeReaderValue<Int_t>    lowTrackerPhits(                trackReader, "lowerMuon_pixelHits"                   );
   TTreeReaderValue<Int_t>    lowTrackerThits(                trackReader, "lowerMuon_trackerHits"                 );
   TTreeReaderValue<Int_t>    lowTrackerMhits(                trackReader, "lowerMuon_muonStationHits"             );
@@ -956,7 +974,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	bool up_tightdxy = (*upTrackerDxy < 0.2) ? 1 : 0;
 	bool up_tightdz  = (*upTrackerDz  < 0.5) ? 1 : 0;
 	bool up_etaBar   = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool up_superpointing = ((std::fabs(*upTrackerDxy) < 10) && (std::fabs(*upTrackerDz) < 50)) ? 1 : 0;
+	bool up_superpointing = (
+                                 (std::fabs(*upTrackerDxy) < 10)
+                                 && (std::fabs(*upTrackerDz) < 50)
+                                 && (*upTrackerFirstPixel > 0)
+                                 )
+          ? 1 : 0;
 
 	// if using TuneP or TrackerOnly and pT < 200, should *not* apply muon system cuts
 	// bool upperMuStationHits = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerMatchedMuonStations > 1 : 1;
@@ -1272,7 +1295,12 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	bool low_tightdxy = (*lowTrackerDxy < 0.2) ? 1 : 0;
 	bool low_tightdz  = (*lowTrackerDz  < 0.5) ? 1 : 0;
 	bool low_etaBar   = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool low_superpointing = ((std::fabs(*lowTrackerDxy) < 10) && (std::fabs(*lowTrackerDz) < 50)) ? 1 : 0;
+	bool low_superpointing = (
+                                  (std::fabs(*lowTrackerDxy) < 10)
+                                  && (std::fabs(*lowTrackerDz) < 50)
+                                  && (*lowTrackerFirstPixel > 0)
+                                  )
+          ? 1 : 0;
 
 	// if using TrackerOnly or TuneP and pT < 200, should *not* apply muon system cuts
 	// bool lowerMuStationHits = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerMatchedMuonStations > 1 : 1;

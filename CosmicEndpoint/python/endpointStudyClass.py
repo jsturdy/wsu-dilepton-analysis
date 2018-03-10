@@ -64,6 +64,12 @@ class endpointStudy(object):
         self.infiledir   = infiledir
         self.outfile     = outfile
         self.histName    = histName
+        self.muonleg     = "Lower"
+        if histName.find("ower") > 0:
+            self.muonleg     = "Lower"
+        elif histName.find("pper") > 0:
+            self.muonleg     = "Upper"
+            pass
         self.etaphi      = etaphi
         self.minpt       = minpt
         self.maxbias     = maxbias
@@ -74,10 +80,10 @@ class endpointStudy(object):
         self.rebins      = rebins
         self.algo        = algo
         self.runperiod   = runperiod
-        self.trackAlgos = ["TrackerOnly","TuneP","DYT","TPFMS","Picky"]
+        self.trackAlgos = ["TrackerOnly","TuneP","DYT","DYTT","TPFMS","Picky"]
         if self.algo not in self.trackAlgos:
             errmsg = "Invalid track algo specified: %s.  Allowed options are:\n"%(self.algo)
-            errmsg += self.trackAlgos
+            # errmsg += self.trackAlgos
             raise NameError(errmsg)
 
 
@@ -649,10 +655,11 @@ class endpointStudy(object):
 
         compHist.Draw()
         compHist.GetXaxis().SetTitle("#kappa [c/TeV]")
-        compHist.GetXaxis().SetRangeUser(-1.2*(1000./self.minpt),1.2*(1000./self.minpt))
+        # compHist.GetXaxis().SetRangeUser(-1.2*(1000./self.minpt),1.2*(1000./self.minpt))
+        compHist.GetXaxis().SetRangeUser(-10,10)
         compHist.SetMaximum(1.2*self.refmax)
         #compHist.SetMaximum(100)
-        compHist.SetMinimum(0.1)
+        compHist.SetMinimum(5)
         self.refHist.Draw("sames")
         if (self.makeLog):
             pad.SetLogy(True)
@@ -670,7 +677,8 @@ class endpointStudy(object):
         ksprob = self.refHist.KolmogorovTest(compHist,"")
 
         # this needs to be low bin, high bin
-        resHist = r.TH1D("ResHist", "", len(resids), -8.0,8.0)
+        # the range must match MAX_CURVE_RANGE in Plot.cc that was used for the trees
+        resHist = r.TH1D("ResHist", "", len(resids), -16.0,16.0)
         #r.SetOwnership(resHist,False)
         resHist.Sumw2()
         for i,res in enumerate(resids):
@@ -687,7 +695,8 @@ class endpointStudy(object):
         resHist.SetMarkerStyle(r.kFullDiamond)
         resHist.SetMarkerSize(1)
         resHist.GetYaxis().SetTitle("#chi^{2} residuals")
-        resHist.GetXaxis().SetRangeUser(-1.2*(1000./self.minpt),1.2*(1000./self.minpt))
+        # resHist.GetXaxis().SetRangeUser(-1.2*(1000./self.minpt),1.2*(1000./self.minpt))
+        resHist.GetXaxis().SetRangeUser(-10,10)
         resHist.Draw("ep0")
         resHist.SetMaximum(15.)
         resHist.SetMinimum(-15.)
@@ -727,9 +736,20 @@ class endpointStudy(object):
         thelegend.Draw()
         r.gPad.Update()
 
-        gifcanvas.SaveAs("%s/%sbiasBinm%04d_b%d_s%d_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                             self.rebins, self.stepsize,
-                                                             self.pmstring))
+        filetypes = ["eps","png","pdf","C"]
+        for filetype in filetypes:
+            pad.SetLogy(False)
+            gifcanvas.SaveAs("%s/%s_%s_%sbiasBinm%04d_b%d_s%d_pt%d_%s.%s"%(self.gifDir, self.algo, self.muonleg,
+                                                                           self.etaphi,gifBin,
+                                                                           self.rebins, self.stepsize, self.minpt,
+                                                                           self.pmstring,filetype))
+            pad.SetLogy(True)
+            r.gPad.Update()
+            gifcanvas.SaveAs("%s/%s_%s_%sbiasBinm%04d_b%d_s%d_pt%d_%s_log.%s"%(self.gifDir, self.algo, self.muonleg,
+                                                                               self.etaphi,gifBin,
+                                                                               self.rebins, self.stepsize, self.minpt,
+                                                                               self.pmstring,filetype))
+            pass
 
         return (xvals, yvals)
 
@@ -765,20 +785,22 @@ class endpointStudy(object):
         import math
 
         self.outfile.cd()
-
-        preFitPoly = r.TF1("preFitPoly%d"%(nparams), "pol%d"%(nparams), fitrange[0],fitrange[1])
+        fitwin = 0.3
+        preFitPoly = r.TF1("preFitPoly%d"%(nparams), "pol%d"%(nparams),
+                           (1-fitwin)*fitrange[0], (1-fitwin)*fitrange[1])
 
         r.SetOwnership(preFitPoly,False)
         preFitPoly.SetParameters(0,0)
-        chi2graph.Fit("preFitPoly%d"%(nparams), "EMFRN", "",
-                      fitrange[0],fitrange[1])
+        print "fitting in range %2.4f to %2.4f"%((1-fitwin)*fitrange[0],(1-fitwin)*fitrange[1])
+        chi2graph.Fit("preFitPoly%d"%(nparams), "EMFN",
+                      "", (1-fitwin)*fitrange[0], (1-fitwin)*fitrange[1])
         preFitPoly.SetLineColor(r.kRed)
         preFitPoly.SetLineStyle(2)
-        preFitMinBias = preFitPoly.GetMinimumX(fitrange[0], fitrange[1])
-        preFitMinChi2 = preFitPoly.GetMinimum( fitrange[0], fitrange[1])
-        preFitLower   = preFitPoly.GetX(preFitMinChi2+deltaChi2, fitrange[0],   preFitMinBias)
-        preFitUpper   = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, fitrange[1])
-        preFitLower2  = preFitPoly.GetX(preFitMinChi2+10*deltaChi2, fitrange[0],   preFitMinBias)
+        preFitMinBias = preFitPoly.GetMinimumX((1-fitwin)*fitrange[0], (1-fitwin)*fitrange[1])
+        preFitMinChi2 = preFitPoly.GetMinimum( (1-fitwin)*fitrange[0], (1-fitwin)*fitrange[1])
+        preFitLower   = preFitPoly.GetX(preFitMinChi2+deltaChi2, (1-fitwin)*fitrange[0],   preFitMinBias)
+        preFitUpper   = preFitPoly.GetX(preFitMinChi2+deltaChi2, preFitMinBias, (1-fitwin)*fitrange[1])
+        preFitLower2  = preFitPoly.GetX(preFitMinChi2+10*deltaChi2, (1-fitwin)*fitrange[0],   preFitMinBias)
         preFitUpper2  = preFitPoly.GetX(preFitMinChi2+10*deltaChi2, preFitMinBias, fitrange[1])
         preFitUncUp   = 5*(preFitUpper - preFitMinBias)
         preFitUncLow  = 5*(preFitMinBias - preFitLower)
@@ -797,7 +819,7 @@ class endpointStudy(object):
 
         r.SetOwnership(fitPoly,False)
         fitPoly.SetParameters(0,0)
-        chi2graph.Fit("fitPoly", "EMFRN", "", fitRange[0], fitRange[1])
+        chi2graph.Fit("fitPoly", "EMFN", "", fitRange[0], fitRange[1])
 
         fitPoly.SetLineColor(r.kViolet)
         fitPoly.SetLineStyle(5)

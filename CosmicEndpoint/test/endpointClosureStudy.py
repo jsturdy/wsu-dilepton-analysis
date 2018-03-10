@@ -867,24 +867,32 @@ class endpointClosureStudy():
         thelegend.Draw()
         r.gPad.Update()
 
+        filetypes = ["eps","png","pdf","C"]
         if self.injBiasBin < 0:
-            gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                            pseudoExp, self.rebins, self.injBiasBin,
-                                                                                            self.stepsize,
-                                                                                            self.minpt,self.histName,
-                                                                                            self.pmstring))
+            for filetype in filetypes:
+                gifcanvas.SaveAs("%s/%sbiasBinm%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.%s"%(self.gifDir, self.etaphi, gifBin,
+                                                                                               pseudoExp, self.rebins, self.injBiasBin,
+                                                                                               self.stepsize,
+                                                                                               self.minpt,self.histName,
+                                                                                               self.pmstring,filetype))
+                pass
         elif self.injBiasBin > 0:
-            gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                            pseudoExp, self.rebins, self.injBiasBin,
-                                                                                            self.stepsize,
-                                                                                            self.minpt,self.histName,
-                                                                                            self.pmstring))
+            for filetype in filetypes:
+                gifcanvas.SaveAs("%s/%sbiasBinp%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.%s"%(self.gifDir, self.etaphi, gifBin,
+                                                                                               pseudoExp, self.rebins, self.injBiasBin,
+                                                                                               self.stepsize,
+                                                                                               self.minpt,self.histName,
+                                                                                               self.pmstring,filetype))
+                pass
         else:
-            gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.png"%(self.gifDir, self.etaphi, gifBin,
-                                                                                           pseudoExp, self.rebins,self.injBiasBin,
-                                                                                           self.stepsize,
-                                                                                           self.minpt,self.histName,
-                                                                                           self.pmstring))
+            for filetype in filetypes:
+                gifcanvas.SaveAs("%s/%sbiasBin%04d_closureBin%03d_b%d_m%d_s%d_pt%d_%s_%s.%s"%(self.gifDir, self.etaphi, gifBin,
+                                                                                              pseudoExp, self.rebins,self.injBiasBin,
+                                                                                              self.stepsize,
+                                                                                              self.minpt,self.histName,
+                                                                                              self.pmstring,filetype))
+                pass
+            pass
         return (xvals, yvals)
 
     def makeGraphs(self, xvals, yvals, pseudoExp, debug=False):
