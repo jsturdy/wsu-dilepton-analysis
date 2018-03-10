@@ -74,8 +74,8 @@ bool FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
       for (auto l1mu = l1MuonColl->begin(ibx); l1mu != l1MuonColl->end(ibx); ++l1mu) {
 	if (select(*l1mu)) {
 	  result = true;
-	  std::auto_ptr<bool> pOut(new bool(result));
-	  ev.put( pOut);
+	  std::unique_ptr<bool> pOut(new bool(result));
+	  ev.put(std::move(pOut));
 
 	  std::cout << "found new stage2 trigger result, returning " << result << std::endl;
 	  if (filter_)
@@ -93,8 +93,8 @@ bool FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
     for (auto l1mu = l1MuonColl->begin(); l1mu != l1MuonColl->end(); ++ l1mu)
       if (select(*l1mu)) {
 	result = true;
-	std::auto_ptr<bool> pOut(new bool(result));
-	ev.put( pOut);
+	std::unique_ptr<bool> pOut(new bool(result));
+	ev.put(std::move(pOut));
 
 	std::cout << "found legacy trigger result, returning " << result << std::endl;
 	if (filter_)
@@ -106,8 +106,8 @@ bool FakeL1SingleMuFilter::filter(edm::Event& ev, const edm::EventSetup& es)
 
   // only get here if no L1 muons passing selection are found, so set flag to/return false
 
-  std::auto_ptr<bool> pOut(new bool(result));
-  ev.put( pOut);
+  std::unique_ptr<bool> pOut(new bool(result));
+  ev.put(std::move(pOut));
 
   std::cout << "found no trigger result, returning " << result << std::endl;
   if (filter_)
