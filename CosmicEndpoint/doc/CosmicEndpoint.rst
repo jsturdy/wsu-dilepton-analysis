@@ -69,10 +69,6 @@ _____________
 * makeFileLists.sh
 
 
-Creating the TTrees
-____________________
-
-
 **************
 Usage
 **************
@@ -87,5 +83,5 @@ Running the analysis
 Creating the TTrees
 ____________________
 
-Creating the TTrees
-____________________
+Creating the endpoint inputs
+____________________________
