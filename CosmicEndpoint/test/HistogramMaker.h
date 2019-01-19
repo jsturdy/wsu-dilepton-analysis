@@ -21,7 +21,7 @@ class TTreeReader;
 namespace wsu {
   namespace dileptons {
     namespace cosmics {
-      
+
       enum DebugLevel {
 	OFF = -1,
 	MIN = 0,
@@ -36,7 +36,7 @@ namespace wsu {
 	CONFIGPARAMS   = 2,
 	EVENTLOOP      = 6
       };
-      
+
       typedef struct HighPtMuonCuts {
 	int numValidHits;
 	int numMatchedStations;
@@ -58,7 +58,7 @@ namespace wsu {
 	  zMax     = 50.; /** only for super pointing selection */
 	};
       } HighPtMuonCuts;
-      
+
       typedef struct ConfigurationParameters {
 	std::string PathPrefix;
 	int NBiasBins;
@@ -70,7 +70,7 @@ namespace wsu {
 	std::string TrackAlgo;   // Tracker, TPFMS, DYT, Picky, TuneP
 	std::string MuonLeg;     // upper, lower, combined
 	HighPtMuonCuts MuCuts;
-	
+
 	ConfigurationParameters() {
 	  PathPrefix  = "root://cms-xrd-global.cern.ch//"; // different xrootd redirectors, or local file
 	  NBiasBins   = 1000;
@@ -82,19 +82,19 @@ namespace wsu {
 	  MuonLeg     = "lower"; // upper, lower, combined
 	};
       } ConfigurationParameters;
-      
+
       class HistogramMaker {
-	
-      public: 
+
+      public:
 	HistogramMaker(std::string const& fileList,
 		       std::string const& outFileName,
 		       std::string const& confParmsFile,
 		       int debug=0);
-	
+
 	~HistogramMaker();
-	
+
 	int runLoop(int debug=0);
-	
+
       private:
 
 	void parseConfiguration(std::string const& confFileName);
@@ -110,16 +110,16 @@ namespace wsu {
 
 	double m_maxBias, m_minPt;
 	int m_nBiasBins;
-	
+
 	std::shared_ptr<TTree>       m_tree;
 	std::shared_ptr<TChain>      m_treeChain;
 	std::shared_ptr<TTreeReader> m_treeReader;
-	
+
 	std::shared_ptr<TFile>          m_outFile;
 	std::shared_ptr<TDirectory>     m_etaphiBinDir[2][3];
 	std::shared_ptr<TDirectory>     m_ptBinDir[13];
 	std::shared_ptr<TDirectoryFile> m_outFileD;
-	
+
 	// histograms
 	// [3] for upper, lower, and combined
 	// [2] for charge plus/minus
@@ -138,10 +138,10 @@ namespace wsu {
 
 	std::shared_ptr<TH1D> h_CurveUpperResidual[3][2][2][3][13], h_CurveLowerResidual[3][2][2][3][13];
 	std::shared_ptr<TH1D> h_CurveUpperPulls[3][2][2][3][13],    h_CurveLowerPulls[3][2][2][3][13];
-	
+
 	// doesn't make sense to bin these vs. pT
 	std::shared_ptr<TH1D> h_CurvePlusBias[3][2][2][3][1000], h_CurveMinusBias[3][2][2][3][1000];
-	
+
       }; // end class HistogramMaker
     } // end namespace wsu::dileptons::cosmics
   } // end namespace wsu::dileptons
