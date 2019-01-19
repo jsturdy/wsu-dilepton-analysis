@@ -84,29 +84,29 @@ void Plot(std::string const& filelist, std::string const& outFile,
   bool istrackerp = false;
   bool istunep    = false;
 
-  if (trackVal_== 1) {
+  if (trackVal_ == 1) {
     myChain   = new TChain(TString("analysisTrackerMuons/MuonTree"));
     outname   = "TrackerOnly";
     trackAlgo = "trackerOnly";
     // if using TrackerOnly, should *not* apply muon system cuts
     istrackerp = true;
   }
-  else if (trackVal_== 2) {
+  else if (trackVal_ == 2) {
     myChain   = new TChain(TString("analysisTPFMSMuons/MuonTree"));
     outname   = "TPFMS";
     trackAlgo = "tpfms";
   }
-  else if (trackVal_== 3) {
+  else if (trackVal_ == 3) {
     myChain   = new TChain(TString("analysisDYTMuons/MuonTree"));
     outname   = "DYTT";
     trackAlgo = "dyt";
   }
-  else if (trackVal_== 4) {
+  else if (trackVal_ == 4) {
     myChain   = new TChain(TString("analysisPickyMuons/MuonTree"));
     outname   = "Picky";
     trackAlgo = "picky";
   }
-  else if (trackVal_== 5) {
+  else if (trackVal_ == 5) {
     myChain   = new TChain(TString("analysisTunePMuons/MuonTree"));
     outname   = "TuneP";
     trackAlgo = "tuneP";
@@ -177,7 +177,10 @@ void Plot(std::string const& filelist, std::string const& outFile,
   while (std::getline(file,name)) {
     std::stringstream newString;
     // newString << "root://xrootd.unl.edu//" << name;
-    newString << "root://cmseos.fnal.gov//" << name;
+    newString
+      // << "file://"
+      << "root://cmseos.fnal.gov//"
+      << name;
 
     // Use the following line with line above commented out for running on local files.
     // newString << name;
@@ -194,18 +197,18 @@ void Plot(std::string const& filelist, std::string const& outFile,
   float maxBias = maxBias_;
   int nBiasBins = nBiasBins_;
 
-  std::string counterBinLabels[55] = {
-    "00 - superpointing and barrel",             // 0
-    "01 - #frac{#Deltap_{T}}{p_{T}} N-1 (loose)",// 1
-    "02 - N_{Trk Hits} N-1 (loose)",             // 2
-    "03 - N_{Pix Hits} N-1 (loose)",             // 3
-    "04 - N_{Valid #mu Hits} N-1 (loose)",       // 4
-    "05 - N_{Mt. Sta. Hits} N-1 (loose)",        // 5
-    "06 - D_{xy} N-1 (loose)",                   // 6
-    "07 - D_{z} N-1 (loose)",                    // 7
-    "08 - p_{T} N-1 (loose)",                    // 8
-    "09",
-    "10",
+  std::string counterBinLabels[66] = {
+    "00 - |D_{xy}| < 10, |D_{z}| < 50, |#eta| < 0.9", // 0
+    "01 - #frac{#Deltap_{T}}{p_{T}} N-1 (loose)",     // 1
+    "02 - N_{Trk Hits} N-1 (loose)",                  // 2
+    "03 - N_{Pix Hits} N-1 (loose)",                  // 3
+    "04 - N_{Valid #mu Hits} N-1 (loose)",            // 4
+    "05 - N_{Mt. Sta. Hits} N-1 (loose)",             // 5
+    "06 - D_{xy} N-1 (loose)",                        // 6
+    "07 - D_{z} N-1 (loose)",                         // 7
+    "08 - p_{T} N-1 (loose)",                         // 8
+    "09 - |#eta| < 0.9",
+    "10 - first pixel",
 
     "11 - #frac{#Deltap_{T}}{p_{T}} N-1 (w/ D_{xy})",// 11
     "12 - N_{Trk Hits} N-1 (w/ D_{xy})",             // 12
@@ -254,6 +257,18 @@ void Plot(std::string const& filelist, std::string const& outFile,
     "52 - trueL1_SingleMuOpen", // 52
     "53 - fakeL1_SingleMuOpen", // 53
     "54 - Uncut",               // 54
+
+    "55 - #frac{#Deltap_{T}}{p_{T}} < 0.3", // 55
+    "56 - N_{Trk lay w/ meas.} > 5",        // 56
+    "57 - N_{Pix hits} > 0",                // 57
+    "58 - N_{Valid #mu Hits} > 1",          // 58
+    "59 - N_{Mt. Sta. Hits} > 1",           // 59
+    "60 - |D_{xy}| < 10",                   // 60
+    "61 - |D_{xy}| < 0.2",                  // 61
+    "62 - |D_{z}| < 50",                    // 62
+    "63 - |D_{z}| < 0.5",                   // 63
+    "64 - #chi^{2} > -1",                   // 64
+    "65 - p_{T} > " + std::to_string(minPt_),  // 65
   };
 
   // turn on Sumw2 by default
@@ -261,10 +276,10 @@ void Plot(std::string const& filelist, std::string const& outFile,
 
   if (debug)
     std::cout << "setting up histograms" << std::endl;
-  TH1I *h_countersUpper = new TH1I("upperCounters","upperCounters",55, -0.5, 54.5);
-  TH1I *h_countersLower = new TH1I("lowerCounters","lowerCounters",55, -0.5, 54.5);
+  TH1I *h_countersUpper = new TH1I("upperCounters","upperCounters",66, -0.5, 65.5);
+  TH1I *h_countersLower = new TH1I("lowerCounters","lowerCounters",66, -0.5, 65.5);
 
-  for (int b = 0; b < 55; ++b) {
+  for (int b = 0; b < 66; ++b) {
     h_countersUpper->GetXaxis()->SetBinLabel(b+1,TString(counterBinLabels[b]));
     h_countersLower->GetXaxis()->SetBinLabel(b+1,TString(counterBinLabels[b]));
   }
@@ -293,62 +308,62 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // all histograms split into charge bins (plus/minus) and eta/phi bins
   // all can be combined at a later stage for any analysis
   // histograms for upper leg muons, inclusive in charge
-  TH1D *h_upperPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperChi2[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperNdof[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperCharge[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperCurve[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperChi2[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperNdof[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperCharge[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperCurve[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
-  TH1D *h_upperDxy[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperDz[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperDzError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperPtError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_upperTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_upperDxy[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperDz[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperDxyError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperDzError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperTrackPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperTrackEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperTrackPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperPtError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperPtRelErr[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperPixelHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperTrackerHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperMuonStationHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperValidHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperValidMuonHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperMatchedMuonStations[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_upperTrackerLayersWithMeasurement[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   // histograms for lower leg muons, inclusive in charge
-  TH1D *h_lowerPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerChi2[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerNdof[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerCharge[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerCurve[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerChi2[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerNdof[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerCharge[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerCurve[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
-  TH1D *h_lowerDxy[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerDz[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerDzError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerPtError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_lowerTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_lowerDxy[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerDz[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerDxyError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerDzError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerTrackPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerTrackEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerTrackPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerPtError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerPtRelErr[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerPixelHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerTrackerHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerMuonStationHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerValidHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerValidMuonHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerMatchedMuonStations[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_lowerTrackerLayersWithMeasurement[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   if (debug)
     std::cout << "booking no cut histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
     // no need for the third phi bin, since there are no positive phi muons
-    for (int phb = 0; phb < 2; ++phb) {
+    for (int phb = 0; phb < 3; ++phb) {
       TString etaphilabel(etaBins[etb]+phiBins[phb]);
       g->cd();
       TDirectory* etaphidir = (TDirectory*)g->mkdir(etaphilabel);
@@ -516,78 +531,78 @@ void Plot(std::string const& filelist, std::string const& outFile,
   // all histograms split into charge bins (plus/minus) and eta/phi bins
   // all can be combined at a later stage for any analysis
   // histograms for loose cuts (not applying the Dxy/Dz cuts)
-  TH1D *h_looseMuUpperPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperChi2[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperNdof[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperCharge[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperCurve[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperChi2[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperNdof[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCharge[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCurve[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuUpperDxy[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperDz[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperDzError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperPtError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDxy[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDz[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDxyError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperDzError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPtError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPtRelErr[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperPixelHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackerHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperMuonStationHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperValidHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperValidMuonHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperMatchedMuonStations[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuUpperTrackerLayersWithMeasurement[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuUpperCurvePlusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
-  TH1D *h_looseMuUpperCurveMinusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCurvePlusBias[2][2][3][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuUpperCurveMinusBias[2][2][3][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
   // histograms for lower leg muons, inclusive in charge
-  TH1D *h_looseMuLowerPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerChi2[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerNdof[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerCharge[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerCurve[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerChi2[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerNdof[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCharge[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCurve[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuLowerDxy[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerDz[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerDxyError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerDzError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerTrackPt[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerTrackEta[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerTrackPhi[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerPtError[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerPtRelErr[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerPixelHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerTrackerHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerMuonStationHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerValidHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerValidMuonHits[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerMatchedMuonStations[2][2][2];  //[3]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerTrackerLayersWithMeasurement[2][2][2];  //[3]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDxy[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDz[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDxyError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerDzError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackPt[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackEta[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackPhi[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPtError[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPtRelErr[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerPixelHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackerHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerMuonStationHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerValidHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerValidMuonHits[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerMatchedMuonStations[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
+  TH1D *h_looseMuLowerTrackerLayersWithMeasurement[2][2][3];  //[3]; reverted, due to crashes, should be investigated... changed since we never have positive phi muons
 
   if (debug)
     std::cout << "setting up loose histograms2" << std::endl;
-  TH1D *h_looseMuLowerCurvePlusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
-  TH1D *h_looseMuLowerCurveMinusBias[2][2][2][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCurvePlusBias[2][2][3][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
+  TH1D *h_looseMuLowerCurveMinusBias[2][2][3][nBiasBins];  //[3][nBiasBins]; changed since we never have positive phi muons
 
   if (debug)
     std::cout << "booking loose histograms" << std::endl;
   for (int etb = 0; etb < 2; ++etb) {
     // no need for the third phi bin, since there are no positive phi muons
-    for (int phb = 0; phb < 2; ++phb) {
+    for (int phb = 0; phb < 3; ++phb) {
       TString etaphilabel(etaBins[etb]+phiBins[phb]);
       g->cd();
       TDirectory* etaphidir = (TDirectory*)g->GetDirectory(etaphilabel);
@@ -918,6 +933,20 @@ void Plot(std::string const& filelist, std::string const& outFile,
       ++k;  // increment here to count processed events
       continue;
     }
+    
+    if (*upTrackerChi2 > -1) {
+      h_countersUpper->Fill(64);
+      if (sqrt(upTrackerTrack->perp2()) > minPt_) {
+        h_countersUpper->Fill(65);
+      }
+    }
+
+    if (*lowTrackerChi2 > -1) {
+      h_countersLower->Fill(64);
+      if (sqrt(lowTrackerTrack->perp2()) > minPt_) {
+        h_countersLower->Fill(65);
+      }
+    }
 
     // make combination of samples easy
     if (mcFlag_) {
@@ -970,71 +999,44 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	// make bool's for each cut level?
 	// uint32_t upperCuts; // 1 bit per cut?
 
-	bool up_etabar   = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool up_tightdxy = (*upTrackerDxy < 0.2) ? 1 : 0;
-	bool up_tightdz  = (*upTrackerDz  < 0.5) ? 1 : 0;
-	bool up_etaBar   = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool up_superpointing = (
-                                 (std::fabs(*upTrackerDxy) < 10)
-                                 && (std::fabs(*upTrackerDz) < 50)
-                                 && (*upTrackerFirstPixel > 0)
-                                 )
-          ? 1 : 0;
-
+	bool up_ptrel     = (upperRelPtErr < 0.3) ? 1 : 0;
+	bool up_tklayswm  = (*upTrackerLayersWithMeasurement > 5) ? 1 : 0;
+	bool up_pxhits    = (*upTrackerPhits > 0) ? 1 : 0;
+	bool up_mustahits = (*upTrackerMatchedMuonStations > 1) ? 1 : 0;
 	// if using TuneP or TrackerOnly and pT < 200, should *not* apply muon system cuts
-	// bool upperMuStationHits = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerMatchedMuonStations > 1 : 1;
-	bool upperMuStationHits = *upTrackerMatchedMuonStations > 1;
-	bool upperValidMuHits   = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerValidMuonHits > 0 : 1;
+	// bool up_vmuhits = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerMatchedMuonStations > 1 : 1;
+	bool up_vmuhits   = (!istrackerp || (istunep && sqrt(upTrackerTrack->perp2()) > 200)) ? *upTrackerValidMuonHits > 0 : 1;
+	bool up_etabar    = (fabs(upTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
+	bool up_firstPix  = (*upTrackerFirstPixel > 0);
+	bool up_loosedxy  = (std::fabs(*upTrackerDxy) < 10) ? 1 : 0;
+	bool up_loosedz   = (std::fabs(*upTrackerDz)  < 50) ? 1 : 0;
+	bool up_tightdxy  = (std::fabs(*upTrackerDxy) < 0.2) ? 1 : 0;
+        bool up_tightdz   = (std::fabs(*upTrackerDz)  < 0.5) ? 1 : 0;
 
-	bool up_n1dxymax      = (upperValidMuHits        &&
-				 upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0  ) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1dzmax       = (upperValidMuHits        &&
-				 upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0  ) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1ptrelerr    = (upperValidMuHits      &&
-				 upperMuStationHits    &&
-				 (*upTrackerPhits > 0) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1pt          = (upperValidMuHits        &&
-				 upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0  ) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1trkhits     = (upperValidMuHits        &&
-				 upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0 ))
-	  ? 1 : 0;
-	bool up_n1pixhits     = (upperValidMuHits        &&
-				 upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1vmuhits     = (upperMuStationHits      &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0  ) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool up_n1mmustahits  = (upperValidMuHits        &&
-				 (upperRelPtErr   < 0.3) &&
-				 (*upTrackerPhits > 0  ) &&
-				 (*upTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
+	bool up_superpointing = (up_loosedxy && up_loosedz /* && up_firstPix */) ? 1 : 0;
+
+	bool up_n1dxymax      = (up_vmuhits && up_mustahits && up_ptrel && up_pxhits && up_tklayswm) ? 1 : 0;
+	bool up_n1dzmax       = (up_vmuhits && up_mustahits && up_ptrel && up_pxhits && up_tklayswm) ? 1 : 0;
+	bool up_n1ptrelerr    = (up_vmuhits && up_mustahits && up_pxhits && up_tklayswm)             ? 1 : 0;
+	bool up_n1pt          = (up_vmuhits && up_mustahits && up_ptrel && up_pxhits && up_tklayswm) ? 1 : 0;
+	bool up_n1trkhits     = (up_vmuhits && up_mustahits && up_ptrel && up_pxhits)                ? 1 : 0;
+	bool up_n1pixhits     = (up_vmuhits && up_mustahits && up_ptrel && up_tklayswm)              ? 1 : 0;
+	bool up_n1vmuhits     = (up_mustahits && up_ptrel && up_pxhits && up_tklayswm)               ? 1 : 0;
+	bool up_n1mmustahits  = (up_vmuhits && up_ptrel && up_pxhits && up_tklayswm)                 ? 1 : 0;
 
 	int etabin    = getEtaBin(upTrackerTrack->eta());
 	int phibin    = getPhiBin(upTrackerTrack->phi());
 	int chargebin = getChargeBin(*upTrackerCharge);
 
-	if (debug && (j % 100) == 0)
+        int mu_etabin = getEtaBin(upTrackerMuonP4->eta());
+	int mu_phibin = getPhiBin(upTrackerMuonP4->phi());
+
+	if ((debug && (j % 100) == 0) ||
+            // bool(mu_etabin) != bool(etabin) ||
+            // bool(mu_phibin) != bool(phibin)
+            fabs(mu_etabin - etabin) > 0.05 ||
+            fabs(mu_phibin - phibin) > 0.05
+            )
 	  std::cout << "upper leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << upTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerMuonP4->eta()
@@ -1046,7 +1048,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << " - phi = "    << std::setw(6) << std::setprecision(2) << std::fixed << upTrackerTrack->phi()
 		    << std::endl
 
-		    << " - etabin = "    << etabin
+		    << " etabin = "      << etabin
 		    << " - phibin = "    << phibin
 		    << " - chargebin = " << chargebin
 		    << std::endl;
@@ -1085,10 +1087,32 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << ",phi="    << upTrackerTrack->phi()
 		    << ",charge=" << *upTrackerCharge;
 
+        // Preselection basic counters
+        if (up_etabar)
+          h_countersUpper->Fill(9);
+        if (up_firstPix)
+          h_countersUpper->Fill(10);
+        if (up_ptrel)
+          h_countersUpper->Fill(55);
+        if (up_tklayswm)
+          h_countersUpper->Fill(56);
+        if (up_pxhits)
+          h_countersUpper->Fill(57);
+        if (up_vmuhits)
+          h_countersUpper->Fill(58);
+        if (up_mustahits)
+          h_countersUpper->Fill(59);
+        if (up_loosedxy)
+          h_countersUpper->Fill(60);
+        if (up_loosedz)
+          h_countersUpper->Fill(62);
+        if (up_tightdxy)
+          h_countersUpper->Fill(61);
+        if (up_tightdz)
+          h_countersUpper->Fill(63);
+
 	// fill the counters histogram for the upper leg muons passing the super-pointing selection, currently just fill
 	if (up_superpointing && up_etabar) {
-	  //if (up_superpointing || true) {
-
 	  h_countersUpper->Fill(0);
 
 	  if (up_n1ptrelerr)
@@ -1291,71 +1315,43 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	// make bool's for each cut level?
 	//uint32_t lowerCuts; // 1 bit per cut
 
-	bool low_etabar   = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool low_tightdxy = (*lowTrackerDxy < 0.2) ? 1 : 0;
-	bool low_tightdz  = (*lowTrackerDz  < 0.5) ? 1 : 0;
-	bool low_etaBar   = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
-	bool low_superpointing = (
-                                  (std::fabs(*lowTrackerDxy) < 10)
-                                  && (std::fabs(*lowTrackerDz) < 50)
-                                  && (*lowTrackerFirstPixel > 0)
-                                  )
-          ? 1 : 0;
+	bool low_ptrel     = (lowerRelPtErr < 0.3) ? 1 : 0;
+	bool low_tklayswm  = (*lowTrackerLayersWithMeasurement > 5) ? 1 : 0;
+	bool low_pxhits    = (*lowTrackerPhits > 0) ? 1 : 0;
+	bool low_mustahits = (*lowTrackerMatchedMuonStations > 1) ? 1 : 0;
+	// if using TuneP or TrackerOnly and pT < 200, should *not* apply muon system cuts
+	// bool low_vmuhits = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerMatchedMuonStations > 1 : 1;
+	bool low_vmuhits   = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerValidMuonHits > 0 : 1;
+	bool low_etabar    = (fabs(lowTrackerMuonP4->eta()) < 0.9) ? 1 : 0;
+	bool low_firstPix  = (*lowTrackerFirstPixel > 0);
+	bool low_loosedxy  = (std::fabs(*lowTrackerDxy) < 10) ? 1 : 0;
+	bool low_loosedz   = (std::fabs(*lowTrackerDz)  < 50) ? 1 : 0;
+	bool low_tightdxy  = (std::fabs(*lowTrackerDxy) < 0.2) ? 1 : 0;
+        bool low_tightdz   = (std::fabs(*lowTrackerDz)  < 0.5) ? 1 : 0;
 
-	// if using TrackerOnly or TuneP and pT < 200, should *not* apply muon system cuts
-	// bool lowerMuStationHits = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerMatchedMuonStations > 1 : 1;
-	bool lowerMuStationHits = *lowTrackerMatchedMuonStations > 1;
-	bool lowerValidMuHits   = (!istrackerp || (istunep && sqrt(lowTrackerTrack->perp2()) > 200)) ? *lowTrackerValidMuonHits > 0 : 1;
+	bool low_superpointing = (low_loosedxy && low_loosedz /* && low_firstPix */) ? 1 : 0;
 
-	bool low_n1dxymax      = (lowerValidMuHits         &&
-				  lowerMuStationHits       &&
-				  (lowerRelPtErr   < 0.3)  &&
-				  (*lowTrackerPhits > 0  ) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1dzmax       = (lowerValidMuHits         &&
-				  lowerMuStationHits       &&
-				  (lowerRelPtErr   < 0.3)  &&
-				  (*lowTrackerPhits > 0  ) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1ptrelerr    = (lowerValidMuHits       &&
-				  lowerMuStationHits     &&
-				  (*lowTrackerPhits > 0) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1pt          = (lowerValidMuHits         &&
-				  lowerMuStationHits       &&
-				  (lowerRelPtErr   < 0.3)  &&
-				  (*lowTrackerPhits > 0  ) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1trkhits     = (lowerValidMuHits        &&
-				  lowerMuStationHits      &&
-				  (lowerRelPtErr   < 0.3) &&
-				  (*lowTrackerPhits > 0 ))
-	  ? 1 : 0;
-	bool low_n1pixhits     = (lowerValidMuHits        &&
-				  lowerMuStationHits       &&
-				  (lowerRelPtErr   < 0.3) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1vmuhits     = (lowerMuStationHits       &&
-				  (lowerRelPtErr   < 0.3)  &&
-				  (*lowTrackerPhits > 0  ) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
-	bool low_n1mmustahits  = (lowerValidMuHits         &&
-				  (lowerRelPtErr   < 0.3)  &&
-				  (*lowTrackerPhits > 0  ) &&
-				  (*lowTrackerLayersWithMeasurement > 5))
-	  ? 1 : 0;
+	bool low_n1dxymax      = (low_vmuhits && low_mustahits && low_ptrel && low_pxhits && low_tklayswm) ? 1 : 0;
+	bool low_n1dzmax       = (low_vmuhits && low_mustahits && low_ptrel && low_pxhits && low_tklayswm) ? 1 : 0;
+	bool low_n1ptrelerr    = (low_vmuhits && low_mustahits && low_pxhits && low_tklayswm)              ? 1 : 0;
+	bool low_n1pt          = (low_vmuhits && low_mustahits && low_ptrel && low_pxhits && low_tklayswm) ? 1 : 0;
+	bool low_n1trkhits     = (low_vmuhits && low_mustahits && low_ptrel && low_pxhits)                 ? 1 : 0;
+	bool low_n1pixhits     = (low_vmuhits && low_mustahits && low_ptrel && low_tklayswm)               ? 1 : 0;
+	bool low_n1vmuhits     = (low_mustahits && low_ptrel && low_pxhits && low_tklayswm)                ? 1 : 0;
+	bool low_n1mmustahits  = (low_vmuhits && low_ptrel && low_pxhits && low_tklayswm)                  ? 1 : 0;
 
 	etabin    = getEtaBin(lowTrackerTrack->eta());
 	phibin    = getPhiBin(lowTrackerTrack->phi());
 	chargebin = getChargeBin(*lowTrackerCharge);
+        mu_etabin = getEtaBin(lowTrackerMuonP4->eta());
+        mu_phibin = getPhiBin(lowTrackerMuonP4->phi());
 
-	if (debug && (j % 100) == 0)
+	if ((debug && (j % 100) == 0) ||
+            // bool(mu_etabin) != bool(etabin) ||
+            // bool(mu_phibin) != bool(phibin)
+            fabs(mu_etabin - etabin) > 0.05 ||
+            fabs(mu_phibin - phibin) > 0.05
+            )
 	  std::cout << "lower leg"    << std::endl
 		    << "mu pt  = "    << std::setw(8) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->pt()
 		    << " - eta = "    << std::setw(6) << std::setprecision(2) << std::fixed << lowTrackerMuonP4->eta()
@@ -1406,10 +1402,32 @@ void Plot(std::string const& filelist, std::string const& outFile,
 		    << ",phi="    << lowTrackerTrack->phi()
 		    << ",charge=" << *lowTrackerCharge;
 
+        // Preselection basic counters
+        if (low_etabar)
+          h_countersLower->Fill(9);
+        if (low_firstPix)
+          h_countersLower->Fill(10);
+        if (low_ptrel)
+          h_countersLower->Fill(55);
+        if (low_tklayswm)
+          h_countersLower->Fill(56);
+        if (low_pxhits)
+          h_countersLower->Fill(57);
+        if (low_vmuhits)
+          h_countersLower->Fill(58);
+        if (low_mustahits)
+          h_countersLower->Fill(59);
+        if (low_loosedxy)
+          h_countersLower->Fill(60);
+        if (low_loosedz)
+          h_countersLower->Fill(62);
+        if (low_tightdxy)
+          h_countersLower->Fill(61);
+        if (low_tightdz)
+          h_countersLower->Fill(63);
+
 	// fill the counters histogram for the lower leg muons passing the super-pointing selection
 	if (low_superpointing && low_etabar) {
-	  //if (low_superpointing || true) {
-
 	  h_countersLower->Fill(0);
 
 	  if (low_n1ptrelerr)
@@ -1656,7 +1674,7 @@ void Plot(std::string const& filelist, std::string const& outFile,
 	std::cout << "Made it through " << j << " sets of fills" << std::endl;
     } // closing if (*upTrackerChi2 > -1)
     ++k;
-    if (debug && k > 1000)
+    if (debug && k > 10000)
       break;
   } // end while loop
 
