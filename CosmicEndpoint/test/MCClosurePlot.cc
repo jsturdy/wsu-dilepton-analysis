@@ -186,7 +186,10 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
   while (std::getline(file,name)) {
     std::stringstream newString;
     // newString << "root://xrootd.unl.edu//" << name;
-    newString << "root://cmseos.fnal.gov//" << name;
+    newString
+      // << "file://"
+      << "root://cmseos.fnal.gov//"
+      << name;
 
     // Use the following line with line above commented out for running on local files.
     // newString << name;
@@ -524,6 +527,8 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
     // any reason to *not* put the random initialization here?
     // only sample randomly from the events we'll process?
     // or sample randomly all events, and let us cut out what we cut out?
+    // probably need to define the MC that will correspond to the pseudo-data, and sample from that
+    // always keeping the closure MC the same events
     Double_t *randvals = new Double_t[N_PSEUDO];
     closureRand.RndmArray(N_PSEUDO,randvals);
 
@@ -950,7 +955,7 @@ void MCClosurePlot(std::string const& filelist, std::string const& outFile,
 
     ++k;  // increment here to count processed events
 
-    delete randvals;
+    delete[] randvals;
 
     if (debug && k > 1000)
       break;
