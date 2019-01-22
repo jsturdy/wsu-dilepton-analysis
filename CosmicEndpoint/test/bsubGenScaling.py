@@ -51,9 +51,23 @@ if options.mc:
     isMC = "-m"
 
 for line in open(options.infiles):
-    scriptname = "genScaling/bsub_gen_%s_%s_job_%d.sh"%(options.title,options.tool,count)
-    script = open(scriptname,"w")
-    script.write("""#!/bin/bash
+    scriptname = "bsub_gen_%s_%s_job_%d"%(options.title,options.tool,count)
+
+    with open("genScaling/{0:s}.sub".format(scriptname),"w") as f:
+        f.write("""
+executable  = genScaling/{0:s}.sh
+arguments   = $(ClusterID) $(ProcId)
+output      = genScaling/output/{1:s}.$(ClusterId).$(ProcId).out
+error       = genScaling/error/{1:s}.$(ClusterId).$(ProcId).err
+log         = genScaling/logs/{1:s}.$(ClusterId).log
++JobFlavour = "workday"
+RequestCpus = 2
+queue
+""".format(scriptname,options.title)
+                )
+
+    with open("genScaling/{0:s}.sh".format(scriptname),"w") as script:
+        script.write("""#!/bin/bash
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
 source $VO_CMS_SW_DIR/cmsset_default.sh
 export X509_USER_PROXY=%s
@@ -99,16 +113,16 @@ rsync -e "ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a
      options.tool,line[:-1],isMC,options.title,count,
      socket.gethostname(),socket.gethostname()))
 
-    script.close()
-    os.chmod(scriptname,0777)
+    # script.close()
+    os.chmod("genScaling/{0:s}.sh".format(scriptname),0777)
 
     if not debug:
-        cmd = "bsub -q 8nh -W 240 %s/%s"%(os.getcwd(),scriptname)
+        cmd = "condor_submit %s/%s"%(os.getcwd(),"genScaling/{0:s}.sub".format(scriptname))
         print cmd
-        os.system(cmd)
+        # os.system(cmd)
     elif count == 3:
-        cmd = "bsub -q test -W 240 %s/%s"%(os.getcwd(),scriptname)
+        cmd = "condor_submit %s/%s"%(os.getcwd(),"genScaling/{0:s}.sub".format(scriptname))
         print cmd
-        os.system(cmd)
+        # os.system(cmd)
 
     count = count + 1
