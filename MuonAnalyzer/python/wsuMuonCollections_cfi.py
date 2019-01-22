@@ -9,10 +9,10 @@ dz_cut  = " && (abs(tunePMuonBestTrack.dz)  < 75.)"
 # upper: outer position > 0 if standalone track outerTrack.isNonnull ? outerPosition.Y > 0
 # upper: inner position > 0
 # upper: abs(inner position) > abs(outer position)
-upper_cut = "? outerTrack.isNonnull ? (outerTrack.outerPosition.Y > 0) : (abs(innerTrack.innerPosition.Y) > abs(innerTrack.outerPosition.Y))"
-lower_cut = "? outerTrack.isNonnull ? (outerTrack.outerPosition.Y < 0) : (abs(innerTrack.innerPosition.Y) < abs(innerTrack.outerPosition.Y))"
-upper_cut_ = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y > 0) : ((abs(innerTrack.innerPosition.Y) > abs(innerTrack.outerPosition.Y)))"
-lower_cut_ = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y < 0) : ((abs(innerTrack.innerPosition.Y) < abs(innerTrack.outerPosition.Y)))"
+upper_cut   = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y > 0) : (abs(innerTrack.innerPosition.Y) > abs(innerTrack.outerPosition.Y))"
+lower_cut   = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y < 0) : (abs(innerTrack.innerPosition.Y) < abs(innerTrack.outerPosition.Y))"
+upper_cut_  = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y > 0) : ((abs(innerTrack.innerPosition.Y) > abs(innerTrack.outerPosition.Y)))"
+lower_cut_  = "? (outerTrack.isNonnull) ? (outerTrack.outerPosition.Y < 0) : ((abs(innerTrack.innerPosition.Y) < abs(innerTrack.outerPosition.Y)))"
 upper_cut_2 = "(outerTrack.isNonnull && (outerTrack.outerPosition.Y > 0)) || (!(outerTrack.isNonnull) &&(abs(innerTrack.innerPosition.Y) > abs(innerTrack.outerPosition.Y)))"
 lower_cut_2 = "(outerTrack.isNonnull && (outerTrack.outerPosition.Y < 0)) || (!(outerTrack.isNonnull) &&(abs(innerTrack.innerPosition.Y) < abs(innerTrack.outerPosition.Y)))"
 
@@ -102,13 +102,13 @@ globalMuonSPFilter = cms.EDFilter("MuonCountFilter",
 # EDM Output definition
 COSMICoutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('RAW-RECO'),
+        dataTier   = cms.untracked.string('RAW-RECO'),
         filterName = cms.untracked.string('muonanalysis')
     ),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('muonanalysis')),
+    SelectEvents                 = cms.untracked.PSet(SelectEvents = cms.vstring('muonanalysis')),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('Cosmics_deco_p100_CosmicSP_ReReco_outer_new_changed.root'),
-    outputCommands = cms.untracked.vstring('keep *',
+    fileName                     = cms.untracked.string('Cosmics_deco_p100_CosmicSP_ReReco_outer_new_changed.root'),
+    outputCommands               = cms.untracked.vstring('keep *',
                                            # 'keep *_gctDigis_*_*',
                                            # 'keep *_gtStage2Digis_*_*',
                                            # 'keep *_gmtStage2Digis_*_*',
