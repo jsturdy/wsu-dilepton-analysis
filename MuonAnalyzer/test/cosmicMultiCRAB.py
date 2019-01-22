@@ -74,47 +74,140 @@ def main():
         from CRABClient.UserUtilities import config
         config = config()
 
-        config.General.requestName = None
-        config.General.workArea = options.workArea
+        config.General.requestName     = None
+        config.General.workArea        = options.workArea
         config.General.transferOutputs = True
-        config.General.transferLogs = False
+        config.General.transferLogs    = False
+        
+        # ### TEMP FIXME BUG IN CRAB
+        # config.General.instance        = 'preprod'
+        ###
+        config.JobType.pluginName    = 'Analysis'
 
-        config.JobType.pluginName = 'Analysis'
         config.Data.inputDBS         = 'global'
         config.Data.inputDataset     = None
         config.Data.splitting        = None
         config.Data.outputDatasetTag = None
+        config.Data.ignoreLocality   = True
+        ## necessary with ignoreLocality set to true
+        config.Site.whitelist        = ["T2_CH_*", "T3_US_FNALLPC"]
 
         ## MODIFY THIS TO POINT TO THE DESIRED OUTPUT LOCATION
-        config.Data.outLFNDirBase = '/store/user/sturdy/CosmicEndpoint/2016/Trees'
+        config.Data.outLFNDirBase    = '/store/user/sturdy/CosmicEndpoint/2017/Trees'
 
         config.Site.storageSite = 'T3_US_FNALLPC'
+
+        # config.Site.blacklist = ['T2_EE_Estonia']
         #--------------------------------------------------------
 
         # Will submit one task for each of these input datasets.
         # pass in datasets as a dict {datasetname,mc/data}
         certFile = options.lumiJSON
         inputDatasetMap = {
-            # "MC": [
-            #     ['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
-            #     ['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
-            #     ['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
-            #     ],
+            "MC": [
+                # ## 2016 MC
+                # ['/SPLooseMuCosmic_38T_p10/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO', None],
+                # ['/SPLooseMuCosmic_38T_p100/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+                # ['/SPLooseMuCosmic_38T_p500/CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1/GEN-SIM-RECO',None],
+
+                # ## 2017 MC SIM
+                # ['/SPLooseMuCosmic_38T_p10-100/RunIISummer17CosmicGS-92X_upgrade2017cosmics_realistic_deco_v10-v1/GEN-SIM', None],
+                # ['/SPLooseMuCosmic_38T_p100-500/RunIISummer17CosmicGS-92X_upgrade2017cosmics_realistic_deco_v10-v1/GEN-SIM',None],
+                # ['/SPLooseMuCosmic_38T_p500/RunIISummer17CosmicGS-92X_upgrade2017cosmics_realistic_deco_v10-v1/GEN-SIM',    None],
+                # ['/TKCosmics_38T/RunIISummer17CosmicGS-92X_upgrade2017cosmics_realistic_deco_v10-v1/GEN-SIM',               None],
+                # ['/TKCosmics_38T/RunIISummer17CosmicGS-92X_upgrade2017cosmics_realistic_deco_v10_ext1-v2/GEN-SIM',          None],
+
+                ## 2017 MC RECO
+                ['/SPLooseMuCosmic_38T_p10-100/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO',  None],
+                ['/SPLooseMuCosmic_38T_p100-500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO', None],
+                ['/SPLooseMuCosmic_38T_p500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO',     None],
+                ['/TKCosmics_38T/RunIISummer17CosmicDR-DECO_92X_upgrade2017cosmics_realistic_deco_v10-v1/GEN-SIM-RECO',     None],
+                # ['/TKCosmics_38T/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO',                None],
+                # ['/TKCosmics_38T/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3_ext1-v2/GEN-SIM-RECO',           None],
+
+                # ## 2018 MC SIM
+                # ['/SPLooseMuCosmic_38T_p10-100/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM',  None],
+                # ['/SPLooseMuCosmic_38T_p100-500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM', None],
+                # ['/SPLooseMuCosmic_38T_p500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM',     None],
+                # ['/TKCosmics_38T/RunIISpring18CosmicGS-100X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM',               None],
+
+                # ## 2018 MC RECO
+                # ['/SPLooseMuCosmic_38T_p10-100/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO',  None],
+                # ['/SPLooseMuCosmic_38T_p100-500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO', None],
+                # ['/SPLooseMuCosmic_38T_p500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO',     None],
+                # ['/TKCosmics_38T/RunIISpring18CosmicDR-DECO_100X_mc2017cosmics_realistic_deco_v3-v1/GEN-SIM-RECO', None],
+                # ['/TKCosmics_38T/RunIISpring18CosmicDR-PEAK_100X_mc2017cosmics_realistic_peak_v3-v1/GEN-SIM-RECO', None],
+
+                ],
             "DATA": [
-                # ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                # ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016A-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                ['/Cosmics/Run2016A-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016B-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                ['/Cosmics/Run2016B-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016C-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016D-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016E-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016F-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                ['/Cosmics/Run2016G-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
-                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
-                ['/Cosmics/Run2016H-CosmicSP-PromptReco-v3/RAW-RECO',certFile],
+                # ## 2015 data
+                # ['/Cosmics/Commissioning2015-CosmicSP-01Mar2016-v3/RAW-RECO',certFile],
+                # ['/Cosmics/Commissioning2015-CosmicSP-20Jan2016-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2015A-CosmicSP-01Mar2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015B-CosmicSP-01Mar2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015B-CosmicSP-20Jan2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015C-CosmicSP-01Mar2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015C-CosmicSP-20Jan2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015C-CosmicSP-PromptReco-v1/RAW-RECO', certFile],
+                # ['/Cosmics/Run2015C-CosmicSP-PromptReco-v2/RAW-RECO', certFile],
+                # ['/Cosmics/Run2015C-CosmicSP-PromptReco-v3/RAW-RECO', certFile],
+                # ['/Cosmics/Run2015D-CosmicSP-01Mar2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015D-CosmicSP-20Jan2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015D-CosmicSP-PromptReco-v3/RAW-RECO', certFile],
+                # ['/Cosmics/Run2015D-CosmicSP-PromptReco-v4/RAW-RECO', certFile],
+                # ['/Cosmics/Run2015E-CosmicSP-01Mar2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015E-CosmicSP-20Jan2016-v1/RAW-RECO',  certFile],
+                # ['/Cosmics/Run2015E-CosmicSP-PromptReco-v1/RAW-RECO', certFile],
+                # ['/Cosmics/HIRun2015-CosmicSP-20Jan2016-v1/RAW-RECO', certFile],
+                # ['/Cosmics/HIRun2015-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ## 2016 data
+                # # ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # # ['/Cosmics/Commissioning2016-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016A-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016A-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016B-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016B-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016C-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016D-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016E-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016F-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016G-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016H-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016H-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2016H-CosmicSP-PromptReco-v3/RAW-RECO',certFile],
+                # # ['/Cosmics/PARun2016A-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # # ['/Cosmics/PARun2016B-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # # ['/Cosmics/PARun2016C-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # # ['/Cosmics/PARun2016D-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                ## 2017 data
+                ['/Cosmics/Commissioning2017-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                ['/Cosmics/Run2017A-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017A-CosmicSP-PromptReco-v2/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017A-CosmicSP-PromptReco-v3/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017B-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017B-CosmicSP-PromptReco-v2/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017C-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017C-CosmicSP-PromptReco-v2/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017C-CosmicSP-PromptReco-v3/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017D-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017E-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017F-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017G-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/Run2017H-CosmicSP-PromptReco-v1/RAW-RECO',         certFile],
+                ['/Cosmics/XeXeRun2017-CosmicSP-PromptReco-v1/RAW-RECO',      certFile],
+                # ## 2018 data
+                # ['/Cosmics/Commissioning2018-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018A-CosmicSP-06Jun2018-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018A-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018A-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018A-CosmicSP-PromptReco-v3/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018B-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018B-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018C-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018C-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018C-CosmicSP-PromptReco-v3/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018D-CosmicSP-PromptReco-v1/RAW-RECO',certFile],
+                # ['/Cosmics/Run2018D-CosmicSP-PromptReco-v2/RAW-RECO',certFile],
                 ]
             }
 
@@ -124,23 +217,30 @@ def main():
             if key == 'DATA':
                 inputDatasets = inputDatasetMap[key]
                 ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for data
-                # config.JobType.psetName = 'wsuMuonTree_data_reHLT_reRECO.py'
-                config.JobType.psetName = 'wsuMuonAnalyzer_data_reHLT_reRECO.py'
+                # common options: wsuMuonTree_data_reHLT_reRECO.py, wsuMuonAnalysis_data.py
+                # config.JobType.psetName = 'wsuMuonAnalyzer_data_reHLT.py'
+                # config.JobType.psetName = 'wsuMuonTree_data.py'
+                config.JobType.psetName = 'wsuMuonAnalyzer_data.py'
 
-                config.Data.useParent = False
-                config.Data.splitting = 'LumiBased'
-                config.Data.unitsPerJob = 250
+                config.Data.useParent   = False
+                config.Data.splitting   = 'Automatic'
+                # config.Data.splitting   = 'LumiBased'
+                # config.Data.unitsPerJob = 1000
 
             elif key == 'MC':
                 inputDatasets = inputDatasetMap[key]
-                ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for MC
                 config.JobType.maxMemoryMB = 4000
-                # config.JobType.psetName = 'wsuMuonTree_MC_reHLT.py'
-                config.JobType.psetName = 'wsuMuonAnalyzer_MC_reHLT.py'
+                ## MODIFY THIS TO POINT TO THE DESIRED cmsRun python config for MC
+                # wsuMuonTree_MC_reHLT.py, wsuMuonAnalyzer_MC_reHLT.py (for rerunning RECO/HLT)
+                # config.JobType.psetName = 'wsuMuonPtScaling_MC.py'
+                config.JobType.psetName = 'wsuMuonAnalyzer_MC.py'
+                # config.JobType.psetName = 'wsuMuonTree_MC.py'
 
-                config.Data.useParent = True
-                config.Data.splitting = 'FileBased'
-                config.Data.unitsPerJob = 1
+                # True if the GEN-SIM dataset is available and running a re-reco, false otherwise
+                config.Data.useParent   = False
+                config.Data.splitting   = 'Automatic'
+                # config.Data.splitting   = 'FileBased'
+                # config.Data.unitsPerJob = 1
                 pass
 
             for inDS in inputDatasets:
