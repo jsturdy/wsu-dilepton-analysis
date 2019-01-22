@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("MuonAnalysis",eras.Run2_25ns,eras.Run2_2016)
+process = cms.Process("MuonTree",eras.Run2_25ns,eras.Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
 process.options = cms.untracked.PSet(
     wantSummary      = cms.untracked.bool(True),
     allowUnscheduled = cms.untracked.bool(True)
@@ -18,32 +19,43 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## default 
 
 #from L1Trigger.Configuration.L1TRawToDigi_cff import *
 process.load('L1Trigger.Configuration.L1TRawToDigi_cff')
+process.load('L1Trigger.Configuration.L1Extra_cff')
 
 l1path = 'L1_SingleMuOpen'
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
 process.trigFilter = triggerResultsFilter.clone()
 process.trigFilter.triggerConditions = cms.vstring("HLT_L1SingleMuOpen*")
-process.trigFilter.l1tResults        = cms.InputTag('gtDigis','','HLT')
+process.trigFilter.l1tResults        = cms.InputTag('gtDigis','','RECO')
 process.trigFilter.hltResults        = cms.InputTag('TriggerResults','','HLT')
 
 from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+        mc17filespt100
         #mcfilespt100startup
-        mcfilespt100asym
+        # mcfilespt100asym
         #dyfiles
         ),
-    secondaryFileNames = cms.untracked.vstring(
-        mcfilespt100asymraw
-        )
+    # secondaryFileNames = cms.untracked.vstring(
+    #     mc17filespt100raw
+    #     # mcfilespt100asymraw
+    #     )
 )
+
+process.source.inputCommands = cms.untracked.vstring(
+    "keep *",
+    # "drop FEDRawDataCollection_rawDataCollector_*_*",
+    # "drop *_cosmicDCTracks_*_*",
+    # "drop *_hltGtStage2ObjectMap_*_*",
+)
+process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
 process.load("WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi")
-process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_MC_CosmicSP_80X.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_MC_CosmicSP_94X.root')
 
 from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
@@ -62,8 +74,8 @@ process.analysisMuons = muonTree.clone(
     cosmicTrackSrc  = cms.InputTag("cosmicMuonTracks"),
     trackerTrackSrc = cms.InputTag("trackerMuonTracks"),
     algoType        = cms.int32(5),
-    debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    debug           = cms.int32(0),
+    # trigResultsSrc  = cms.InputTag('TriggerResults','','@skipCurrentProcess'),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
     fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
     isGen           = cms.bool(True)
@@ -77,21 +89,22 @@ process.analysisSPMuons = muonTree.clone(
     cosmicTrackSrc  = cms.InputTag("cosmicSPMuonTracks"),
     trackerTrackSrc = cms.InputTag("trackerSPMuonTracks"),
     algoType        = cms.int32(5),
-    debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','','HLT'),
+    debug           = cms.int32(0),
+    # trigResultsSrc  = cms.InputTag('TriggerResults','','SIM'),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
     fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
     isGen           = cms.bool(True)
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonTree_MC_80X.root')
+    fileName = cms.string('CosmicMuonTree_MC_94X.root')
 )
 
 process.muonSPFilter.src = cms.InputTag("zprimeMuons")
 
 process.rerunl1t = cms.Path(
     process.L1TRawToDigi
+    +process.L1Extra
     )
 # # EDM Output definition
 # process.rerunL1TOutput = cms.OutputModule("PoolOutputModule",
@@ -105,11 +118,11 @@ process.rerunl1t = cms.Path(
 #     outputCommands = cms.untracked.vstring('keep *')
 # )
 
-process.muonanalysis = cms.Path(
-    process.L1TRawToDigi
+process.muontree = cms.Path(
+    # process.L1TRawToDigi
     #process.trigFilter
-    +process.singleMuFilter
-    +process.singleMuFilterStage2
+    process.singleMuFilter
+    # +process.singleMuFilterStage2
     +process.betterMuons
     +process.betterSPMuons
     +process.lowerMuons
@@ -129,13 +142,13 @@ process.muonanalysis = cms.Path(
     )
 
 # generate EDM output
-process.COSMICoutput_step   = cms.EndPath(process.COSMICoutput)
-#process.rerunL1TOutput_step = cms.EndPath(process.rerunL1TOutput)
+# process.COSMICoutput_step   = cms.EndPath(process.COSMICoutput)
+# process.rerunL1TOutput_step = cms.EndPath(process.rerunL1TOutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(
 #    process.rerunl1t
-    process.muonanalysis
+    process.muontree
     #,process.rerunL1TOutput_step
-    ,process.COSMICoutput_step
+    # ,process.COSMICoutput_step
 )

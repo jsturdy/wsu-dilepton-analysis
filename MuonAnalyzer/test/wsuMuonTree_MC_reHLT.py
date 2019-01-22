@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MuonAnalysis',eras.Run2_25ns,eras.Run2_2016)
+process = cms.Process('MuonAnalysis',eras.Run2_25ns,eras.Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -14,8 +14,8 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimL1EmulatorRepack_FullMC_cff')
 #process.load('HLTrigger.Configuration.HLT_25ns10e33_v2_cff')
-#process.load('HLTrigger.Configuration.HLT_GRun_cff')
-process.load('HLTrigger.Configuration.HLT_25ns15e33_v4_cff')
+process.load('HLTrigger.Configuration.HLT_GRun_cff')
+# process.load('HLTrigger.Configuration.HLT_25ns15e33_v4_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -30,8 +30,8 @@ process.options = cms.untracked.PSet(
 # load conditions from the global tag, what to use here?
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## default = ?
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2cosmics_asymptotic_deco_v0', '') ## from McM reHLT example
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## default = ?
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017cosmics_realistic_deco_v3', '') ## from McM reHLT example
 
 # for reHLT need to update:
 ## from 2016 data MuonTriggerKeys
@@ -45,35 +45,37 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2cosmics_asymptotic_d
 # L1RPCConfigRcd         L1RPCConfig_LHC9_BOTTOM_mc
 # L1RPCHsbConfigRcd      L1RPCHsbConfig_LHC9_BOTTOM_mc
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.cosmicTrigger = cms.ESSource("PoolDBESSource",CondDBSetup,
-    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-    toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string("L1TUtmTriggerMenuRcd"),
-            #tag = cms.string("L1Menu_Collisions2016_v4_xml")
-            tag = cms.string("L1Menu_Collisions2016_v6r5_ugt_1board_xml")
-            ),
-        cms.PSet(
-            record = cms.string("L1RPCBxOrConfigRcd"),
-            tag = cms.string("L1RPCBxOrConfig_LHC9_BOTTOM_mc")
-            ),
-        cms.PSet(
-            record = cms.string("L1RPCConeDefinitionRcd"),
-            tag = cms.string("L1RPCConeDefinition_LHC9_BOTTOM_mc")
-            ),
-        cms.PSet(
-            record = cms.string("L1RPCConfigRcd"),
-            tag = cms.string("L1RPCConfig_LHC9_BOTTOM_mc")
-            ),
-        cms.PSet(
-            record = cms.string("L1RPCHsbConfigRcd"),
-            tag = cms.string("L1RPCHsbConfig_LHC9_BOTTOM_mc")
-            )
+## FIXME for generic analysis of multiple run periods
+# # from CondCore.DBCommon.CondDBSetup_cfi import *
+# from CondCore.CondDB.CondDB_cfi import *
+# process.cosmicTrigger = cms.ESSource("PoolDBESSource",CondDB,
+#     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+#     toGet = cms.VPSet(
+#         cms.PSet(
+#             record = cms.string("L1TUtmTriggerMenuRcd"),
+#             #tag = cms.string("L1Menu_Collisions2016_v4_xml")
+#             tag = cms.string("L1Menu_Collisions2016_v6r5_ugt_1board_xml")
+#             ),
+#         cms.PSet(
+#             record = cms.string("L1RPCBxOrConfigRcd"),
+#             tag = cms.string("L1RPCBxOrConfig_LHC9_BOTTOM_mc")
+#             ),
+#         cms.PSet(
+#             record = cms.string("L1RPCConeDefinitionRcd"),
+#             tag = cms.string("L1RPCConeDefinition_LHC9_BOTTOM_mc")
+#             ),
+#         cms.PSet(
+#             record = cms.string("L1RPCConfigRcd"),
+#             tag = cms.string("L1RPCConfig_LHC9_BOTTOM_mc")
+#             ),
+#         cms.PSet(
+#             record = cms.string("L1RPCHsbConfigRcd"),
+#             tag = cms.string("L1RPCHsbConfig_LHC9_BOTTOM_mc")
+#             )
 
-        )
-)
-process.es_prefer_cosmicTrigger = cms.ESPrefer("PoolDBESSource","cosmicTrigger")
+#         )
+# )
+# process.es_prefer_cosmicTrigger = cms.ESPrefer("PoolDBESSource","cosmicTrigger")
 
 process.load('L1Trigger.Configuration.L1TRawToDigi_cff')
 process.load('L1Trigger.Configuration.L1Extra_cff')
@@ -89,11 +91,13 @@ from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        mcfilespt100asym
+        mc17filespt100
+        # mcfilespt100asym
         ),
-    secondaryFileNames = cms.untracked.vstring(
-        mcfilespt100asymraw
-        ),
+    # secondaryFileNames = cms.untracked.vstring(
+    #     mc17filespt100raw
+    #     # mcfilespt100asymraw
+    #     ),
 )
 
 process.source.inputCommands = cms.untracked.vstring(
@@ -116,7 +120,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 
 process.load('WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi')
 process.load('WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi')
-process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_MC_CosmicSP_80X.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_MC_CosmicSP_94X.root')
 
 from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
@@ -137,7 +141,7 @@ process.analysisMuons = muonTree.clone(
     trackerTrackSrc = cms.InputTag('trackerMuonTracks'),
     algoType        = cms.int32(5),
     debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
+    trigResultsSrc  = cms.InputTag('TriggerResults','','@skipCurrentProcess'),
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
     fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
@@ -153,7 +157,7 @@ process.analysisMuonsStage2 = muonTree.clone(
     trackerTrackSrc = cms.InputTag('trackerMuonTracks'),
     algoType        = cms.int32(5),
     debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
+    trigResultsSrc  = cms.InputTag('TriggerResults','','@skipCurrentProcess'),
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
     fakeL1SingleMuSrc = cms.InputTag('singleMuFilterStage2'),
@@ -169,7 +173,7 @@ process.analysisSPMuons = muonTree.clone(
     trackerTrackSrc = cms.InputTag('trackerSPMuonTracks'),
     algoType        = cms.int32(5),
     debug           = cms.int32(1),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
+    trigResultsSrc  = cms.InputTag('TriggerResults','','@skipCurrentProcess'),
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
     fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
@@ -177,7 +181,7 @@ process.analysisSPMuons = muonTree.clone(
 )
 
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CosmicMuonTree_MC_80X.root')
+    fileName = cms.string('CosmicMuonTree_MC_94X.root')
 )
 
 process.muonSPFilter.src = cms.InputTag('zprimeMuons')
@@ -233,10 +237,11 @@ process.muonanalysis = cms.Path(
 #process.rerunL1TOutput_step = cms.EndPath(process.rerunL1TOutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.l1repack)
-process.schedule.extend([process.rerunl1t])
-process.schedule.extend(process.HLTSchedule)
-process.schedule.extend([process.muonanalysis])
+# process.schedule = cms.Schedule(process.l1repack)
+# process.schedule.extend([process.rerunl1t])
+# process.schedule.extend(process.HLTSchedule)
+# process.schedule.extend([process.muonanalysis])
+process.schedule = cms.Schedule(process.muonanalysis)
 #process.schedule.extend([process.COSMICoutput_step])
 
 # customisation of the process.
@@ -248,10 +253,10 @@ from Configuration.DataProcessing.Utils import addMonitoring
 process = addMonitoring(process)
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforFullSim 
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 
-#call to customisation function customizeHLTforFullSim imported from HLTrigger.Configuration.customizeHLTforMC
-process = customizeHLTforFullSim(process)
+#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
+process = customizeHLTforMC(process)
 
 # End of customisation functions
 

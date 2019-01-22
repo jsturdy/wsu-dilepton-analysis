@@ -1,21 +1,26 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("MuonPtScaling")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("MuonPtScaling",eras.Run2_25ns,eras.Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    wantSummary      = cms.untracked.bool(True),
+    allowUnscheduled = cms.untracked.bool(True)
+)
 
 from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://xrootd-cms.infn.it///store/mc/CosmicWinter15DR/SPLooseMuCosmic_38T_p100/GEN-SIM-RECO/DECO_76X_mcRun2cosmics_asymptotic_deco_v0-v1/70000/0CDD0D0E-8AC5-E511-AEBB-001EC9ADC726.root'
-        #mcfilespt10asym
-        #dyfiles
+        # mcfilespt10asym
+        mc17filespt10
+        # dyfiles
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
 
@@ -23,48 +28,64 @@ from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
 
 from WSUDiLeptons.MuonAnalyzer.wsuMuonPtScaling_cfi import *
-process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
+# process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
+
 ## for comparing with standard collision data/MC
 # can't get y position from AOD/AODSIM, lives in TrackExtra not stored in AOD
+#process.cosmicMuonTracks.src  = cms.InputTag("standAloneMuons")
+#process.globalMuonTracks.src  = cms.InputTag("globalMuons")
+#process.trackerMuonTracks.src = cms.InputTag("generalTracks")
 
-# load conditions from the global tag, what to use here?
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+# # load conditions from the global tag, what to use here?
+# process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+# from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-l1path = 'L1_SingleMuOpen'
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
-process.trigFilter = triggerResultsFilter.clone()
-process.trigFilter.triggerConditions = cms.vstring("HLT_L1SingleMuOpen*")
-process.trigFilter.l1tResults        = cms.InputTag('gtDigis','','HLT')
-process.trigFilter.hltResults        = cms.InputTag('TriggerResults','','HLT')
+# l1path = 'L1_SingleMuOpen'
+# from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
+# process.trigFilter = triggerResultsFilter.clone()
+# process.trigFilter.triggerConditions = cms.vstring("HLT_L1SingleMuOpen*")
+# process.trigFilter.l1tResults        = cms.InputTag('gtDigis','','HLT')
+# process.trigFilter.hltResults        = cms.InputTag('TriggerResults','','HLT')
 
-process.analysisPtScalingLower = muonPtScaling.clone(
-    muonSrc = cms.InputTag("zprimeLowerMuons"),
-    debug   = cms.bool(True)
-)
+# process.analysisPtScalingLower = muonPtScaling.clone(
+#     muonSrc = cms.InputTag("zprimeLowerMuons"),
+#     # debug   = cms.bool(True)
+# )
+# process.analysisPtScaling = muonPtScaling.clone(
+#     muonSrc     = cms.InputTag("zprimeMuons"),
+# )
+# process.analysisPtScalingUpper = muonPtScaling.clone(
+#     muonSrc     = cms.InputTag("zprimeUpperMuons"),
+# )
+
 process.analysisPtScaling = muonPtScaling.clone(
-    muonSrc     = cms.InputTag("zprimeMuons"),
+    muonSrc     = cms.InputTag("muons"),
 )
-process.analysisPtScalingUpper = muonPtScaling.clone(
-    muonSrc     = cms.InputTag("zprimeUpperMuons"),
+process.analysisPtScaling1Leg = muonPtScaling.clone(
+    muonSrc     = cms.InputTag("muons1Leg"),
+)
+process.analysisPtScalingSplit = muonPtScaling.clone(
+    muonSrc     = cms.InputTag("splitMuons"),
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonPtScaling_MC_p10asym.root')
+    fileName = cms.string('CosmicMuonPtScaling_MC_p10_2017.root')
 )
 
-process.muonSPFilter.src = cms.InputTag("zprimeMuons")
+# process.muonSPFilter.src = cms.InputTag("zprimeMuons")
 
 process.muonanalysis = cms.Path(
-    process.trigFilter
-    +process.zprimeMuons
-    +process.zprimeLowerMuons
-    +process.zprimeUpperMuons
-    +process.muonSPFilter
-    +process.analysisPtScaling
-    +process.analysisPtScalingLower
-    +process.analysisPtScalingUpper
+    # process.trigFilter
+    # +process.zprimeMuons
+    # +process.zprimeLowerMuons
+    # +process.zprimeUpperMuons
+    # +process.muonSPFilter
+    process.analysisPtScaling
+    # +process.analysisPtScalingLower
+    # +process.analysisPtScalingUpper
+    +process.analysisPtScaling1Leg
+    +process.analysisPtScalingSplit
 )
 
 # Schedule definition

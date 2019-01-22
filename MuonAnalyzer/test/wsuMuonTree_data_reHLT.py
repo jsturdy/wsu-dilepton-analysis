@@ -2,31 +2,33 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MuonAnalysis',eras.Run2_25ns,eras.Run2_2016)
+process = cms.Process("MuonAnalysis",eras.Run2_25ns,eras.Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContentCosmics_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
-#process.load('HLTrigger.Configuration.HLT_25ns10e33_v2_cff')
-process.load('HLTrigger.Configuration.HLT_GRun_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+# process.load('HLTrigger.Configuration.HLT_GRun_cff')
+# process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load('Configuration.StandardSequences.ReconstructionCosmics_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 250
 process.options = cms.untracked.PSet(
     wantSummary      = cms.untracked.bool(True),
-    #allowUnscheduled = cms.untracked.bool(True)
-    )
+    allowUnscheduled = cms.untracked.bool(True)
+)
 
 # load conditions from the global tag, what to use here?
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '', '') ## from McM reHLT example
 
 
@@ -87,40 +89,42 @@ from WSUDiLeptons.MuonAnalyzer.cosmics2016bv1 import *
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        cosmics16bv1reco
+        cosmics17cv1
+        # cosmics16bv1reco
         ),
-    secondaryFileNames = cms.untracked.vstring(
-        cosmics16bv1raw
-    )
+    # secondaryFileNames = cms.untracked.vstring(
+    #     cosmics16bv1raw
+    # )
 )
 
-process.source.inputCommands = cms.untracked.vstring(
-    'keep *',
-    'drop *_TriggerResults_*_HLT', 
-    'drop *_hltTriggerSummaryAOD_*_HLT', 
-    'drop *_hltGtStage2ObjectMap_*_HLT', 
-    'drop *_l1extraParticles_*_RECO', 
-    'drop L1GlobalTriggerReadoutRecord_gtDigis_*_RECO', 
-    'drop *_cscSegments_*_RECO', 
-    'drop *_dt4DSegments_*_RECO', 
-    'drop *_rpcRecHits_*_RECO',
-    'drop FEDRawDataCollection_rawDataCollector_*_*',
-    'drop *_cosmicDCTracks_*_*',
-    'drop *_hltGtStage2ObjectMap_*_*',
-)
+# process.source.inputCommands = cms.untracked.vstring(
+#     'keep *',
+#     'drop *_TriggerResults_*_HLT', 
+#     'drop *_hltTriggerSummaryAOD_*_HLT', 
+#     'drop *_hltGtStage2ObjectMap_*_HLT', 
+#     'drop *_l1extraParticles_*_RECO', 
+#     'drop L1GlobalTriggerReadoutRecord_gtDigis_*_RECO', 
+#     'drop *_cscSegments_*_RECO', 
+#     'drop *_dt4DSegments_*_RECO', 
+#     'drop *_rpcRecHits_*_RECO',
+#     'drop FEDRawDataCollection_rawDataCollector_*_*',
+#     'drop *_cosmicDCTracks_*_*',
+#     'drop *_hltGtStage2ObjectMap_*_*',
+# )
+
 process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load('WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi')
 process.load('WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi')
-process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_data_CosmicSP_80X_reHLT.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicTree_data_CosmicSP_94X_reHLT.root')
 
 from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
 
 process.load('WSUDiLeptons.MuonAnalyzer.wsuFakeL1SingleMuFilter_cfi')
-process.singleMuFilter.l1MuonSrc = cms.InputTag('l1extraParticles','','')
+process.singleMuFilter.l1MuonSrc   = cms.InputTag('l1extraParticles','','')
 process.singleMuFilter.l1MuonSrc   = cms.InputTag('l1extraParticles')
 process.singleMuFilter.filterEvent = cms.bool(False)
 
@@ -138,7 +142,7 @@ process.analysisMuons = muonTree.clone(
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     trigResultsSrc  = cms.InputTag('TriggerResults','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
-    #fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
+    # fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
     isGen           = cms.bool(False)
 )
 
@@ -154,12 +158,12 @@ process.analysisSPMuons = muonTree.clone(
     l1MuonSrc       = cms.InputTag('l1extraParticles','',''),
     trigResultsSrc  = cms.InputTag('TriggerResults','',''),
     hltTrigCut      = cms.string('L1SingleMuOpen'),
-    #fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
+    # fakeL1SingleMuSrc = cms.InputTag('singleMuFilter'),
     isGen           = cms.bool(False)
 )
 
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CosmicMuonTree_data_80X_reHLT.root')
+    fileName = cms.string('CosmicMuonTree_data_94X_reHLT.root')
 )
 
 process.muonSPFilter.src = cms.InputTag('zprimeMuons')
@@ -187,7 +191,7 @@ process.muonanalysis = cms.Path(
     #process.L1TRawToDigi
     #process.trigFilter
     process.singleMuFilter
-    +process.singleMuFilterStage2
+    # +process.singleMuFilterStage2
     +process.betterMuons
     +process.betterSPMuons
     +process.lowerMuons
@@ -212,8 +216,9 @@ process.COSMICoutput_step = cms.EndPath(process.COSMICoutput)
 
 # Schedule definition
 #process.schedule = cms.Schedule(process.HLTSchedule)
-process.schedule = cms.Schedule([process.rerunl1t])
-process.schedule.extend([process.muonanalysis])
+# process.schedule = cms.Schedule([process.rerunl1t])
+# process.schedule.extend([process.muonanalysis])
+process.schedule = cms.Schedule([process.muonanalysis])
 #process.schedule.extend([process.COSMICoutput_step])
 
 # customisation of the process.

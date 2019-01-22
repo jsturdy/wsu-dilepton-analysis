@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MuonAnalysis',eras.Run2_25ns,eras.Run2_2016)
+process = cms.Process('MuonAnalysis',eras.Run2_25ns,eras.Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -32,8 +32,8 @@ process.options = cms.untracked.PSet(
 # load conditions from the global tag, what to use here?
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4', '')
 
 # for reHLT need to update:
 ## from 2016 data MuonTriggerKeys
@@ -47,7 +47,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v4'
 # L1RPCConfigRcd         L1RPCConfig_LHC9_BOTTOM_mc
 # L1RPCHsbConfigRcd      L1RPCHsbConfig_LHC9_BOTTOM_mc
 
-# from CondCore.DBCommon.CondDBSetup_cfi import *
+# # from CondCore.DBCommon.CondDBSetup_cfi import *
+# from CondCore.CondDB.CondDB_cfi import *
 # process.cosmicTrigger = cms.ESSource('PoolDBESSource',CondDBSetup,
 #     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
 #     toGet = cms.VPSet(
@@ -92,7 +93,7 @@ from WSUDiLeptons.MuonAnalyzer.cosmics2016bv1 import *
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        cosmics16bv1reco
+        cosmics17bv1
         ),
     # secondaryFileNames = cms.untracked.vstring(
     #     cosmics16bv1raw
@@ -119,7 +120,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 
 process.load('WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi')
 process.load('WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi')
-process.COSMICoutput.fileName = cms.untracked.string('CosmicSP_80X_dataRun2_2016SeptRepro_v4.root')
+process.COSMICoutput.fileName = cms.untracked.string('CosmicSP_94X_dataRun2_2017_Prompt.root')
 
 from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
@@ -162,7 +163,7 @@ o    upperLegSrc     = cms.InputTag('zprimeUpperMuons'),
 )
 
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CosmicMuonTree_data_80X.root')
+    fileName = cms.string('CosmicMuonTree_data_94X.root')
 )
 
 process.muonSPFilter.src = cms.InputTag('zprimeMuons')
@@ -185,7 +186,7 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('CosmicSP_80X_dataRun2_2016SeptRepro_v4.root'),
+    fileName = cms.untracked.string('CosmicSP_94X_dataRun2_2017_Prompt.root'),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )

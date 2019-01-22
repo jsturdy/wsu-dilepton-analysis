@@ -1,16 +1,22 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("MuonPtScaling")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("MuonPtScaling",eras.Run2_25ns,eras.Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    wantSummary      = cms.untracked.bool(True),
+    allowUnscheduled = cms.untracked.bool(True)
+)
 
 from WSUDiLeptons.MuonAnalyzer.inputfiles import *
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        mcfilespt500asym
-        #dyfiles
+        # mcfilespt500asym
+        mc17filespt500
+        # dyfiles
     )
 )
 
@@ -22,6 +28,7 @@ from WSUDiLeptons.MuonAnalyzer.wsuTrackCollections_cfi import COSMICTrackoutput
 process.COSMICoutput.outputCommands.append(COSMICTrackoutput)
 
 from WSUDiLeptons.MuonAnalyzer.wsuMuonPtScaling_cfi import *
+# process.load("WSUDiLeptons.MuonAnalyzer.wsuMuonCollections_cfi")
 
 ## for comparing with standard collision data/MC
 # can't get y position from AOD/AODSIM, lives in TrackExtra not stored in AOD
@@ -40,7 +47,7 @@ process.analysisPtScalingSplit = muonPtScaling.clone(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('CosmicMuonPtScaling_MC_p500asym.root')
+    fileName = cms.string('CosmicMuonPtScaling_MC_p500_2017.root')
 )
 
 process.muonanalysis = cms.Path(
