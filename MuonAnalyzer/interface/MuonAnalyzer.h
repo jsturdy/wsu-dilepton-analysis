@@ -51,10 +51,10 @@ class MuonAnalyzer : public edm::EDAnalyzer {
  public:
   explicit MuonAnalyzer(const edm::ParameterSet&);
   ~MuonAnalyzer();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  
+
+
  private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -64,7 +64,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   std::shared_ptr<reco::Muon> findBestMatch(reco::MuonCollection::const_iterator& mu1,
 					    reco::MuonCollection const& muons,
 					    double deta, double dphi, double dr);
-  
+
   int algoType_;
   int debug_;
 
@@ -73,7 +73,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   double maxDEta_;
   double minPt_;
 
-  
+
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -85,7 +85,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   //  desc.setUnknown();
   //  descriptions.addDefault(desc);
   //}
-  
+
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::MuonCollection > muonToken_, tagLegToken_, probeLegToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
@@ -98,18 +98,18 @@ class MuonAnalyzer : public edm::EDAnalyzer {
 
   std::string hltTrigCut_;
   bool isGen_;
-  
+
   TTree *cosmicTree;
 
   int event, run, lumi, nMuons, nTags, nProbes, foundMatch;
   double matchDR, matchDEta, matchDPhi;
-  
+
   reco::Muon::ArbitrationType type;
- 
+
   int    nSimTracks, simtrack_type[5];
   double simtrack_pt[5], simtrack_eta[5], simtrack_phi[5], simtrack_charge[5];
 
-  int    l1SingleMu, fakeL1SingleMu;
+  int    l1SingleMu, l1SingleMuOpen, l1SingleMuOpenDT, l1SingleMuCosmics, fakeL1SingleMu;
 
   reco::Candidate::LorentzVector lowerMuon_P4;
   math::XYZVector lowerMuon_trackVec;
@@ -121,10 +121,13 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   int lowerMuon_firstPixel,
     lowerMuon_pixelHits,
     lowerMuon_trackerHits,
+    lowerMuon_stationMask,
     lowerMuon_muonStationHits,
     lowerMuon_numberOfValidHits,
     lowerMuon_numberOfValidMuonHits,
     lowerMuon_numberOfMatchedStations,
+    lowerMuon_numberOfMatchedRPCLayers,
+    lowerMuon_expNumberOfMatchedStations,
     lowerMuon_trackerLayersWithMeasurement;
 
   reco::Candidate::LorentzVector upperMuon_P4;
@@ -137,12 +140,14 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   int  upperMuon_firstPixel,
     upperMuon_pixelHits,
     upperMuon_trackerHits,
+    upperMuon_stationMask,
     upperMuon_muonStationHits,
     upperMuon_numberOfValidHits,
     upperMuon_numberOfValidMuonHits,
     upperMuon_numberOfMatchedStations,
+    upperMuon_numberOfMatchedRPCLayers,
+    upperMuon_expNumberOfMatchedStations,
     upperMuon_trackerLayersWithMeasurement;
-
 };
 
 

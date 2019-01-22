@@ -119,8 +119,8 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   int    nSimTracks, simtrack_type[25];
   double simtrack_pt[25], simtrack_eta[25], simtrack_phi[25], simtrack_charge[25];
 
-  int    nL1Muons, nL1MuonsNew, l1SingleMu, fakeL1SingleMu;
-  int    l1muon_charge[25], l1muon_isFwd[25], l1muon_isRPC[25], l1muon_quality[25], l1muon_detector[25], l1muon_bx[25],
+  int nL1Muons, nL1MuonsNew, l1SingleMu, l1SingleMuOpen, l1SingleMuOpenDT, l1SingleMuCosmics, fakeL1SingleMu;
+  int l1muon_charge[25], l1muon_isFwd[25], l1muon_isRPC[25], l1muon_quality[25], l1muon_detector[25], l1muon_bx[25],
     l1muon_mip[25], l1muon_rank[25], l1muon_iso[25], l1muon_idxdtcsc[25], l1muon_idxrpc[25],
     l1muonnew_charge[25], l1muonnew_isFwd[25], l1muonnew_isRPC[25], l1muonnew_quality[25], l1muonnew_detector[25], l1muonnew_bx[25],
     l1muonnew_mip[25], l1muonnew_rank[25], l1muonnew_iso[25], l1muonnew_idxdtcsc[25], l1muonnew_idxrpc[25];
@@ -139,7 +139,8 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
     muon_isGlobal[25], muon_isTracker[25], muon_isStandAlone[25];
   int muon_ndof[25], muon_charge[25];
   int muon_firstPixel[25],muon_pixHits[25],muon_tkHits[25],muon_muonStaHits[25],
-    muon_nVHits[25],muon_nVMuHits[25],muon_nMatSta[25],muon_tkLayWMeas[25];
+    muon_nVHits[25],muon_nVMuHits[25],muon_nMatSta[25],muon_tkLayWMeas[25],
+    muon_nMatRPCLay[25],muon_expNMatSta[25],muon_stationMask[25];
 
   double track_innerY[8][25], track_outerY[8][25], track_tpin[8][25], track_tpout[8][25];
   double track_chi2[8][25], track_dxy[8][25], track_dz[8][25], track_pT[8][25];
@@ -149,7 +150,8 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one
   int track_isUpper[8][25], track_isLower[8][25], track_isUpperOld[8][25], track_isLowerOld[8][25];
   int track_ndof[8][25], track_charge[8][25], track_matchedMuIdx[8][25];
   int track_firstPixel[8][25],track_pixHits[8][25],track_tkHits[8][25],track_muonStaHits[8][25],
-    track_nVHits[8][25],track_nVMuHits[8][25],track_nMatSta[8][25],track_tkLayWMeas[8][25];
+    track_nVHits[8][25],track_nVMuHits[8][25],track_nMatSta[8][25],track_tkLayWMeas[8][25],
+    track_nMatRPCLay[8][25],track_expNMatSta[8][25],track_stationMask[8][25];
 
   // per lumi block values
   TTree *perLumiTree;

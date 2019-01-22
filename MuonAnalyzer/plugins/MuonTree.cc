@@ -223,6 +223,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     muon_nVMuHits[   idx] = -1;
     muon_nMatSta[    idx] = -1;
     muon_tkLayWMeas[ idx] = -1;
+    muon_stationMask[idx] = -1;
+    muon_nMatRPCLay[ idx] = -1;
+    muon_expNMatSta[ idx] = -1;
 
     // initialize muon track ref variables (global, outer, inner, tracker, tpfms, dyt, picky, tunep)
     for (int tk = 0; tk < 8; ++tk) {
@@ -260,6 +263,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       track_nVMuHits[   tk][idx] = -1;
       track_nMatSta[    tk][idx] = -1;
       track_tkLayWMeas[ tk][idx] = -1;
+      track_stationMask[tk][idx] = -1;
+      track_nMatRPCLay[tk][ idx] = -1;
+      track_expNMatSta[tk][ idx] = -1;
     }
   }
 
@@ -392,19 +398,36 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     }  // end loop over l1MuonColl
   }  // end check on l1MuonColl size
 
-  l1SingleMu = 0;
+  l1SingleMu        = 0;
+  l1SingleMuOpen    = 0;
+  l1SingleMuOpenDT  = 0;
+  l1SingleMuCosmics = 0;
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   for (unsigned int trig = 0; trig < trigNames.size(); ++trig) {
     //for (auto trig = triggerNames.begin(); trig != triggerNames.end(); ++trig) {
     if (triggerResults->accept(trig)) {
       std::string pathName = trigNames.triggerName(trig);
-      if (debug_ > 3)
+      if (debug_ > 2)
 	std::cout << "Trigger path " << pathName << " fired" << std::endl;
 
       if (pathName.find(hltTrigCut_) != std::string::npos) {
-	if (debug_ > 2)
+	if (debug_ > 0)
 	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
 	l1SingleMu = 1;
+      }
+
+      if (pathName.find("L1SingleMuCosmics") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuCosmics = 1;
+      } else if (pathName.find("L1SingleMuOpen_DT") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuOpenDT = 1;
+      } else if (pathName.find("L1SingleMuOpen") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuOpen = 1;
       }
     }
   }
@@ -452,57 +475,65 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << "/"  << muon->isStandAloneMuon() << "(" << muon->outerTrack().isNonnull()  << ")sa"
 		  << ") "
 		  << std::endl
-		  << "pt:" << muon->pt() << "/eta:" << muon->eta() << "/phi:" << muon->phi() << std::endl
-		  << " y:"
-		  << std::setw(8) << muon->tunePMuonBestTrack()->innerPosition().Y()
-		  << "/"
-		  << std::setw(8) << muon->tunePMuonBestTrack()->outerPosition().Y()
-		  << std::endl
-		  << " outer position:("  << muon->tunePMuonBestTrack()->outerPosition().Y()
+		  << "pt:" << muon->pt() << "/eta:" << muon->eta() << "/phi:" << muon->phi() << std::endl;
+        if (muon->tunePMuonBestTrack().isNonnull())
+          std::cout << " y:"
+                    << std::setw(8) << muon->tunePMuonBestTrack()->innerPosition().Y()
+                    << "/"
+                    << std::setw(8) << muon->tunePMuonBestTrack()->outerPosition().Y()
+                    << std::endl;
+        std::cout << " outer position:("  << (muon->tunePMuonBestTrack().isNonnull() ? muon->tunePMuonBestTrack()->outerPosition().Y() : 0.)
 		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->outerPosition().Y()  : 0.)
 		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->outerPosition().Y() : 0.)
 		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->outerPosition().Y()  : 0.)
 		  << "sa)"
 		  << std::endl
-		  << " inner position:("  << muon->tunePMuonBestTrack()->innerPosition().Y()
+		  << " inner position:("  << (muon->tunePMuonBestTrack().isNonnull() ? muon->tunePMuonBestTrack()->innerPosition().Y() : 0.)
 		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->innerPosition().Y()  : 0.)
 		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->innerPosition().Y() : 0.)
 		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->innerPosition().Y()  : 0.)
 		  << "sa)"
 		  << std::endl
-		  << " chi2:("            << muon->tunePMuonBestTrack()->chi2()
+		  << " chi2:("            << (muon->tunePMuonBestTrack().isNonnull() ? muon->tunePMuonBestTrack()->chi2() : -1.)
 		  << "tp/"                << (muon->innerTrack().isNonnull()  ? muon->innerTrack()->chi2()  : -1.)
 		  << "t/"                 << (muon->globalTrack().isNonnull() ? muon->globalTrack()->chi2() : -1.)
 		  << "g/"                 << (muon->outerTrack().isNonnull()  ? muon->outerTrack()->chi2()  : -1.)
 		  << "sa)"
-		  << std::endl
-		  << " pt:"  << muon->tunePMuonBestTrack()->pt()
-		  << "/eta:" << muon->tunePMuonBestTrack()->eta()
-		  << "/phi:" << muon->tunePMuonBestTrack()->phi()
-		  << std::endl
-		  << " dxy:"   << std::setw(8) << muon->tunePMuonBestTrack()->dxy()
-		  << " dz:"    << std::setw(8) << muon->tunePMuonBestTrack()->dz()
-		  << " tpin:"  << std::setw(8) << muon->time().timeAtIpInOut
+		  << std::endl;
+        if (muon->tunePMuonBestTrack().isNonnull())
+          std::cout << " pt:"  << muon->tunePMuonBestTrack()->pt()
+                    << "/eta:" << muon->tunePMuonBestTrack()->eta()
+                    << "/phi:" << muon->tunePMuonBestTrack()->phi()
+                    << std::endl
+                    << " dxy:" << std::setw(8) << muon->tunePMuonBestTrack()->dxy()
+                    << " dz:"  << std::setw(8) << muon->tunePMuonBestTrack()->dz();
+        std::cout << " tpin:"  << std::setw(8) << muon->time().timeAtIpInOut
 		  << " tpout:" << std::setw(8) << muon->time().timeAtIpOutIn
 		  << std::endl;
       }
       std::cout << " upper legs: " << std::endl;
-      for (auto muon = upperLegColl->begin(); muon != upperLegColl->end(); ++muon)
+      for (auto muon = upperLegColl->begin(); muon != upperLegColl->end(); ++muon) {
 	std::cout << std::setw(5) << *muon
 		  << " (" << muon->isTrackerMuon()    << "t"
 		  << "/"  << muon->isGlobalMuon()     << "g"
-		  << "/"  << muon->isStandAloneMuon() << "sa"
-		  << ") " << muon->tunePMuonBestTrack()->innerPosition().Y()
-		  << std::endl;
+		  << "/"  << muon->isStandAloneMuon() << "sa)"
+                  << " " << (muon->tunePMuonBestTrack().isNonnull() ? muon->tunePMuonBestTrack()->innerPosition().Y() : -123456.)
+                  << std::endl;
+      }
       std::cout << " lower legs: " << std::endl;
-      for (auto muon = lowerLegColl->begin(); muon != lowerLegColl->end(); ++muon)
+      for (auto muon = lowerLegColl->begin(); muon != lowerLegColl->end(); ++muon) {
 	std::cout << std::setw(5) << *muon
 		  << " (" << muon->isTrackerMuon()    << "t"
 		  << "/"  << muon->isGlobalMuon()     << "g"
-		  << "/"  << muon->isStandAloneMuon() << "sa"
-		  << ") " << muon->tunePMuonBestTrack()->innerPosition().Y()
-		  << std::endl;
+		  << "/"  << muon->isStandAloneMuon() << "sa)"
+                  << " " << (muon->tunePMuonBestTrack().isNonnull() ? muon->tunePMuonBestTrack()->innerPosition().Y() : -123456.)
+                  << std::endl;
+      }
     }
+    std::cout.flush();
+
+    if (debug_ > 0)
+      std::cout << "looping over muons" << std::endl;
     std::cout.flush();
 
     int muIdx = 0;
@@ -511,10 +542,6 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	nMuons = 25;
 	continue; // skip if there happen to be more than 25 muons
       }
-
-      //reco::TrackRef ref = wsu::dileptons::MuonHelpers::GetTrackType(algoType_, &(*mu));
-
-      reco::TrackRef ref = GetTrackType(algoType_, &(*mu));
 
       muon_tpin[muIdx]   = mu->time().timeAtIpInOut;
       muon_tpout[muIdx]  = mu->time().timeAtIpOutIn;
@@ -535,6 +562,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       muon_Eta[     muIdx] = mu->eta();
       muon_Phi[     muIdx] = mu->phi();
 
+      std::cout.flush();
+
       if (mu->pt() > 50)
 	++nMuonsPt50;
       if (mu->pt() > 100)
@@ -553,6 +582,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	++nMuonsPt1000;
       if (mu->pt() > 1500)
 	++nMuonsPt1500;
+
+      //reco::TrackRef ref = wsu::dileptons::MuonHelpers::GetTrackType(algoType_, &(*mu));
+      reco::TrackRef ref = GetTrackType(algoType_, &(*mu));
 
       if (ref.isNonnull()) {  // can't dereference if the desired track ref is null
 	// selections are done on "best track" in high pT ID, so take the track under study
@@ -577,21 +609,24 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	muon_global_ndof[muIdx] = mu->globalTrack()->ndof();
 	muon_hasGlobal[muIdx] = 1;
       }
+
       if (mu->innerTrack().isNonnull()) {
 	muon_inner_chi2[muIdx] = mu->innerTrack()->chi2();
 	muon_inner_ndof[muIdx] = mu->innerTrack()->ndof();
 	muon_hasInner[muIdx] = 1;
       }
+
       if (mu->outerTrack().isNonnull()) {
 	muon_outer_chi2[muIdx] = mu->outerTrack()->chi2();
 	muon_outer_ndof[muIdx] = mu->outerTrack()->ndof();
 	muon_hasOuter[muIdx] = 1;
       }
+
       // take hit pattern from global track
       if (mu->globalTrack().isNonnull()) {
 	muon_hasGlobal[muIdx] = 1;
-	muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-				   mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+	muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+				   mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
 	muon_pixHits[    muIdx] = mu->globalTrack()->hitPattern().numberOfValidPixelHits();
 	muon_tkHits[     muIdx] = mu->globalTrack()->hitPattern().numberOfValidTrackerHits();
 	muon_tkLayWMeas[ muIdx] = mu->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -600,8 +635,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	muon_nVMuHits[   muIdx] = mu->globalTrack()->hitPattern().numberOfValidMuonHits();
       } else {  // otherwise take hit pattern from inner/outer track separately
 	if (mu->innerTrack().isNonnull()) {
-	  muon_firstPixel[ muIdx] = (mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-                                     mu->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+	  muon_firstPixel[ muIdx] = (mu->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+                                     mu->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
 	  muon_pixHits[    muIdx] = mu->innerTrack()->hitPattern().numberOfValidPixelHits();
 	  muon_tkHits[     muIdx] = mu->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	  muon_tkLayWMeas[ muIdx] = mu->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -612,7 +647,19 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  muon_nVMuHits[   muIdx] = mu->outerTrack()->hitPattern().numberOfValidMuonHits();
 	}
       }
-      muon_nMatSta[muIdx] = mu->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
+
+      if (debug_ > 0)
+        std::cout << "muon station hit information" << std::endl;
+      std::cout.flush();
+
+      muon_nMatSta[muIdx]     = mu->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
+      muon_nMatRPCLay[muIdx]  = mu->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration);
+      // muon_expNMatSta[muIdx]  = mu->expectedNnumberOfMatchedStations();
+      muon_stationMask[muIdx] = mu->stationMask(reco::Muon::SegmentAndTrackArbitration);
+
+      if (debug_ > 0)
+        std::cout << "looping over trackref info" << std::endl;
+      std::cout.flush();
 
       // get info from all track types
       for (int tref = 0; tref < 5; ++tref) {
@@ -637,8 +684,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  track_innerY[    2+tref+1][muIdx] = ref->innerPosition().Y();
 	  track_outerY[    2+tref+1][muIdx] = ref->outerPosition().Y();
 
-	  track_firstPixel[ 2+tref+1][muIdx] = (ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-						ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+	  track_firstPixel[ 2+tref+1][muIdx] = (ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+						ref->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
 	  track_pixHits[    2+tref+1][muIdx] = ref->hitPattern().numberOfValidPixelHits();
 	  track_tkHits[     2+tref+1][muIdx] = ref->hitPattern().numberOfValidTrackerHits();
 	  track_tkLayWMeas[ 2+tref+1][muIdx] = ref->hitPattern().trackerLayersWithMeasurement();
@@ -647,7 +694,10 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  track_nVMuHits[   2+tref+1][muIdx] = ref->hitPattern().numberOfValidMuonHits();
 
 	  track_matchedMuIdx[2+tref+1][muIdx] = muIdx;
-	  track_nMatSta[2+tref+1][muIdx] = mu->numberOfMatchedStations();
+	  track_nMatSta[     2+tref+1][muIdx] = mu->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
+          track_nMatRPCLay[  2+tref+1][muIdx] = mu->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration);
+          // track_expNMatSta[  2+tref+1][muIdx] = mu->expectedNnumberOfMatchedStations();
+          track_stationMask[ 2+tref+1][muIdx] = mu->stationMask(reco::Muon::SegmentAndTrackArbitration);
 
 	  if (ref->pt() > 50)
 	    ++nTracksPt50[2+tref+1];
@@ -673,13 +723,17 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
     }  // end loop over muons
   }  // end check on muon collection size
 
+  if (debug_ > 0)
+    std::cout << "done looping over muons, moving on to track collection" << std::endl;
+  std::cout.flush();
+
   ////////////////// reco::Track information /////////////////////////
   if (debug_ > 0) {
     if (globalTrackColl->size() > 0) {
       std::cout	<< "found "     << nGlobalTracks  << " global "  << std::endl;
       std::cout << " global tracks: " << std::endl;
       for (auto track = globalTrackColl->begin(); track != globalTrackColl->end(); ++track)
-	std::cout << "y:"
+        std::cout << "y:"
 		  << std::setw(8) << track->innerPosition().Y()
 		  << "/"
 		  << std::setw(8) << track->outerPosition().Y()
@@ -697,6 +751,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << " nVMuHits:"     << std::setw(2) << track->hitPattern().numberOfValidMuonHits()
 		  << std::endl;
     }
+    std::cout.flush();
 
     if (cosmicTrackColl->size() > 0) {
       std::cout << "found "     << nCosmicTracks  << " cosmic "  << std::endl;
@@ -720,6 +775,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << " nVMuHits:"     << std::setw(2) << track->hitPattern().numberOfValidMuonHits()
 		  << std::endl;
     }
+    std::cout.flush();
 
     if (trackerTrackColl->size() > 0) {
       std::cout	<< "found "     << nTrackerTracks  << " tracker "  << std::endl;
@@ -743,12 +799,14 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  << " nVMuHits:"     << std::setw(2) << track->hitPattern().numberOfValidMuonHits()
 		  << std::endl;
     }
+    std::cout.flush();
   }
 
   for (int tk = 0; tk < 3; ++tk) {
     int tkIdx = 0;
-    if (debug_ > 2)
+    if (debug_ > 3)
       std::cout << "looping over track collection " << tk << std::endl;
+    std::cout.flush();
     for (auto trk = tracks[tk]->begin(); trk != tracks[tk]->end(); ++trk,++tkIdx) {
       track_isLower[   tk][tkIdx] = trk->outerPosition().Y() < 0;
       track_isUpper[   tk][tkIdx] = trk->outerPosition().Y() > 0;
@@ -768,8 +826,8 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       track_innerY[    tk][tkIdx] = trk->innerPosition().Y();
       track_outerY[    tk][tkIdx] = trk->outerPosition().Y();
 
-      track_firstPixel[ tk][tkIdx] = (trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-				      trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+      track_firstPixel[ tk][tkIdx] = (trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+				      trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
       track_pixHits[    tk][tkIdx] = trk->hitPattern().numberOfValidPixelHits();
       track_tkHits[     tk][tkIdx] = trk->hitPattern().numberOfValidTrackerHits();
       track_tkLayWMeas[ tk][tkIdx] = trk->hitPattern().trackerLayersWithMeasurement();
@@ -804,8 +862,9 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
       double bestDPhi = maxDPhi_;
       double bestDR   = maxDR_;
       int muIdx = 0;
-      if (debug_ > 2)
+      if (debug_ > 3)
 	std::cout << "looking for matching muons to track " << tkIdx << std::endl;
+      std::cout.flush();
       for (auto muon = muonColl->begin(); muon != muonColl->end(); ++muon) {
 	double tmpDEta = fabs(muon->eta()-trk->eta());
 	double tmpDPhi = fabs(reco::deltaPhi(muon->phi(),trk->phi()));
@@ -824,31 +883,35 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  yCompatible = true;
 
 	if (tmpDEta < bestDEta && tmpDPhi < bestDPhi) {
-	  if (debug_ > 2)
+	  if (debug_ > 3)
 	    std::cout << " deta = " << std::setw(6) << tmpDEta
 		      << " dphi = " << std::setw(6) << tmpDPhi
 		      << " y-outer (mu) = "  << std::setw(8) << muon->tunePMuonBestTrack()->outerPosition().Y()
 		      << " y-outer (trk) = " << std::setw(8) << trk->outerPosition().Y()
 		      << " (" << std::setw(2) << (yCompatible ? "" : "in") << "compatible)"
 		      << std::endl;
+          std::cout.flush();
 	  if (yCompatible) {
 	    bestDEta = tmpDEta;
 	    bestDPhi = tmpDPhi;
 	    if (tmpDR < bestDR)
 	      bestDR   = tmpDR;
 	    track_matchedMuIdx[tk][tkIdx] = muIdx;
-	    //track_nMatSta[tk][tkIdx] = muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
-	    track_nMatSta[tk][tkIdx] = muon->numberOfMatchedStations();
+	    // track_nMatSta[     tk][tkIdx] = muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
+	    track_nMatSta[     tk][tkIdx] = muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration);
+            track_nMatRPCLay[  tk][tkIdx] = muon->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration);
+            // track_expNMatSta[  tk][tkIdx] = muon->expectedNnumberOfMatchedStations();
+            track_stationMask[ tk][tkIdx] = muon->stationMask(reco::Muon::SegmentAndTrackArbitration);
 	  }  // end check on y compatibility
 	}  // end check on deta/dphi
 	++muIdx;
       }
     }
-    if (debug_ > 2)
+    if (debug_ > 3)
       std::cout << std::endl;
-  }// end loop over the different track collections
+  }  // end loop over the different track collections
 
-  if (debug_ > 3)
+  if (debug_ > 4)
     std::cout << "Filling the tree" << std::endl;
   muonTree->Fill();
 }
@@ -856,7 +919,7 @@ void MuonTree::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
 reco::TrackRef MuonTree::GetTrackType(int algoType, reco::Muon const* muon)
 {
-  if (debug_ > 3)
+  if (debug_ > 4)
     std::cout << "Started finding track type!" << std::endl;
 
   reco::TrackRef ref;
@@ -868,7 +931,7 @@ reco::TrackRef MuonTree::GetTrackType(int algoType, reco::Muon const* muon)
   else if (algoType == 5) ref = muon->tunePMuonBestTrack();
   else                    ref = muon->track();
 
-  if (debug_ > 3)
+  if (debug_ > 4)
     std::cout << "Returning track ref " << ref.isNonnull() << std::endl;
 
   return ref;
@@ -907,8 +970,11 @@ void MuonTree::beginJob()
   }
 
   // trigger information
-  muonTree->Branch("l1SingleMu",     &l1SingleMu,     "l1SingleMu/I");
-  muonTree->Branch("fakeL1SingleMu", &fakeL1SingleMu, "fakeL1SingleMu/I");
+  muonTree->Branch("l1SingleMu",        &l1SingleMu,        "l1SingleMu/I");
+  muonTree->Branch("l1SingleMuOpen",    &l1SingleMuOpen,    "l1SingleMuOpen/I");
+  muonTree->Branch("l1SingleMuOpenDT",  &l1SingleMuOpenDT,  "l1SingleMuOpenDT/I");
+  muonTree->Branch("l1SingleMuCosmics", &l1SingleMuCosmics, "l1SingleMuCosmics/I");
+  muonTree->Branch("fakeL1SingleMu",    &fakeL1SingleMu,    "fakeL1SingleMu/I");
   // variables per L1Muon ([nL1Muons] indexed, (l1extra collection))
   muonTree->Branch("l1MuonpT",       l1muon_pt,       "l1MuonpT[nL1Muons]/D" );
   muonTree->Branch("l1MuonEta",      l1muon_eta,      "l1MuonEta[nL1Muons]/D");
@@ -1074,7 +1140,7 @@ void MuonTree::endJob()
 // ------------ method called when starting to processes a luminosity block  ------------
 void MuonTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  if (debug_ > 1)
+  if (debug_ > 4)
     std::cout << "Start luminosity block, resetting per lumi counters" << std::endl;
 
   nMuonsPt50   = 0;
@@ -1103,7 +1169,7 @@ void MuonTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
 // ------------ method called when ending the processing of a luminosity block  ------------
 void MuonTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  if (debug_ > 1) {
+  if (debug_ > 4) {
     std::cout << "End luminosity block " << lumi << std::endl;
 
     std::cout << "nMuonsPt50   " << nMuonsPt50   << " " << std::hex << &nMuonsPt50   << std::dec << std::endl;

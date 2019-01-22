@@ -155,10 +155,13 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   upperMuon_firstPixel                   = -1; lowerMuon_firstPixel                   = -1;
   upperMuon_pixelHits                    = -1; lowerMuon_pixelHits                    = -1;
   upperMuon_trackerHits                  = -1; lowerMuon_trackerHits                  = -1;
+  upperMuon_stationMask                  = -1; lowerMuon_stationMask                  = -1;
   upperMuon_muonStationHits              = -1; lowerMuon_muonStationHits              = -1;
   upperMuon_numberOfValidHits            = -1; lowerMuon_numberOfValidHits            = -1;
   upperMuon_numberOfValidMuonHits        = -1; lowerMuon_numberOfValidMuonHits        = -1;
   upperMuon_numberOfMatchedStations      = -1; lowerMuon_numberOfMatchedStations      = -1;
+  upperMuon_numberOfMatchedRPCLayers     = -1; lowerMuon_numberOfMatchedRPCLayers     = -1;
+  upperMuon_expNumberOfMatchedStations   = -1; lowerMuon_expNumberOfMatchedStations   = -1;
   upperMuon_trackerLayersWithMeasurement = -1; lowerMuon_trackerLayersWithMeasurement = -1;
 
   if (debug_ > 0)
@@ -400,7 +403,10 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   }
 
   // trigger information
-  l1SingleMu = 0;
+  l1SingleMu        = 0;
+  l1SingleMuOpen    = 0;
+  l1SingleMuOpenDT  = 0;
+  l1SingleMuCosmics = 0;
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   for (unsigned int trig = 0; trig < trigNames.size(); ++trig) {
     //for (auto trig = triggerNames.begin(); trig != triggerNames.end(); ++trig) {
@@ -413,6 +419,20 @@ void MuonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	if (debug_ > 0)
 	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
 	l1SingleMu = 1;
+      }
+
+      if (pathName.find("L1SingleMuCosmics") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuCosmics = 1;
+      } else if (pathName.find("L1SingleMuOpen_DT") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuOpenDT = 1;
+      } else if (pathName.find("L1SingleMuOpen") != std::string::npos) {
+	if (debug_ > 0)
+	  std::cout << "Trigger path " << pathName << " fired" << std::endl;
+	l1SingleMuOpen = 1;
       }
     }
   }
@@ -549,8 +569,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     if (upperMuon_isGlobal) {
       if (debug_ > 2)
 	std::cout << "upper muon, global track hit pattern variables" << std::endl;
-      upperMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+      upperMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
       upperMuon_pixelHits                    = muon->globalTrack()->hitPattern().numberOfValidPixelHits();
       upperMuon_trackerHits                  = muon->globalTrack()->hitPattern().numberOfValidTrackerHits();
       upperMuon_trackerLayersWithMeasurement = muon->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -561,8 +581,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       if (upperMuon_isTracker) {
 	if (debug_ > 2)
 	  std::cout << "upper muon, inner track hit pattern variables" << std::endl;
-	upperMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+	upperMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
 	upperMuon_pixelHits                    = muon->innerTrack()->hitPattern().numberOfValidPixelHits();
 	upperMuon_trackerHits                  = muon->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	upperMuon_trackerLayersWithMeasurement = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -583,7 +603,10 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     }
     if (debug_ > 2)
       std::cout << "upper muon, matched stations" << std::endl;
+    upperMuon_stationMask                  = muon->stationMask(arbType);
     upperMuon_numberOfMatchedStations      = muon->numberOfMatchedStations(arbType);
+    upperMuon_numberOfMatchedRPCLayers     = muon->numberOfMatchedRPCLayers();
+    // upperMuon_expNumberOfMatchedStations   = muon->expectedNnumberOfMatchedStations();
 
     if ( debug_ > 3) {
       double relError = upperMuon_ptError/upperMuon_trackPt;
@@ -684,8 +707,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     if (lowerMuon_isGlobal) {
       if (debug_ > 2)
 	std::cout << "lower muon, inner track hit pattern variables" << std::endl;
-      lowerMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+      lowerMuon_firstPixel                   = (muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+						muon->globalTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
       lowerMuon_pixelHits                    = muon->globalTrack()->hitPattern().numberOfValidPixelHits();
       lowerMuon_trackerHits                  = muon->globalTrack()->hitPattern().numberOfValidTrackerHits();
       lowerMuon_trackerLayersWithMeasurement = muon->globalTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -696,8 +719,8 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
       if (lowerMuon_isTracker) {
 	if (debug_ > 2)
 	  std::cout << "lower muon, inner track hit pattern variables" << std::endl;
-	lowerMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0) ||
-						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,0));
+	lowerMuon_firstPixel                   = (muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1) ||
+						  muon->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1));
 	lowerMuon_pixelHits                    = muon->innerTrack()->hitPattern().numberOfValidPixelHits();
 	lowerMuon_trackerHits                  = muon->innerTrack()->hitPattern().numberOfValidTrackerHits();
 	lowerMuon_trackerLayersWithMeasurement = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -718,7 +741,10 @@ void MuonAnalyzer::TrackFill(reco::TrackRef ref, reco::Muon const* muon, reco::M
     }
     if (debug_ > 2)
       std::cout << "lower muon, number of matched stations" << std::endl;
+    lowerMuon_stationMask                  = muon->stationMask(arbType);
     lowerMuon_numberOfMatchedStations      = muon->numberOfMatchedStations(arbType);
+    lowerMuon_numberOfMatchedRPCLayers     = muon->numberOfMatchedRPCLayers();
+    // lowerMuon_expNumberOfMatchedStations   = muon->expectedNnumberOfMatchedStations();
 
     /* adapting for sensibility
     lowerMuon_pixelHits                    = ref->hitPattern().numberOfValidPixelHits();
@@ -833,8 +859,11 @@ void MuonAnalyzer::beginJob()
   cosmicTree->Branch("matchDEta",  &matchDEta,  10000, 1);
   cosmicTree->Branch("foundMatch", &foundMatch, 10000, 1);
 
-  cosmicTree->Branch("l1SingleMu",     &l1SingleMu,      "l1SingleMu/I");
-  cosmicTree->Branch("fakeL1SingleMu", &fakeL1SingleMu, "fakeL1SingleMu/I");
+  cosmicTree->Branch("l1SingleMu",        &l1SingleMu,        "l1SingleMu/I");
+  cosmicTree->Branch("l1SingleMuOpen",    &l1SingleMuOpen,    "l1SingleMuOpen/I");
+  cosmicTree->Branch("l1SingleMuOpenDT",  &l1SingleMuOpenDT,  "l1SingleMuOpenDT/I");
+  cosmicTree->Branch("l1SingleMuCosmics", &l1SingleMuCosmics, "l1SingleMuCosmics/I");
+  cosmicTree->Branch("fakeL1SingleMu",    &fakeL1SingleMu,    "fakeL1SingleMu/I");
 
   cosmicTree->Branch("nSimTracks", &nSimTracks, "nSimTracks/I");
   // variables per simTrack ([nSimTracks] indexed)
@@ -866,10 +895,13 @@ void MuonAnalyzer::beginJob()
   cosmicTree->Branch("upperMuon_firstPixel",                   &upperMuon_firstPixel,                   10000, 1);
   cosmicTree->Branch("upperMuon_pixelHits",                    &upperMuon_pixelHits,                    10000, 1);
   cosmicTree->Branch("upperMuon_trackerHits",                  &upperMuon_trackerHits,                  10000, 1);
+  cosmicTree->Branch("upperMuon_stationMask",                  &upperMuon_stationMask,                  10000, 1);
   cosmicTree->Branch("upperMuon_muonStationHits",              &upperMuon_muonStationHits,              10000, 1);
   cosmicTree->Branch("upperMuon_numberOfValidHits",            &upperMuon_numberOfValidHits,            10000, 1);
   cosmicTree->Branch("upperMuon_numberOfValidMuonHits",        &upperMuon_numberOfValidMuonHits,        10000, 1);
   cosmicTree->Branch("upperMuon_numberOfMatchedStations",      &upperMuon_numberOfMatchedStations,      10000, 1);
+  cosmicTree->Branch("upperMuon_numberOfMatchedRPCLayers",     &upperMuon_numberOfMatchedRPCLayers,     10000, 1);
+  cosmicTree->Branch("upperMuon_expNumberOfMatchedStations",   &upperMuon_expNumberOfMatchedStations,   10000, 1);
   cosmicTree->Branch("upperMuon_trackerLayersWithMeasurement", &upperMuon_trackerLayersWithMeasurement, 10000, 1);
 
   /////////Muon in lower half of CMS
@@ -894,10 +926,13 @@ void MuonAnalyzer::beginJob()
   cosmicTree->Branch("lowerMuon_firstPixel",                   &lowerMuon_firstPixel,                   10000, 1);
   cosmicTree->Branch("lowerMuon_pixelHits",                    &lowerMuon_pixelHits,                    10000, 1);
   cosmicTree->Branch("lowerMuon_trackerHits",                  &lowerMuon_trackerHits,                  10000, 1);
+  cosmicTree->Branch("lowerMuon_stationMask",                  &lowerMuon_stationMask,                  10000, 1);
   cosmicTree->Branch("lowerMuon_muonStationHits",              &lowerMuon_muonStationHits,              10000, 1);
   cosmicTree->Branch("lowerMuon_numberOfValidHits",            &lowerMuon_numberOfValidHits,            10000, 1);
   cosmicTree->Branch("lowerMuon_numberOfValidMuonHits",        &lowerMuon_numberOfValidMuonHits,        10000, 1);
   cosmicTree->Branch("lowerMuon_numberOfMatchedStations",      &lowerMuon_numberOfMatchedStations,      10000, 1);
+  cosmicTree->Branch("lowerMuon_numberOfMatchedRPCLayers",     &lowerMuon_numberOfMatchedRPCLayers,     10000, 1);
+  cosmicTree->Branch("lowerMuon_expNumberOfMatchedStations",   &lowerMuon_expNumberOfMatchedStations,   10000, 1);
   cosmicTree->Branch("lowerMuon_trackerLayersWithMeasurement", &lowerMuon_trackerLayersWithMeasurement, 10000, 1);
 }
 

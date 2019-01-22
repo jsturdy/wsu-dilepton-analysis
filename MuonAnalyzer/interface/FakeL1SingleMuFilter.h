@@ -4,7 +4,7 @@
 //
 // Package:    WSUDiLeptons/MuonAnalyzer
 // Class:      FakeL1SingleMuFilter
-// 
+//
 /**\class FakeL1SingleMuFilter FakeL1SingleMuFilter.cc WSUDiLeptons/MuonAnalyzer/plugins/FakeL1SingleMuFilter.cc
 
    Description: [one line class summary]
@@ -61,14 +61,14 @@ class FakeL1SingleMuFilter : public edm::stream::EDFilter<> {
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1MuonToken_;
   edm::EDGetTokenT<l1t::MuonBxCollection>                 l1MuonTokenNew_;
-      
+
   edm::InputTag l1MuonSrc_;
-      
+
   std::string l1SingleMuCuts_;
 
   int debug_;
   bool useNewStage2_, filter_;
-  
+
   //StringCutObjectSelector<l1extra::L1MuonParticle> muonSelector_;
 };
 
