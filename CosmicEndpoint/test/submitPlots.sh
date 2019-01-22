@@ -78,15 +78,40 @@ data2016=(
     "all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.txt"
 )
 
+data2017=(
+    "all_commissioning2017_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017a_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017a_v2_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017a_v3_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017b_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017b_v2_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017c_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017c_v2_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017c_v3_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017d_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017e_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017f_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017g_v1_cosmicendpoint2017_trees_09jan19.txt"
+    "all_run2017h_v1_cosmicendpoint2017_trees_09jan19.txt"
+    # "all_run2017x_v1_cosmicendpoint2017_trees_09jan19.txt"
+)
+
+mc2017=(
+    # "all_realistic_deco_p10-100_cosmicendpoint2017_trees_09jan19.txt"
+    # "all_realistic_deco_p100-500_cosmicendpoint2017_trees_09jan19.txt"
+    # "all_realistic_deco_p500_cosmicendpoint2017_trees_09jan19.txt"
+    "all_realistic_deco_tkcosmics_cosmicendpoint2017_trees_09jan19.txt"
+)
+
 ### Data jobs
 #### (2015 Data)
 #### (2016 Data)
 #### (2017 Data)
 #### (2018 Data)
-for sample in "${data2016[@]}"
+for sample in "${data2017[@]}"
 do
-    echo "./bsubSubmit.py -i ${sample} -t jan23 -n20 -m0.0008 -b400 -p75 --runperiod 2016"
-    ./bsubSubmit.py -i ${sample} -t jan23 -n20 -m0.0008 -b400 -p75 --runperiod 2016
+    echo "./bsubSubmit.py -i ${sample} -t 19jan19 -n5 -m0.0008 -b400 -p75 --runperiod 2017"
+    ./bsubSubmit.py -i ${sample} -t 19jan19 -n5 -m0.0008 -b400 -p75 --runperiod 2017
 done
 
 ### MC jobs
@@ -94,14 +119,14 @@ done
 #### (2016 MC)
 #### (2017 MC)
 #### (2018 MC)
-# for sample in "${mc2016[@]}"
-# do
-#     echo "./bsubSubmit.py -i ${sample} -t dec08_notrigger -n20 -m0.0008 -b400 -p75 --mc --runperiod 2016"
-#     ./bsubSubmit.py -i ${sample} -t dec08_notrigger -n20 -m0.0008 -b400 -p75 --mc --runperiod 2016
+for sample in "${mc2017[@]}"
+do
+    echo "./bsubSubmit.py -i ${sample} -t 19jan19_notrigger_thresh10 -n5 -m0.0008 -b400 -p75 --mc --runperiod 2017 --simlow 0 --simhigh 1e10 --closure --pseudoThresh=0.1"
+    ./bsubSubmit.py -i ${sample} -t 19jan19_notrigger_thresh10 -n5 -m0.0008 -b400 -p75 --mc --runperiod 2017 --simlow 0 --simhigh 1e10 --closure --pseudoThresh=0.1
 
-#     echo "./bsubSubmit.py -i ${sample} -t dec08_trigger -n20 -m0.0008 -b400 -p75 --mc --trigger --runperiod 2016"
-#     ./bsubSubmit.py -i ${sample} -t dec08_trigger -n20 -m0.0008 -b400 -p75 --mc --trigger --runperiod 2016    
-# done
+    echo "./bsubSubmit.py -i ${sample} -t 19jan19_trigger_thresh10 -n5 -m0.0008 -b400 -p75 --mc --trigger --runperiod 2017 --simlow 0 --simhigh 1e10 --closure --pseudoThresh=0.1"
+    ./bsubSubmit.py -i ${sample} -t 19jan19_trigger_thresh10 -n5 -m0.0008 -b400 -p75 --mc --trigger --runperiod 2017 --simlow 0 --simhigh 1e10 --closure --pseudoThresh=0.1
+done
 
 # echo "./bsubSubmit.py -i asymptotic_deco_p10_2016_reRECO_endpoint.txt  -t dec08_notrigger -n15 -m0.0008 -b400 -p75 --mc --runperiod 2016 --simlow 0   --simhigh 100"
 # ./bsubSubmit.py -i asymptotic_deco_p10_2016_reRECO_endpoint.txt  -t dec08_notrigger -n15 -m0.0008 -b400 -p75 --mc --runperiod 2016 --simlow 0   --simhigh 100

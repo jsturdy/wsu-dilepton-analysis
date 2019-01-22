@@ -26,6 +26,9 @@ if __name__ == "__main__":
     parser.add_option("-m", "--mc", action="store_true", dest="mc",
                       metavar="mc",
                       help="[OPTIONAL] Running ananalysis on MC")
+    parser.add_option("--l1trig", action="store_true", dest="l1trig",
+                      metavar="l1trig",
+                      help="[OPTIONAL] Running L1 trigger study")
     parser.add_option("-t", "--tchain", action="store_true", dest="tchain",
                       metavar="tchain",
                       help="[OPTIONAL] Use a TChain rather than the raw file, must specify a list of input files as a text file to -i")
@@ -60,8 +63,9 @@ if __name__ == "__main__":
         print "setting up scaling"
         scaling = getMCScaleFactors(options.infile,outfile,minpT,maxpT,options.tchain,options.debug)
         sys.stdout.flush()
-    print "setting up l1trigs"
-    l1trigs = l1TrigInfo(options.infile,outfile,options.mc,options.tchain,options.debug)
+    if options.l1trig:
+        print "setting up l1trigs"
+        l1trigs = l1TrigInfo(options.infile,outfile,options.mc,options.tchain,options.debug)
     sys.stdout.flush()
 
     print "setting up tree access"
@@ -83,8 +87,10 @@ if __name__ == "__main__":
             pass
         
         mytree = mychain
-        #l1trigs.processTree(mytree)
-        #scaling.processTree(mytree,minpT,maxpT)
+        if options.l1trig:
+            # l1trigs.processTree(mytree)
+            # scaling.processTree(mytree,minpT,maxpT)
+            pass
         pass
     else:
         if (options.infile).find("root://") > -1:
@@ -105,12 +111,13 @@ if __name__ == "__main__":
             sys.stdout.flush()
             pass
         pass
-    print "running l1trigs"
-    sys.stdout.flush()
-    l1trigs.processTree(mytree)
-    print "writing out l1trigs"
-    sys.stdout.flush()
-    l1trigs.writeOut()
+    if options.l1trig:
+        print "running l1trigs"
+        sys.stdout.flush()
+        l1trigs.processTree(mytree)
+        print "writing out l1trigs"
+        sys.stdout.flush()
+        l1trigs.writeOut()
 
     if options.mc:
         print "running scaling"

@@ -1,78 +1,74 @@
 #!/bin/env python
-import sys,os,re
-import ROOT as r
 
-from optparse import OptionParser
-#from histograms import outputHistograms
-from wsuPythonUtils import checkRequiredArguments,etaphiexclusivebins,etaphiinclusivebins,etaphibins,getHistogram
-from wsuPyROOTUtils import makeNicePlot
+# # keep a pointer to the original TCanvas constructor
+# caninit = r.TCanvas.__init__
 
-# keep a pointer to the original TCanvas constructor
-caninit = r.TCanvas.__init__
+# # define a new TCanvas class (inheriting from the original one),
+# # setting the memory ownership in the constructor
+# class GarbageCollectionResistentCanvas(r.TCanvas):
+#   def __init__(self, *args):
+#     caninit(self,*args)
+#     r.SetOwnership(self,False)
 
-# define a new TCanvas class (inheriting from the original one),
-# setting the memory ownership in the constructor
-class GarbageCollectionResistentCanvas(r.TCanvas):
-  def __init__(self, *args):
-    caninit(self,*args)
-    r.SetOwnership(self,False)
+# # replace the old TCanvas class by the new one
+# r.TCanvas = GarbageCollectionResistentCanvas
 
-# replace the old TCanvas class by the new one
-r.TCanvas = GarbageCollectionResistentCanvas
+# # keep a pointer to the original TPad constructor
+# padinit = r.TPad.__init__
 
-# keep a pointer to the original TPad constructor
-padinit = r.TPad.__init__
+# # define a new TPad class (inheriting from the original one),
+# # setting the memory ownership in the constructor
+# class GarbageCollectionResistentCanvas(r.TPad):
+#   def __init__(self, *args):
+#     padinit(self,*args)
+#     r.SetOwnership(self,False)
 
-# define a new TPad class (inheriting from the original one),
-# setting the memory ownership in the constructor
-class GarbageCollectionResistentCanvas(r.TPad):
-  def __init__(self, *args):
-    padinit(self,*args)
-    r.SetOwnership(self,False)
+# # replace the old TPad class by the new one
+# r.TPad = GarbageCollectionResistentCanvas
 
-# replace the old TPad class by the new one
-r.TPad = GarbageCollectionResistentCanvas
+# # keep a pointer to the original TH1D constructor
+# th1dinit = r.TH1D.__init__
 
-# keep a pointer to the original TH1D constructor
-th1dinit = r.TH1D.__init__
+# # define a new TH1D class (inheriting from the original one),
+# # setting the memory ownership in the constructor
+# class GarbageCollectionResistentH1D(r.TH1D):
+#   def __init__(self, *args):
+#     th1dinit(self,*args)
+#     r.SetOwnership(self,False)
 
-# define a new TH1D class (inheriting from the original one),
-# setting the memory ownership in the constructor
-class GarbageCollectionResistentH1D(r.TH1D):
-  def __init__(self, *args):
-    th1dinit(self,*args)
-    r.SetOwnership(self,False)
+# # replace the old TH1D class by the new one
+# r.TH1D = GarbageCollectionResistentH1D
 
-# replace the old TH1D class by the new one
-r.TH1D = GarbageCollectionResistentH1D
+# # keep a pointer to the original TLegend constructor
+# leginit = r.TLegend.__init__
 
-# keep a pointer to the original TLegend constructor
-leginit = r.TLegend.__init__
+# # define a new TLegend class (inheriting from the original one),
+# # setting the memory ownership in the constructor
+# class GarbageCollectionResistentLegend(r.TLegend):
+#   def __init__(self, *args):
+#     leginit(self,*args)
+#     r.SetOwnership(self,False)
 
-# define a new TLegend class (inheriting from the original one),
-# setting the memory ownership in the constructor
-class GarbageCollectionResistentLegend(r.TLegend):
-  def __init__(self, *args):
-    leginit(self,*args)
-    r.SetOwnership(self,False)
+# # replace the old TLegend class by the new one
+# r.TLegend = GarbageCollectionResistentLegend
 
-# replace the old TLegend class by the new one
-r.TLegend = GarbageCollectionResistentLegend
+# # keep a pointer to the original TFile constructor
+# fileinit = r.TFile.__init__
 
-# keep a pointer to the original TFile constructor
-fileinit = r.TFile.__init__
+# # define a new TFile class (inheriting from the original one),
+# # setting the memory ownership in the constructor
+# class GarbageCollectionResistentFile(r.TFile):
+#   def __init__(self, *args):
+#     fileinit(self,*args)
+#     r.SetOwnership(self,False)
 
-# define a new TFile class (inheriting from the original one),
-# setting the memory ownership in the constructor
-class GarbageCollectionResistentFile(r.TFile):
-  def __init__(self, *args):
-    fileinit(self,*args)
-    r.SetOwnership(self,False)
-
-# replace the old TFile class by the new one
-r.TFile = GarbageCollectionResistentFile
+# # replace the old TFile class by the new one
+# r.TFile = GarbageCollectionResistentFile
 
 if __name__ == "__main__":
+    import sys,os,re
+    from optparse import OptionParser
+
     parser = OptionParser(usage="Usage: %prog -i inputfile.root -o outputfile.root [-d]")
     parser.add_option("-i", "--infile", type="string", dest="infile",
                       metavar="infile",
@@ -102,6 +98,11 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
     print options
     print args
+
+    # from histograms import outputHistograms
+    from wsuPythonUtils import checkRequiredArguments,etaphiexclusivebins,etaphiinclusivebins,etaphibins,getHistogram
+    from wsuPyROOTUtils import *
+
     checkRequiredArguments(options, parser)
 
     debug = False
@@ -168,7 +169,12 @@ if __name__ == "__main__":
         "TightMuon",
         "AntiTightMuon",
         ]
+
+    ## upper/lower
+    ## plus/minus
     cutmuons = [
+        "upperPlus",
+        "upperMinus",
         "looseMuLowerPlus",
         "looseMuLowerMinus",
         "tightMuLowerPlus",
@@ -196,9 +202,9 @@ if __name__ == "__main__":
     for i,hist in enumerate(histograms):
         # looseMuPlusEtaPhi  = endpointStudy.getHistogram(Null,inputfile.Get("%s/%s%s%s"%(etaphi,cutmuons[0],hist,etaphi))
         looseMuPlusEtaPhi.append(getHistogram(inputfile,options.etaphi,"%s%s"%(cutmuons[0],hist),"",
-                                              "%s%s_%s_clone"%(cutmuons[0],hist,etaphi)))
+                                              "%s%s_%s_clone"%(cutmuons[0],hist,etaphi),debug))
         looseMuMinusEtaPhi.append(getHistogram(inputfile,options.etaphi,"%s%s"%(cutmuons[1],hist),"",
-                                               "%s%s_%s_clone"%(cutmuons[1],hist,etaphi)))
+                                               "%s%s_%s_clone"%(cutmuons[1],hist,etaphi),debug))
 
         # combinedMuUpper = inputfile.Get("%s%s"%("upper",hist))
         # combinedMuLower = inputfile.Get("%s%s"%("lower",hist))
@@ -290,6 +296,8 @@ if __name__ == "__main__":
         #combinedMuUpper = makeNicePlot(combinedMuUpper,paramsP,debug)
         #combinedMuLower = makeNicePlot(combinedMuLower,paramsM,debug)
         #r.gPad.Update()
+        if debug:
+            print("End setup of {} histogram".format(hist))
         pass # end loop over histograms
     looseEtaPhiCanvas.Write()
     if options.debug:
@@ -306,11 +314,11 @@ if __name__ == "__main__":
     paramsP["stats"] = 11
     paramsP["coords"]["x"] = [0.8,0.9]
     paramsP["coords"]["y"] = [0.7,0.8]
-    counterMuUpper = makeNicePlot(counterMuUpper,paramsP)
+    counterMuUpper = makeNicePlot(counterMuUpper,paramsP,debug)
     paramsM["stats"] = 11
     paramsM["coords"]["x"] = [0.8,0.9]
     paramsM["coords"]["y"] = [0.8,0.9]
-    counterMuLower = makeNicePlot(counterMuLower,paramsM)
+    counterMuLower = makeNicePlot(counterMuLower,paramsM,debug)
     r.gPad.Update()
 
     #looseCanvas.Update()

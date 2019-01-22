@@ -198,6 +198,8 @@ cp MCClosurePlot* ${JOBDIR}/
 cp %s* ${JOBDIR}/
 cp %s/%s ${JOBDIR}/
 cd ${JOBDIR}
+root -b -x -q MCClosurePlot.cc++g
+root -b -x -q Plot.cc++g
 ls -tar
 root -b -q -x %s
 tree

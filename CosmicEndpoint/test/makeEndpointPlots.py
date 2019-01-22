@@ -135,8 +135,8 @@ filenames = [
   # "aug29_ptbins.TuneP.s20.pt110.b40.lower",
   # "aug29_ptbins.TuneP.s20.pt120.b40.lower",
   # "aug29_ptbins.TuneP.s20.pt125.b40.lower",
-  "aug29_ptbins.TuneP.s20.pt150.b40.lower",
-  "aug29_ptbins.TuneP.s20.pt200.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt150.b40.lower",
+  # "aug29_ptbins.TuneP.s20.pt200.b40.lower",
   # "aug29_ptbins.TuneP.s20.pt250.b40.lower",
   # "aug29_ptbins.TuneP.s20.pt300.b40.lower",
   # "aug29_ptbins.TuneP.s20.pt400.b40.lower",
@@ -177,6 +177,9 @@ filenames = [
   # "aug29_ptbins.TPFMS.s20.pt750.b40.lower",
 
   # "feb11.TuneP.s25.pt200.b40.lower",
+
+  "oct08_ptbins.TuneP.s20.pt150.b40.lower",
+  "oct08_ptbins.TuneP.s20.pt200.b40.lower"
 ]
 
 etaphibins = {
@@ -203,8 +206,10 @@ etaphiexclusivebins = {
     "EtaMinusPhiPlus" :[1,3],
     }
 
-outdirbase = "~/public/html/Cosmics/2016/EndpointStudy/results"
+outdirbase = "~/public/html/Cosmics/2017/EndpointStudy/results"
 texfilename = "%s/all_results_table.tex"%(outdirbase)
+
+os.system("mkdir -p %s"%(outdirbase))
 print os.path.expanduser(texfilename)
 outtexf = open(os.path.expanduser(texfilename),'w')
 # outtexf.write("""\\begin{tabular}{rcl|rl}
@@ -214,8 +219,8 @@ algo & $\mathrm{p}_{\mathrm{T}}$ bin & $\eta/\phi$ bin & $\delta\kappa_{b}$ min 
 """)
 
 for filename in filenames:
-  infile = r.TFile("aug29.ptbins.endpoint/%s.root"%(filename),"read")
-  # infile = r.TFile("%s.root"%(filename),"read")
+  # infile = r.TFile("aug29.ptbins.endpoint/%s.root"%(filename),"read")
+  infile = r.TFile("%s.root"%(filename),"read")
   print filename
   print infile
 

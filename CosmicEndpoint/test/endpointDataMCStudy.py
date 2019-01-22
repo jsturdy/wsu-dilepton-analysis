@@ -1,9 +1,5 @@
 #!/bin/env python
 
-import ROOT as r
-import sys,os
-import numpy as np
-
 from endpointStudyClass import endpointStudy
 
 class endpointDataMCStudy(endpointStudy):
@@ -34,16 +30,27 @@ class endpointDataMCStudy(endpointStudy):
                                algo,runperiod,pmScaling,xroot,
                                asymdeco,makeLog,debug)
 
+        import ROOT as r
+        import sys,os
+
+        ## clean up this stuff, make it more flexible
+        ## filenames
         self.cosmicDataInFileName = "%s/craft15_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
                                                                                             self.maxbias,
                                                                                             self.nBiasBins,
                                                                                             self.algo)
 
         if self.asymdeco:
-            self.cosmicDataInFileName = "%s/run%s_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                 self.maxbias,
-                                                                                                 self.nBiasBins,
-                                                                                                 self.algo)
+            if self.runperiod == "2016":
+                self.cosmicDataInFileName = "%s/run%s_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
+                                                                                                     self.maxbias,
+                                                                                                     self.nBiasBins,
+                                                                                                     self.algo)
+            elif self.runperiod == "2017":
+                self.cosmicDataInFileName = "%s_hadded/run%s_combined_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
+                                                                                                                  self.maxbias,
+                                                                                                                  self.nBiasBins,
+                                                                                                                  self.algo)
             pass
 
         if self.xroot:
@@ -65,6 +72,8 @@ class endpointDataMCStudy(endpointStudy):
         print "file               IsOpen  IsZombie"
         print "cosmicDataInFile:  %6d  %8d"%(self.cosmicDataInFile.IsOpen(),
                                              self.cosmicDataInFile.IsZombie())
+        print "p10InFile:         %6d  %8d"%(self.p10InFile.IsOpen(),
+                                             self.p10InFile.IsZombie())
         print "p100InFile:        %6d  %8d"%(self.p100InFile.IsOpen(),
                                              self.p100InFile.IsZombie())
         print "p500InFile:        %6d  %8d"%(self.p500InFile.IsOpen(),
@@ -111,12 +120,14 @@ class endpointDataMCStudy(endpointStudy):
 
     def runStudy(self, xvals, yvals, debug=False):
         import math
+        import ROOT as r
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = ""
 
         print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,histSuffix)
         print "cosmicDataInFile",self.cosmicDataInFile
+        print "p10InFile", self.p10InFile
         print "p100InFile",self.p100InFile
         print "p500InFile",self.p500InFile
 
@@ -187,20 +198,31 @@ class endpointDataMCStudy(endpointStudy):
         histSuffix = ""
 
         print "Scaling: %s/%s%s%s"%(self.etaphi,histPrefix,self.etaphi,histSuffix)
+        plusScaleHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp10",self.debug)
+        #plusScaleHistp10.Scale(self.p10top500ScaleFactor)
+
+        histPrefix = "%s%s"%(self.histName,"MinusCurve")
+        minusScaleHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp10",self.debug)
+        #minusScaleHistp10.Scale(self.p10top500ScaleFactor)
+
         plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100",self.debug)
         #plusScaleHistp100.Scale(self.p100top500ScaleFactor)
+        plusScaleHistp100.Scale(self.p10top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
         minusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp100",self.debug)
         #minusScaleHistp100.Scale(self.p100top500ScaleFactor)
+        minusScaleHistp100.Scale(self.p10top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"PlusCurve")
         plusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp500",self.debug)
-        plusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
+        # plusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
+        plusScaleHistp500.Scale(self.p100top500ScaleFactor)
 
         histPrefix = "%s%s"%(self.histName,"MinusCurve")
         minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500",self.debug)
-        minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
+        # minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
+        minusScaleHistp500.Scale(self.p100top500ScaleFactor)
 
         plusScaleHist = plusScaleHistp500.Clone("%s%s%s_scaling"%(self.etaphi,self.histName,"PlusCurve"))
         plusScaleHist.Add(plusScaleHistp100)
@@ -283,6 +305,7 @@ if __name__ == "__main__":
 
     from optparse import OptionParser
     from wsuPythonUtils import *
+    import numpy as np
     #import cProfile, pstats, StringIO
     #pr = cProfile.Profile()
     #pr.enable()

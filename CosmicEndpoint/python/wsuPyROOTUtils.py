@@ -76,10 +76,10 @@ def makeNicePlot(hist,params,debug=False):
     """
 
     if debug:
-        print hist
-        print params
+        print("DEBUG makeNicePlot:",hist)
+        print("DEBUG makeNicePlot:",params)
 
-        #color,marker,coords,stats,
+    # color,marker,coords,stats,
     hist.SetLineWidth(2)
     hist.SetLineColor(params["color"])
     hist.SetMarkerStyle(params["marker"])
@@ -87,17 +87,18 @@ def makeNicePlot(hist,params,debug=False):
     hist.SetMarkerStyle(params["marker"])
     hstat = hist.FindObject("stats")
     if debug:
-        print hstat
-    hstat.SetTextColor(params["color"])
-    hstat.SetOptStat(params["stats"])
-    if params["coords"]["x"][0] > -0.1:
-        hstat.SetX1NDC(params["coords"]["x"][0])
-    if params["coords"]["x"][1] > -0.1:
-        hstat.SetX2NDC(params["coords"]["x"][1])
-    if params["coords"]["y"][0] > -0.1:
-        hstat.SetY1NDC(params["coords"]["y"][0])
-    if params["coords"]["y"][1] > -0.1:
-        hstat.SetY2NDC(params["coords"]["y"][1])
+        print("DEBUG makeNicePlot:",hstat)
+    if hstat:
+        hstat.SetTextColor(params["color"])
+        hstat.SetOptStat(params["stats"])
+        if params["coords"]["x"][0] > -0.1:
+            hstat.SetX1NDC(params["coords"]["x"][0])
+        if params["coords"]["x"][1] > -0.1:
+            hstat.SetX2NDC(params["coords"]["x"][1])
+        if params["coords"]["y"][0] > -0.1:
+            hstat.SetY1NDC(params["coords"]["y"][0])
+        if params["coords"]["y"][1] > -0.1:
+            hstat.SetY2NDC(params["coords"]["y"][1])
     return hist
 
 def styleHistogram(hist,params,debug=False):

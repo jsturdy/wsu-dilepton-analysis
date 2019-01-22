@@ -16,13 +16,13 @@
 
 namespace wsu {
   namespace dileptons {
-    
+
     typedef struct endpointParameters {
       int nbins;
       std::string algo;
       std::string arb;
       std::string leg;
-      
+
     } endpointParameters;
 
     double getChi2(TH1D* hobs, TH1D* href) {
@@ -32,19 +32,19 @@ namespace wsu {
 		  << href->GetName() << " has " << href->GetNbinsX()       << std::endl;
 	return -1.;
       }
-      
+
       int nBins = hobs->GetNbinsX();
       double cChi2 = 0.;
       for (int b = 0; b < nBins; ++b) {
 	double obs = hobs->GetBinContent(b+1);
 	double ref = href->GetBinContent(b+1);
-	
+
 	double binChi2 = pow((obs-ref),2)/(ref);
 	cChi2 += binChi2;
       }
       return cChi2;
     } // end getChi2
-    
+
     TH1D* normalizeHist(TH1D* hobs, TH1D* href) {
       double obsInt = hobs->Integral();
       double refInt = href->Integral();
@@ -81,7 +81,7 @@ namespace wsu {
       if (parms.arb == "plus") {
 	ref = (TH1D*)qPtPlus->Clone("scaled");
 	obs = (TH1D*)qPtMinus->Clone("scaled");
-	
+
       } else if (parms.arb == "minus") {
 	ref = (TH1D*)qPtMinus->Clone("scaled");
 	obs = (TH1D*)qPtPlus->Clone("scaled");
@@ -91,7 +91,7 @@ namespace wsu {
       }
 
       obs = normalizeHist(obs,ref);
-      
+
       biasVals[parms.nbins+1] = 0; // middle of the array should be x=0
       biasErrs[parms.nbins+1] = 0; // middle of the array should be x=0
 
@@ -100,7 +100,7 @@ namespace wsu {
 
       // didn't call new so don't have to clean up? just moving the pointer?
       // delete ref, obs, qPtPlus, qPtMinus;
-      
+
       for (int inj = 0; inj < parms.nbins; ++inj) {
 	std::stringstream histname;
 	histname << plusHist << std::setw(3) << std::setfill('0') << (inj+1);
@@ -110,12 +110,12 @@ namespace wsu {
 	histname.clear();
 	histname << minusHist << std::setw(3) << std::setfill('0') << (inj+1);
 	qPtMinus = (TH1D*)inFile->Get(TString(histname.str()));
-	
+
 	// positive bias
 	if (parms.arb == "plus") {
 	  ref = (TH1D*)qPtPlus->Clone("scaled");
 	  obs = (TH1D*)qPtMinus->Clone("scaled");
-	  
+
 	} else if (parms.arb == "minus") {
 	  ref = (TH1D*)qPtMinus->Clone("scaled");
 	  obs = (TH1D*)qPtPlus->Clone("scaled");
@@ -123,25 +123,25 @@ namespace wsu {
 	  std::cout << "Incorrect arbitration specified: " << parms.arb << " must be either 'plus' or 'minus'" << std::endl;
 	  return NULL;
 	}
-	
+
 	obs = normalizeHist(obs,ref);
-	
+
 	// positive bias
 	biasVals[parms.nbins+1+inj+1] = 0; // middle of the array should be x=0
 	biasErrs[parms.nbins+1+inj+1] = 0; // middle of the array should be x=0
-	
+
 	chi2Vals[parms.nbins+1+inj+1] = getChi2(obs,ref);
 	chi2Errs[parms.nbins+1+inj+1] = 0;// what is the error on the chi2?
-	
+
 	chi2Vals[parms.nbins+1+inj+1] = getChi2(obs,ref);
 
 	// negative bias
 	biasVals[parms.nbins-inj] = 0; // middle of the array should be x=0
 	biasErrs[parms.nbins-inj] = 0; // middle of the array should be x=0
-	
+
 	chi2Vals[parms.nbins-inj] = getChi2(obs,ref);
 	chi2Errs[parms.nbins-inj] = 0;// what is the error on the chi2?
-	
+
 	chi2Vals[parms.nbins+1+inj+1] = getChi2(obs,ref);
 	// didn't call new so don't have to clean up? just moving the pointer?
 	// delete ref, obs, qPtPlus, qPtMinus;
@@ -151,10 +151,10 @@ namespace wsu {
       // hack for now as there is no return type yet
       // return NULL;
     }
-    
+
     /*
     TGraph* runMinimization(TFile const& inFile, endpointParameters const& parms) {
-      
+
     }
     */
 
@@ -187,25 +187,25 @@ int main(int argc, char **argv)
       ("output,o", po::value<std::string>(&outputFile)->required(), "output file name")
       ("config,c", po::value<std::string>(&configFile)->required(), "config file name");
 
-    po::variables_map vm;        
+    po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);    
+    po::notify(vm);
 
     if (vm.count("help")) {
       std::cout << desc << std::endl;
       return 0;
     }
-    
+
     // now since we haven't printed the help, do the parsing and see if any required arguments are missing
     po::notify(vm);
 
     if (vm.count("debug")) {
-      std::cout << "Debug level was set to " 
+      std::cout << "Debug level was set to "
 	   << vm["debug"].as<int>() << "." << std::endl;
     } else {
       std::cout << "Debug level was not set, default is off" << std::endl;
     }
-    
+
   } catch (boost::program_options::required_option& e) {
     std::cerr << "missing required option: " << e.what() << "" << std::endl;
     return 1;
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
   } catch(...) {
     std::cerr << "Exception of unknown type!" << std::endl;
   }
-  
+
   //main body
   std::cout << "parsed command line options as:" << std::endl
 	    << "inputFiles = " << inputFiles     << std::endl
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 	    << "configFile = " << configFile     << std::endl
 	    << "debug = "      << debug          << std::endl
 	    << "running endpoint study"          << std::endl;
-  
+
   wsu::dileptons::cosmics::HistogramMaker myHistograms(inputFiles, outputFile, configFile, debug);
   int nEvents = myHistograms.runLoop(0);
   std::cout << "finished running endpoint study, processed " << nEvents << " events" << std::endl;

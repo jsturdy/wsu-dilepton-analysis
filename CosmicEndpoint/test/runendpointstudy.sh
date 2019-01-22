@@ -41,21 +41,21 @@ for ptbin in "${ptbins[@]}"
 do
     for algo in "${algos[@]}"
     do
-        echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --etaphi All"
-        ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --etaphi All
+        echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --etaphi All"
+        ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --etaphi All
 
         for etaphi in "${etaphibins[@]}"
         do
-            echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --etaphi ${etaphi}"
-            ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --etaphi ${etaphi}
+            echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --etaphi ${etaphi}"
+            ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.lower.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --etaphi ${etaphi}
         done
         
-        echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --histbase looseMuUpper --etaphi All"
-        ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --histbase looseMuUpper --etaphi All
+        echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --histbase looseMuUpper --etaphi All"
+        ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --histbase looseMuUpper --etaphi All
         for etaphi in "${etaphibins[@]}"
         do
-            echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --histbase looseMuUpper --etaphi ${etaphi}"
-            ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2016 --asymdeco --histbase looseMuUpper --etaphi ${etaphi}
+            echo "./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --histbase looseMuUpper --etaphi ${etaphi}"
+            ./endpointDataMCStudy.py -i ${indir} -o ${tagname}.${algo}.s${stepsize}.pt${ptbin}.b${rebins}.upper.root -b${rebins} --minpt ${ptbin} -m 0.8 -n 400 -s${stepsize} --algo ${algo} --runperiod 2017 --xroot --asymdeco --histbase looseMuUpper --etaphi ${etaphi}
         done
     done
 done

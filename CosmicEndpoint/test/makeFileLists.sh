@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/sturdy/MuonEfficiency/SPLooseMuCosmic_38T_p10/MuonEfficiencyTree_startup_peak_p10_Apr07/160407_161719/0000/   |fgrep root>& samplesLists_data/all_startup_peak_p10_trees_v5.txt
 #gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/sturdy/MuonEfficiency/SPLooseMuCosmic_38T_p100/MuonEfficiencyTree_startup_peak_p100_Apr07/160407_161739/0000/ |fgrep root>& samplesLists_data/all_startup_peak_p100_trees_v5.txt
@@ -65,77 +66,223 @@
 # echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/sturdy/CosmicEndpoint/2016/Trees/SPLooseMuCosmic_38T_p500/crab_projects_endpoint_nov28_CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1_SPLooseMuCosmic_38T_p500/161128_181015/0000 |fgrep root" > samplesLists_data/shawn_asym_deco_2016_p500_reRECO_endpoint.txt
 # gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/sturdy/CosmicEndpoint/2016/Trees/SPLooseMuCosmic_38T_p500/crab_projects_endpoint_nov28_CosmicSpring16DR80-DECO_80X_mcRun2cosmics_asymptotic_deco_v0-v1_SPLooseMuCosmic_38T_p500/161128_181015/0000 |fgrep root>>& samplesLists_data/shawn_asym_deco_2016_p500_reRECO_endpoint.txt
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016B-CosmicSP-PromptReco-v1/170120_222316/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016B-CosmicSP-PromptReco-v1/170120_222316/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016b_v1_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016B-CosmicSP-PromptReco-v2/170120_222330/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016B-CosmicSP-PromptReco-v2/170120_222330/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016b_v2_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016C-CosmicSP-PromptReco-v2/170120_222342/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016C-CosmicSP-PromptReco-v2/170120_222342/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016c_v2_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016D-CosmicSP-PromptReco-v2/170120_222354/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016D-CosmicSP-PromptReco-v2/170120_222354/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016d_v2_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016E-CosmicSP-PromptReco-v2/170120_222404/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016E-CosmicSP-PromptReco-v2/170120_222404/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016e_v2_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016F-CosmicSP-PromptReco-v1/170120_222414/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016F-CosmicSP-PromptReco-v1/170120_222414/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016f_v1_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016G-CosmicSP-PromptReco-v1/170120_222423/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016G-CosmicSP-PromptReco-v1/170120_222423/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016g_v1_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016H-CosmicSP-PromptReco-v1/170120_222432/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016H-CosmicSP-PromptReco-v1/170120_222432/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016h_v1_trees_2016_reRECO_endpoint_jan20.tmp
 
-EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016H-CosmicSP-PromptReco-v2/170120_222448/0000"
-echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
-gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp
-echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.txt"
-sed "s,^,$EOSDIR/," samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.txt
-echo "rm samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp"
-rm samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# EOSDIR="/store/user/sturdy/CosmicEndpoint/2016/Trees/Cosmics/crab_projects_endpoint_jan20_Run2016H-CosmicSP-PromptReco-v2/170120_222448/0000"
+# echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+# gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root >&  samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp
+# echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.txt"
+# sed "s,^,$EOSDIR/," samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp > samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.txt
+# echo "rm samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp"
+# rm samplesLists_data/all_run2016h_v2_trees_2016_reRECO_endpoint_jan20.tmp
+
+basedir="/store/user/sturdy/CosmicEndpoint/2017/Trees"
+
+pds=(
+    "Cosmics"
+    "SPLooseMuCosmic_38T_p10-100"
+    "SPLooseMuCosmic_38T_p100-500"
+    "SPLooseMuCosmic_38T_p500"
+)
+
+samples=(
+    "Cosmics/Commissioning2017-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017A-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017A-CosmicSP-PromptReco-v2"
+    "Cosmics/Run2017A-CosmicSP-PromptReco-v3"
+    "Cosmics/Run2017B-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017B-CosmicSP-PromptReco-v2"
+    "Cosmics/Run2017C-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017C-CosmicSP-PromptReco-v2"
+    "Cosmics/Run2017C-CosmicSP-PromptReco-v3"
+    "Cosmics/Run2017D-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017E-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017F-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017G-CosmicSP-PromptReco-v1"
+    "Cosmics/Run2017H-CosmicSP-PromptReco-v1"
+    "Cosmics/XeXeRun2017-CosmicSP-PromptReco-v1"
+    "SPLooseMuCosmic_38T_p10-100/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1"
+    "SPLooseMuCosmic_38T_p100-500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1"
+    "SPLooseMuCosmic_38T_p500/RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1"
+)
+
+request="endpoint2017_trees_10sep18"
+# always prefixed by crab_projects_
+crabdir="crab_projects_${request}"
+# EOS dirs will be: base/PD/datadir/date/0000
+# datadir will be crabdir_samplename
+
+datadirs=(
+    # "crab_projects_endpoint2017_trees_10sep18_Commissioning2017-CosmicSP-PromptReco-v1/180910_172938"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017A-CosmicSP-PromptReco-v1/180910_172955"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017A-CosmicSP-PromptReco-v2/180910_173012"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017C-CosmicSP-PromptReco-v1/180910_173130"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017F-CosmicSP-PromptReco-v1/180910_173319"
+
+    ## crab_projects_endpoint2017_trees_10sep18
+    # "crab_projects_endpoint2017_trees_10sep18_Commissioning2017-CosmicSP-PromptReco-v1/180910_172938"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017A-CosmicSP-PromptReco-v1/180910_172955"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017A-CosmicSP-PromptReco-v2/180910_173012"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017A-CosmicSP-PromptReco-v3/180913_162535"
+    # # "crab_projects_endpoint2017_trees_10sep18_Run2017B-CosmicSP-PromptReco-v1/180913_162552"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017B-CosmicSP-PromptReco-v2/180913_162608"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017C-CosmicSP-PromptReco-v1/180910_173130"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017C-CosmicSP-PromptReco-v2/180913_162624"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017C-CosmicSP-PromptReco-v3/180913_162641"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017D-CosmicSP-PromptReco-v1/180913_162657"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017E-CosmicSP-PromptReco-v1/180913_162714"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017F-CosmicSP-PromptReco-v1/180910_173319"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017G-CosmicSP-PromptReco-v1/180916_084714"
+    # "crab_projects_endpoint2017_trees_10sep18_Run2017H-CosmicSP-PromptReco-v1/180916_084734"
+
+    ## crab_projects_cosmicendpoint2017_trees_09jan19
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Commissioning2017-CosmicSP-PromptReco-v1/190109_151604"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017A-CosmicSP-PromptReco-v1/190109_151620"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017A-CosmicSP-PromptReco-v2/190109_151635"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017A-CosmicSP-PromptReco-v3/190109_151650"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017B-CosmicSP-PromptReco-v1/190109_133759"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017B-CosmicSP-PromptReco-v2/190109_133818"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017C-CosmicSP-PromptReco-v1/190109_133833"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017C-CosmicSP-PromptReco-v2/190109_133848"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017C-CosmicSP-PromptReco-v3/190109_133903"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017D-CosmicSP-PromptReco-v1/190109_133917"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017E-CosmicSP-PromptReco-v1/190109_133932"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017F-CosmicSP-PromptReco-v1/190109_133947"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017G-CosmicSP-PromptReco-v1/190109_134002"
+    "crab_projects_cosmicendpoint2017_trees_09jan19_Run2017H-CosmicSP-PromptReco-v1/190109_134017"
+
+)
+mcdirs=(
+    # "crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p10-100/180910_173440"
+    # "crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p100-500/180910_173458"
+    # "crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p500/180910_173517"
+
+    # "SPLooseMuCosmic_38T_p10-100/crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p10-100/180910_173440"
+    # "SPLooseMuCosmic_38T_p100-500/crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p100-500/180910_173458"
+    # "SPLooseMuCosmic_38T_p500/crab_projects_endpoint2017_trees_10sep18_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p500/180910_173517"
+
+    "TKCosmics_38T/crab_projects_cosmicendpoint2017_trees_09jan19_RunIISummer17CosmicDR-DECO_92X_upgrade2017cosmics_realistic_deco_v10-v1_TKCosmics_38T/190109_134132"
+    "SPLooseMuCosmic_38T_p10-100/crab_projects_cosmicendpoint2017_trees_09jan19_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p10-100/190109_134046"
+    "SPLooseMuCosmic_38T_p100-500/crab_projects_cosmicendpoint2017_trees_09jan19_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p100-500/190109_134102"
+    "SPLooseMuCosmic_38T_p500/crab_projects_cosmicendpoint2017_trees_09jan19_RunIISummer17CosmicDR-94X_mc2017cosmics_realistic_deco_v3-v1_SPLooseMuCosmic_38T_p500/190109_134117"
+)
+
+# procname is used for local processing and will be
+# - run<year><period>_<version>_<request> for data
+# - <conditions>_<pbin>_<request> for MC
+procnames=(
+    # run2016h_v2_trees_2016_reRECO_endpoint_jan20
+    # asym_deco_2016_p500_reRECO_endpoint_jan20
+    commissioning2017_v1_cosmicendpoint2017_trees_09jan19
+    run2017a_v1_cosmicendpoint2017_trees_09jan19
+    run2017a_v2_cosmicendpoint2017_trees_09jan19
+    run2017a_v3_cosmicendpoint2017_trees_09jan19
+    run2017b_v1_cosmicendpoint2017_trees_09jan19
+    run2017b_v2_cosmicendpoint2017_trees_09jan19
+    run2017c_v1_cosmicendpoint2017_trees_09jan19
+    run2017c_v2_cosmicendpoint2017_trees_09jan19
+    run2017c_v3_cosmicendpoint2017_trees_09jan19
+    run2017d_v1_cosmicendpoint2017_trees_09jan19
+    run2017e_v1_cosmicendpoint2017_trees_09jan19
+    run2017f_v1_cosmicendpoint2017_trees_09jan19
+    run2017g_v1_cosmicendpoint2017_trees_09jan19
+    run2017h_v1_cosmicendpoint2017_trees_09jan19
+    # run2017x_v1_cosmicendpoint2017_trees_09jan19
+    realistic_deco_tkcosmics_cosmicendpoint2017_trees_09jan19
+    realistic_deco_p10-100_cosmicendpoint2017_trees_09jan19
+    realistic_deco_p100-500_cosmicendpoint2017_trees_09jan19
+    realistic_deco_p500_cosmicendpoint2017_trees_09jan19
+)
+
+i=0
+
+for d in ${datadirs[@]}
+do
+    sname=${procnames[$i]}
+    EOSDIR="${basedir}/Cosmics/${d}/0000"
+    echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+    gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root >&  samplesLists_data/all_${sname}.tmp
+    echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_${sname}.tmp > samplesLists_data/all_${sname}.txt"
+    sed "s,^,$EOSDIR/," samplesLists_data/all_${sname}.tmp > samplesLists_data/all_${sname}.txt
+    echo "rm samplesLists_data/all_${sname}.tmp"
+    rm samplesLists_data/all_${sname}.tmp
+    ((i++))
+done
+
+for mc in ${mcdirs[@]}
+do
+    sname=${procnames[$i]}
+    EOSDIR="${basedir}/${mc}/0000"
+    echo "gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms${EOSDIR} |fgrep root"
+    gfal-ls --verbose -4 srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/${EOSDIR} |fgrep root >&  samplesLists_data/all_${sname}.tmp
+    echo "sed \"s,^,$EOSDIR/,\" samplesLists_data/all_${sname}.tmp > samplesLists_data/all_${sname}.txt"
+    sed "s,^,$EOSDIR/," samplesLists_data/all_${sname}.tmp > samplesLists_data/all_${sname}.txt
+    echo "rm samplesLists_data/all_${sname}.tmp"
+    rm samplesLists_data/all_${sname}.tmp
+    ((i++))
+done
 
 # # broken as gfal-ls does not behave as lcg-ls
 # #perl -pi -e 's/\/eos\/uscms\/store/\/store/g' samplesLists_data/*_2016*v?.txt
