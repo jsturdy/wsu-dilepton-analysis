@@ -22,10 +22,10 @@ muonAnalysis = cms.EDAnalyzer('MuonAnalyzer',
     tagLegSrc   = cms.InputTag("upperMuons"),
     probeLegSrc = cms.InputTag("lowerMuons"),
 
-    simTrackSrc     = cms.InputTag("g4SimHits"),
-    trigResultsSrc  = cms.InputTag('TriggerResults','',''),
+    simTrackSrc       = cms.InputTag("g4SimHits"),
+    trigResultsSrc    = cms.InputTag('TriggerResults','','HLT'),
     fakeL1SingleMuSrc = cms.InputTag("singleMuFilter"),
-    hltTrigCut      = cms.string('L1SingleMuOpen'),
+    hltTrigCut        = cms.string('L1SingleMuOpen'),
  
     isGen       = cms.bool(False),
 
