@@ -74,19 +74,19 @@ def main():
         from CRABClient.UserUtilities import config
         config = config()
 
-        config.General.requestName = None
-        config.General.workArea = options.workArea
+        config.General.requestName     = None
+        config.General.workArea        = options.workArea
         config.General.transferOutputs = True
-        config.General.transferLogs = False
+        config.General.transferLogs    = False
                 
-        config.JobType.pluginName = 'Analysis'
+        config.JobType.pluginName    = 'Analysis'
 
         config.Data.inputDBS         = 'global'
         config.Data.inputDataset     = None
         config.Data.splitting        = None
         config.Data.outputDatasetTag = None
-
-        config.Data.outLFNDirBase = '/store/user/sturdy/MuonEfficiency'
+        ## MODIFY THIS TO POINT TO THE DESIRED OUTPUT LOCATION
+        config.Data.outLFNDirBase    = '/store/user/sturdy/MuonEfficiency'
 
         config.Site.storageSite = 'T3_US_FNALLPC'
         #--------------------------------------------------------
