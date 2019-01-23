@@ -84,10 +84,11 @@ def getHistogram(sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=Fa
     outHist = None
     for etaphibin in etaphibins[etaphi]:
         if debug:
-            print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
+            print "Grabbing: {:s}/{:s}{:s}{:s}".format(etaphibin,histPrefix,etaphibin,histSuffix)
             pass
         
-        tmpHist = sampleFile.Get("%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("%s_%s"%(etaphibin,cloneName))
+        print "Grabbing: {:s}/{:s}{:s}{:s}".format(etaphibin,histPrefix,etaphibin,histSuffix)
+        tmpHist = sampleFile.Get("{:s}/{:s}{:s}{:s}".format(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("{:s}_{:s}".format(etaphibin,cloneName))
         if outHist:
             outHist.Add(tmpHist)
         else:

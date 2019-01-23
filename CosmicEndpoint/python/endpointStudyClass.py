@@ -6,6 +6,7 @@ import numpy as np
 
 from wsuPythonUtils import *
 from wsuPyROOTUtils import *
+from mcSampleManager import mcSampleManager
 
 class endpointStudy(object):
     """
@@ -16,8 +17,9 @@ class endpointStudy(object):
     # import sys,os
     # import numpy as np
 
-    from wsuPythonUtils import setMinPT,prettifyGraph
+    from wsuPythonUtils import setMinPT,prettifyGraph,getHistogram
     from wsuPyROOTUtils import styleHistogram
+    from mcSampleManager import mcSampleManager as mcSampleManager
 
     etaphiexclusivebins = [
         "EtaPlusPhiMinus","EtaPlusPhiZero","EtaPlusPhiPlus",
@@ -51,7 +53,7 @@ class endpointStudy(object):
     def __init__(self, infiledir, outfile, histName, etaphi, minpt,
                  maxbias=0.2, nBiasBins=40,stepsize=1,
                  nTotalBins=640, factor=1000, rebins=1,
-                 algo="TuneP",runperiod="2015",
+                 algo="TuneP",mcmode="exbin",runperiod="2015",
                  pmScaling=True,
                  xroot=False,
                  asymdeco=False,
@@ -59,6 +61,7 @@ class endpointStudy(object):
                  debug=False) :
 
         r.gROOT.SetBatch(not debug)
+        r.gROOT.SetBatch()
         r.gErrorIgnoreLevel = r.kFatal
 
         self.infiledir   = infiledir
@@ -79,11 +82,11 @@ class endpointStudy(object):
         self.factor      = factor
         self.rebins      = rebins
         self.algo        = algo
+        self.mcmode      = mcmode
         self.runperiod   = runperiod
-        self.trackAlgos = ["TrackerOnly","TuneP","DYT","DYTT","TPFMS","Picky"]
+        self.trackAlgos  = ["TrackerOnly","TuneP","DYT","DYTT","TPFMS","Picky"]
         if self.algo not in self.trackAlgos:
-            errmsg = "Invalid track algo specified: %s.  Allowed options are:\n"%(self.algo)
-            # errmsg += self.trackAlgos
+            errmsg = "Invalid track algo specified: {:s}.  Allowed options are: {:s}\n".format(self.algo,"".join(str,self.trackAlgos))
             raise NameError(errmsg)
 
 
@@ -97,119 +100,57 @@ class endpointStudy(object):
         self.makeLog  = makeLog
         self.debug    = debug
 
-        self.cosmicDataInFileName = "%s/craft15_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
-                                                                                            self.maxbias,
-                                                                                            self.nBiasBins,
-                                                                                            self.algo)
-        self.p10InFileName = "%s/startup_peak_%s_p10_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                    self.maxbias,
-                                                                                                    self.nBiasBins,
-                                                                                                    self.algo)
-        self.p100InFileName = "%s/startup_peak_%s_p100_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                      self.maxbias,
-                                                                                                      self.nBiasBins,
-                                                                                                      self.algo)
-        self.p500InFileName = "%s/startup_peak_%s_p500_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                      self.maxbias,
-                                                                                                      self.nBiasBins,
-                                                                                                      self.algo)
-
-        if self.asymdeco:
-            if self.runperiod == "2016":
-                self.cosmicDataInFileName = "%s/run%s_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                     self.maxbias,
-                                                                                                     self.nBiasBins,
-                                                                                                     self.algo)
-                self.p10InFileName = "%s/asym_deco_%s_p10_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                         self.maxbias,
-                                                                                                         self.nBiasBins,
-                                                                                                         self.algo)
-                self.p100InFileName = "%s/asym_deco_%s_p100_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                           self.maxbias,
-                                                                                                           self.nBiasBins,
-                                                                                                           self.algo)
-                self.p500InFileName = "%s/asym_deco_%s_p500_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                           self.maxbias,
-                                                                                                           self.nBiasBins,
-                                                                                                           self.algo)
-            elif self.runperiod == "2017":
-                self.cosmicDataInFileName = "%s_hadded/run%s_v1_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,self.runperiod,
-                                                                                                            self.maxbias,
-                                                                                                            self.nBiasBins,
-                                                                                                            self.algo)
-                self.p10InFileName = "%s_notrigger_thresh10_hadded/all_realistic_deco_p10-100_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
-                                                                                                                                          self.maxbias,
-                                                                                                                                          self.nBiasBins,
-                                                                                                                                          self.algo)
-                self.p100InFileName = "%s_notrigger_thresh10_hadded/all_realistic_deco_p100-500_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
-                                                                                                                                            self.maxbias,
-                                                                                                                                            self.nBiasBins,
-                                                                                                                                            self.algo)
-                self.p500InFileName = "%s_notrigger_thresh10_hadded/all_realistic_deco_p500_b%.02f_pt75_n%d_sym/CosmicHistOut_%s.root"%(self.infiledir,
-                                                                                                                                        self.maxbias,
-                                                                                                                                        self.nBiasBins,
-                                                                                                                                        self.algo)
-                pass
-            pass
-
+        dirbase = ""
         if self.xroot:
-            #/eos/cms/store/user/sturdy/CosmicEndpoint/2015/sep21_hadded/run2015c_b0.80_pt75_n400_sym
+            ## /eos/cms/store/user/sturdy/CosmicEndpoint/2015/sep21_hadded/run2015c_b0.80_pt75_n400_sym
             eossrc = "root://cmseos.fnal.gov///store/user/sturdy"
             eossrc = "root://eoscms.cern.ch//eos/cms/store/user/sturdy"
-            self.cosmicDataInFileName = "%s/CosmicEndpoint/%s/%s"%(eossrc,runperiod,self.cosmicDataInFileName)
-            self.p10InFileName  = "%s/CosmicEndpoint/%s/%s"%(eossrc,runperiod,self.p10InFileName)
-            self.p100InFileName = "%s/CosmicEndpoint/%s/%s"%(eossrc,runperiod,self.p100InFileName)
-            self.p500InFileName = "%s/CosmicEndpoint/%s/%s"%(eossrc,runperiod,self.p500InFileName)
-            pass
-
-        self.cosmicDataInFile = None
-        self.p10InFile = None
-        self.p100InFile = None
-        self.p500InFile = None
-
-        if (self.cosmicDataInFileName).find("root://") > -1:
-            print "using TNetXNGFile for EOS access"
-            self.cosmicDataInFile = r.TNetXNGFile(self.cosmicDataInFileName,"read")
-            self.p10InFile  = r.TNetXNGFile(self.p10InFileName,"read")
-            self.p100InFile = r.TNetXNGFile(self.p100InFileName,"read")
-            self.p500InFile = r.TNetXNGFile(self.p500InFileName,"read")
+            dirbase = "{0:s}/CosmicEndpoint/{1:s}".format(eossrc,runperiod)
         else:
-            self.cosmicDataInFile = r.TFile(self.cosmicDataInFileName,"read")
-            self.p10InFile  = r.TFile(self.p10InFileName,"read")
-            self.p100InFile = r.TFile(self.p100InFileName,"read")
-            self.p500InFile = r.TFile(self.p500InFileName,"read")
+            # dirbase = "file://"
             pass
 
-        # print "file               address  IsOpen  IsZombie"
-        # print "cosmicDataInFile: 0x%08x  %6d  %8d"%(self.cosmicDataInFile,
-        #                                             self.cosmicDataInFile.IsOpen(),
-        #                                             self.cosmicDataInFile.IsZombie())
-        # print "p10InFile:        0x%08x  %6d  %8d"%(self.p10InFile,
-        #                                             self.p10InFile.IsOpen(),
-        #                                             self.p10InFile.IsZombie()
-        # print "p100InFile:       0x%08x  %6d  %8d"%(self.p100InFile,
-        #                                             self.p100InFile.IsOpen(),
-        #                                             self.p100InFile.IsZombie()
-        # print "p500InFile:       0x%08x  %6d  %8d"%(self.p500InFile.IsOpen(),
-        #                                             self.p500InFile.IsOpen(),
-        #                                             self.p500InFile.IsZombie()
+        self.mcSamples = {}
 
-        # if not self.cosmicDataInFile or not self.p10InFile or not self.p100InFile or not self.p500InFile:
-        if not self.cosmicDataInFile or not self.p100InFile or not self.p500InFile:
-            print "input files invalid"
-            exit(1)
+        ## can we make this completely agnostic of the source of the MC?
+        ## Would like to run with
+        ## * inclusive binned samples
+        ## * exclusive binned samples (if possible)
+        ## * single inclusive sample (TKCosmics)
+        ## need to run some setup that figures out what files to combine, but inside this class, can we abstract away from depending on scale factors, etc?
+        nameformats = {
+            ## need to verify things work for the old formats from 2015 and 2016 (or just rerun those jobs...)
+            "craft15"    : "{0:s}/craft15_b{1:.02f}_pt75_n{2:d}_sym/CosmicHistOut_{3:s}.root",
+            "startup"    : "{0:s}/startup_peak_{1:s}_{2:s}_v1_b{3:.02f}_pt75_n{4:d}_sym/CosmicHistOut_{5:s}.root",
+            "cosmic16"   : "{0:s}/run{1:s}_v1_b{2:.02f}_pt75_n{3:d}_sym/CosmicHistOut_{4:s}.root",
+            "asymdeco"   : "{0:s}/asym_deco_{1:s}_{2:s}_v1_b{3:.02f}_pt75_n{4:d}_sym/CosmicHistOut_{5:s}.root",
+            "cosmic17"   : "{0:s}_hadded/all_run{1:s}_b{2:.02f}_pt75_n{3:d}_sym/CosmicHistOut_{4:s}.root", ## doesn't work as is, "runperiod" needs extra per sample
+            "combined"   : "{0:s}_hadded/run{1:s}_combined_b{2:.02f}_pt75_n{3:d}_sym/CosmicHistOut_{4:s}.root",
+            "asym17"     : "{0:s}_notrigger_thresh10_hadded/all_realistic_deco_{1:s}_b{2:.02f}_pt75_n{3:d}_sym/CosmicHistOut_{4:s}.root",
+            }
+
+        self.cosmicDataInFileName = nameformats["craft15"].format(self.infiledir, self.maxbias, self.nBiasBins, self.algo)
+        if self.runperiod == "2016":
+            self.cosmicDataInFileName = nameformats["cosmic16"].format(self.infiledir, self.runperiod, self.maxbias, self.nBiasBins, self.algo)
+        elif self.runperiod == "2017":
+            self.cosmicDataInFileName = nameformats["combined"].format(self.infiledir, self.runperiod, self.maxbias, self.nBiasBins, self.algo)
+
+        ## do all this in the MC Sample Manager?
+        ## then the only thing necessary here in the endpointStudyClass is the manager instance
+        ## or get the sample names here, and push those to the manager, leaving the manager a bit more generic?
 
         ## Need to be able to combine multiple MC samples together
         # - p10, p100, p500
         ## these factors depend on the run period, so will have to address that
         ### exclusively binned vs. inclusively binned
 
+        ### Calculation of the scale factors
+        """
         # - p10, p500: scale p10 by (1028051./58898.)
         self.p10top500ScaleFactor  = 1028051./58898.
         # - p100, p500: scale p100 by (1028051./58898.)
         self.p100top500ScaleFactor = 1028051./58898.
 
-        """
         N10  = 1551937
 
         n10  = 1490125
@@ -223,10 +164,52 @@ class endpointStudy(object):
         f10  = f10*(n10/N10)
         f100 = f100*(n100/N10)
         f500 = f500*(n500/N10)
-        """
 
         self.p10top500ScaleFactor  = 0.079589570968409157
         self.p100top500ScaleFactor = 0.0049125705489333656
+        """
+
+        if self.asymdeco:
+            if self.runperiod == "2016":
+                if self.mcmode in ["exbin","inbin"]:
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asymdeco"].format(self.infiledir, self.runperiod, "p10",  self.maxbias, self.nBiasBins, self.algo))] = 0.079589570968409157
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asymdeco"].format(self.infiledir, self.runperiod, "p100", self.maxbias, self.nBiasBins, self.algo))] = 0.0049125705489333656
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asymdeco"].format(self.infiledir, self.runperiod, "p500", self.maxbias, self.nBiasBins, self.algo))] = 1.0
+                else:
+                    ## not available
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["tkcosmic16"].format(self.infiledir, self.runperiod, "tkcosmics", self.maxbias, self.nBiasBins, self.algo))] = 1.0
+            elif self.runperiod == "2017":
+                if self.mcmode in ["exbin","inbin"]:
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asym17"].format(self.infiledir, "p10-100",  self.maxbias, self.nBiasBins, self.algo))] = 0.079589570968409157
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asym17"].format(self.infiledir, "p100-500", self.maxbias, self.nBiasBins, self.algo))] = 0.0049125705489333656
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asym17"].format(self.infiledir, "p500",     self.maxbias, self.nBiasBins, self.algo))] = 1.0
+                else:
+                    self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["asym17"].format(self.infiledir, "tkcosmics", self.maxbias, self.nBiasBins, self.algo))] = 1.0
+        else:
+            if self.mcmode in ["exbin","inbin"]:
+                self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["startup"].format(self.infiledir, self.runperiod, "p10",  self.maxbias, self.nBiasBins, self.algo))] = 0.079589570968409157
+                self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["startup"].format(self.infiledir, self.runperiod, "p100", self.maxbias, self.nBiasBins, self.algo))] = 0.0049125705489333656
+                self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["startup"].format(self.infiledir, self.runperiod, "p500", self.maxbias, self.nBiasBins, self.algo))] = 1.0
+            else:
+                ## not available
+                self.mcSamples["{0:s}/{1:s}".format(dirbase,nameformats["tkcosmics15"].format(self.infiledir, self.runperiod, "tkcosmics", self.maxbias, self.nBiasBins, self.algo))] = 1.0
+
+
+        self.cosmicDataInFileName = "{0:s}/{1:s}".format(dirbase,self.cosmicDataInFileName)
+        self.mcManager = mcSampleManager(self.mcmode,self.mcSamples, self.runperiod)
+
+        self.cosmicDataInFile = None
+
+        if (self.cosmicDataInFileName).find("root://") > -1:
+            print "using TNetXNGFile for EOS access"
+            self.cosmicDataInFile = r.TNetXNGFile(self.cosmicDataInFileName,"read")
+        else:
+            self.cosmicDataInFile = r.TFile(self.cosmicDataInFileName,"read")
+            pass
+
+        if not self.cosmicDataInFile:
+            print "Input data file invalid"
+            exit(1)
 
         self.outfile   = r.TFile(outfile,"update")
 
@@ -245,9 +228,9 @@ class endpointStudy(object):
             }
 
         if self.etaphi not in endpointStudy.etaphibins.keys():
-            errmsg = "Invalid eta/phi option specified: %s.  Allowed options are:"%(self.etaphi)
+            errmsg = "Invalid eta/phi option specified: {0:s}.  Allowed options are:".format(self.etaphi)
             errmsg += endpointStudy.etaphibins.keys()
-            raise NameError(errmsg)
+            raise ValueError(errmsg)
 
         self.graphInfo = {}
         self.graphInfo["KS"]   = {"color":r.kRed,"marker":r.kFullCircle,
@@ -260,8 +243,8 @@ class endpointStudy(object):
                                   "title":"ROOT #chi^{2}/ndf",
                                   "yaxis":""}
 
-        self.gifDir = "sampleGIFs/%s"%(self.etaphi)
-        os.system("mkdir -p %s"%(self.gifDir))
+        self.gifDir = "sampleGIFs/{:s}".format(self.etaphi)
+        os.system("mkdir -p {:s}".format(self.gifDir))
 
         ## common for the looping, should probably reset at the end of the loop
         self.refmax         = None
@@ -314,35 +297,17 @@ class endpointStudy(object):
 
         return
 
-    def getHistogram(self, sampleFile, etaphi, histPrefix, histSuffix, cloneName, debug=False):
-        outHist = None
-        for etaphibin in endpointStudy.etaphibins[etaphi]:
-            if debug:
-                print "Grabbing: %s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)
-            pass
-
-            tmpHist = sampleFile.Get("%s/%s%s%s"%(etaphibin,histPrefix,etaphibin,histSuffix)).Clone("%s_%s"%(etaphibin,cloneName))
-            if outHist:
-                outHist.Add(tmpHist)
-            else:
-                outHist = tmpHist.Clone(cloneName)
-                pass
-            pass
-        return outHist
-
     def runStudy(self, xvals, yvals, debug=False):
         import math
 
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
+        histPrefix = "{:s}{:s}".format(self.histName,"PlusCurve")
         histSuffix = ""
 
-        print "Reference: %s/%s%s%s%s"%(self.etaphi,self.histName,"PlusCurve",self.etaphi,histSuffix)
+        print "Reference: {:s}/{:s}{:s}{:s}{:s}".format(self.etaphi, self.histName, "PlusCurve", self.etaphi, histSuffix)
         print "cosmicDataInFile",self.cosmicDataInFile
-        print "p10InFile",self.p10InFile
-        print "p100InFile",self.p100InFile
-        print "p500InFile",self.p500InFile
+        print "mcManager",self.mcManager
 
-        testHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"clonecosmicData",True)
+        testHist = getHistogram(self.cosmicDataInFile, self.etaphi, histPrefix, histSuffix, "clonecosmicData", True)
 
         testHist = setMinPT(testHist,self.nTotalBins,self.minpt/1000.,True,debug)
         testHist.Rebin(self.rebins)
@@ -354,29 +319,28 @@ class endpointStudy(object):
 
         ## use data histogram as reference
         if debug:
-            print "Using %s/%s%s%s%s as reference histograms"%(self.etaphi,self.histName,"Plus[Minus]Curve",
-                                                               self.etaphi,histSuffix)
+            print "Using {:s}/{:s}{:s}{:s}{:s} as reference histograms".format(self.etaphi, self.histName, "Plus[Minus]Curve", self.etaphi, histSuffix)
 
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        plusRefHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"plusRefHist",self.debug)
+        histPrefix = "{:s}{:s}".format(self.histName,"PlusCurve")
+        plusRefHist = getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"plusRefHist",self.debug)
 
-        histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusRefHist = self.getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"minusRefHist",self.debug)
+        histPrefix = "{:s}{:s}".format(self.histName,"MinusCurve")
+        minusRefHist = getHistogram(self.cosmicDataInFile,self.etaphi,histPrefix,histSuffix,"minusRefHist",self.debug)
 
         if debug:
-            print "Minus integral %d, Plus integral %d"%(minusRefHist.Integral(),plusRefHist.Integral())
+            print "Minus integral {:f}, Plus integral {:f}".format(minusRefHist.Integral(),plusRefHist.Integral())
             pass
 
-        refHist = plusRefHist.Clone("%s_refHist"%(self.histName))
+        refHist = plusRefHist.Clone("{:s}_refHist".format(self.histName))
 
         if debug:
-            print "before adding minus histogram integral: %d"%(refHist.Integral())
+            print "before adding minus histogram integral: {:f}".format(refHist.Integral())
             pass
 
         refHist.Add(minusRefHist)
 
         if debug:
-            print "after adding minus histogram integral: %d"%(refHist.Integral())
+            print "after adding minus histogram integral: {:f}".format(refHist.Integral())
             pass
 
         # un-cut integral
@@ -404,44 +368,11 @@ class endpointStudy(object):
         self.refHist.SetLineColor(r.kBlue)
         self.refHist.SetLineWidth(2)
 
-        ### calculating a scale factor from the un-biased MC
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
         histSuffix = ""
+        cloneFmt   = "{:s}{:s}_scaled"
+        (plusScaleHist, minusScaleHist) = self.mcManager.getMCHistogram(self.etaphi, self.histName, histSuffix, cloneFmt)
 
-        print "Scaling: %s/%s%s%s"%(self.etaphi,histPrefix,self.etaphi,histSuffix)
-        plusScaleHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp10",self.debug)
-        #plusScaleHistp10.Scale(self.p10top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusScaleHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp10",self.debug)
-        #minusScaleHistp10.Scale(self.p10top500ScaleFactor)
-
-        plusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp100",self.debug)
-        #plusScaleHistp100.Scale(self.p100top500ScaleFactor)
-        plusScaleHistp100.Scale(self.p10top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusScaleHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp100",self.debug)
-        #minusScaleHistp100.Scale(self.p100top500ScaleFactor)
-        minusScaleHistp10.Scale(self.p10top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"PlusCurve")
-        plusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"plusScaleHistp500",self.debug)
-        # plusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
-        plusScaleHistp500.Scale(self.p100top500ScaleFactor)
-
-        histPrefix = "%s%s"%(self.histName,"MinusCurve")
-        minusScaleHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"minusScaleHistp500",self.debug)
-        # minusScaleHistp500.Scale(1./self.p100top500ScaleFactor)
-        minusScaleHistp500.Scale(self.p100top500ScaleFactor)
-
-        plusScaleHist = plusScaleHistp500.Clone("%s%s%s_scaling"%(self.etaphi,self.histName,"PlusCurve"))
-        plusScaleHist.Add(plusScaleHistp100)
-
-        minusScaleHist = minusScaleHistp500.Clone("%s%s%s_scaling"%(self.etaphi,self.histName,"MinusCurve"))
-        minusScaleHist.Add(minusScaleHistp100)
-
-        compScaleHist = plusScaleHist.Clone("%s%s_compScaleHist"%(self.etaphi,self.histName))
+        compScaleHist = plusScaleHist.Clone("{:s}{:s}_compScaleHist".format(self.etaphi, self.histName))
         compScaleHist.Add(minusScaleHist)
 
         if debug:
@@ -525,49 +456,12 @@ class endpointStudy(object):
                 if negativeBias:
                     biasBin = self.nBiasBins-step*self.stepsize
                 if debug:
-                    print "%s/%s%s%s%sBias%03d"%(self.etaphi,self.histName,"PlusCurve",
-                                                              self.etaphi,biasChange,
-                                                              biasBin)
+                    print "{:s}/{:s}{:s}{:s}{:s}Bias{:03d}".format(self.etaphi,self.histName,"PlusCurve",self.etaphi,biasChange,biasBin)
                     pass
 
-                histSuffix = "%sBias%03d"%(biasChange,biasBin)
-                histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                plusHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-                histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                minusHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-                #plusHistp10.Scale( self.p10top500ScaleFactor)
-                #minusHistp10.Scale(self.p10top500ScaleFactor)
-
-                histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-                histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-                #plusHistp100.Scale( self.p100top500ScaleFactor)
-                #minusHistp100.Scale(self.p100top500ScaleFactor)
-                plusHistp100.Scale( self.p10top500ScaleFactor)
-                minusHistp100.Scale(self.p10top500ScaleFactor)
-
-                histPrefix = "%s%s"%(self.histName,"PlusCurve")
-                plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-                histPrefix = "%s%s"%(self.histName,"MinusCurve")
-                minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-                # plusHistp500.Scale( 1./self.p100top500ScaleFactor)
-                # minusHistp500.Scale(1./self.p100top500ScaleFactor)
-                plusHistp500.Scale( self.p100top500ScaleFactor)
-                minusHistp500.Scale(self.p100top500ScaleFactor)
-
-                plusHist  = plusHistp500.Clone("%s%s_combined_%sBias%03d"%(self.histName,"PlusCurve",
-                                                                           biasChange,
-                                                                           biasBin))
-                plusHist.Add(plusHistp100)
-
-                minusHist = minusHistp500.Clone("%s%s_combined_%sBias%03d"%(self.histName,"MinusCurve",
-                                                                            biasChange,
-                                                                            biasBin))
-                minusHist.Add(minusHistp100)
+                histSuffix = "{:s}Bias{:03d}".format(biasChange,biasBin)
+                cloneFmt   = "{:s}{:s}_combined_"+"{:s}Bias{:03d}".format(biasChange, biasBin)
+                (plusHist, minusHist) = self.mcManager.getMCHistogram(self.etaphi, self.histName, histSuffix, cloneFmt)
 
                 ## for positive injected bias
                 index  = self.nBiasBins/self.stepsize+1+step
@@ -585,42 +479,8 @@ class endpointStudy(object):
             pass
         else:
             histSuffix = ""
-            histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            plusHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            minusHistp10 = self.getHistogram(self.p10InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            #plusHistp10.Scale( self.p10top500ScaleFactor)
-            #minusHistp10.Scale(self.p10top500ScaleFactor)
-
-            histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            plusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            minusHistp100 = self.getHistogram(self.p100InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            #plusHistp100.Scale( self.p100top500ScaleFactor)
-            #minusHistp100.Scale(self.p100top500ScaleFactor)
-            plusHistp100.Scale( self.p10top500ScaleFactor)
-            minusHistp100.Scale(self.p10top500ScaleFactor)
-
-            histPrefix = "%s%s"%(self.histName,"PlusCurve")
-            plusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            histPrefix = "%s%s"%(self.histName,"MinusCurve")
-            minusHistp500 = self.getHistogram(self.p500InFile,self.etaphi,histPrefix,histSuffix,"",self.debug)
-
-            # plusHistp500.Scale( 1./self.p100top500ScaleFactor)
-            # minusHistp500.Scale(1./self.p100top500ScaleFactor)
-            plusHistp500.Scale( self.p100top500ScaleFactor)
-            minusHistp500.Scale(self.p100top500ScaleFactor)
-
-            plusHist  = plusHistp500.Clone("%s%s_combined"%(self.histName,"PlusCurve"))
-            plusHist.Add(plusHistp100)
-
-            minusHist = minusHistp500.Clone("%s%s_combined"%(self.histName,"MinusCurve"))
-            minusHist.Add(minusHistp100)
+            cloneFmt   = "{:s}{:s}_combined_NoBias"
+            (plusHist, minusHist) = self.mcManager.getMCHistogram(self.etaphi, self.histName, histSuffix, cloneFmt)
 
             index   = self.nBiasBins/self.stepsize
             biasBin = 0
